@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
-export default function createroom() {
-  return (
-    <div>createroom</div>
-  )
+export default function CreateRoom() {
+  return <div>createroom</div>;
 }

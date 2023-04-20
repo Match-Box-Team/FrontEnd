@@ -1,10 +1,5 @@
-import React, { Component } from 'react'
+import React from 'react';
 
-export default class watchgame extends Component {
-  render() {
-    return (
-      <div>watchgame</div>
-    )
-  }
+export default function WatchGame() {
+  return <div>watchgame</div>;
 }
-

@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
-export default function setroom() {
-  return (
-    <div>setroom</div>
-  )
+export default function SetRoom() {
+  return <div>setroom</div>;
 }
