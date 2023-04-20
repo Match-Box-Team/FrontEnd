@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
-export default function bannedlist() {
-  return (
-    <div>bannedlist</div>
-  )
+export default function BannedList() {
+  return <div>bannedlist</div>;
 }

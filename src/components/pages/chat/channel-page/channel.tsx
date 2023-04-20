@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
-export default function channel() {
-  return (
-    <div>channel</div>
-  )
+export default function Channel() {
+  return <div>channel</div>;
 }

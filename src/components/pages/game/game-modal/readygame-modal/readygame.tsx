@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
-export default function readygame() {
-  return (
-    <div>readygame</div>
-  )
+export default function ReadyGame() {
+  return <div>readygame</div>;
 }

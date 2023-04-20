@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
-export default function buygame() {
-  return (
-    <div>buygame</div>
-  )
+export default function Buygame() {
+  return <div>buygame</div>;
 }
