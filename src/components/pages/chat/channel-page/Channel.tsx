@@ -2,13 +2,14 @@ import React from 'react';
 import Layout from '../../../commons/layout/Layout';
 
 export default function Channel() {
-  return    ( 
+  return (
     <Layout>
       <div>Channel</div>
-    </Layout>);
-  }
-  
-  /*
+    </Layout>
+  );
+}
+
+/*
     Header와 Footer를 넣었을 떄
     <Layout Header={<Header/> Footer={<Footer>}}>
     {Contents}

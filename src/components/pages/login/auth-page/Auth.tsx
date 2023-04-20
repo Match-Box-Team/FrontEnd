@@ -2,10 +2,11 @@ import React from 'react';
 import Layout from '../../../commons/layout/Layout';
 
 export default function Auth() {
-  return    ( 
-  <Layout>
-    <div>Auth</div>
-  </Layout>);
+  return (
+    <Layout>
+      <div>Auth</div>
+    </Layout>
+  );
 }
 
 /*
