@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
-export default function matching() {
-  return (
-    <div>matching</div>
-  )
+export default function Matching() {
+  return <div>matching</div>;
 }

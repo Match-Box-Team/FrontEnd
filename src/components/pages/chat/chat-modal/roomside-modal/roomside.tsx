@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
-export default function roomside() {
-  return (
-    <div>roomside</div>
-  )
+export default function RoomSide() {
+  return <div>roomside</div>;
 }

@@ -1,7 +1,5 @@
-import React from 'react'
+import React from 'react';
 
-export default function popup() {
-  return (
-    <div>popup</div>
-  )
+export default function Popup() {
+  return <div>popup</div>;
 }
