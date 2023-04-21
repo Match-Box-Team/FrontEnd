@@ -1,24 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
 import Footer from '../../../commons/footer/Footer';
+import SetRoom from '../chat-modal/setroom-modal/SetRoom';
 
 export default function ChatRoom() {
-  return (
-    <Layout>
-      <div>ChatRoom</div>
-    </Layout>
-  );
-}
+  const [isOpenSetRoomModal, setIsOpenSetRoomModal] = useState<boolean>(false);
+  const handleClickModal = () => {
+    setIsOpenSetRoomModal(!isOpenSetRoomModal);
+  };
 
-/*
-    Header와 Footer를 넣었을 떄
-    return (
+  return (
     <Layout
       Header={<Header title="Channel" channelBurger backPath="/chat/channel" />}
       Footer={<Footer tab="channel" />}
     >
-      <div>Chatroom</div>
+      <div>ChatRoom</div>
+      <SetRoom
+        isOpenSetRoomModal={isOpenSetRoomModal}
+        handleClickModal={handleClickModal}
+      />
     </Layout>
   );
-*/
+}
