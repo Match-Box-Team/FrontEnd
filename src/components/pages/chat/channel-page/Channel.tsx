@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 import Modal from 'react-modal';
-import { Link } from 'react-router-dom';
-import { ModifierFlags } from 'typescript';
 import Layout from '../../../commons/layout/Layout';
+import ChannelList from './sub-components/ChannelList';
 
 const BG = styled.div`
   display: flex-start;
@@ -16,40 +14,6 @@ const BG = styled.div`
   background-color: #f0f0f0;
   padding: 3rem 0;
   position: relative;
-`;
-
-const ChannelList = styled.ul`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  gap: 0;
-`;
-
-const List = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 5rem;
-  background-color: #ffffff;
-  border: 1px solid #d8d8d8;
-`;
-
-const ChannelItem = styled.li`
-  width: 100%;
-  text-align: start;
-  margin-left: 2rem;
-`;
-
-const RoomTitle = styled.span`
-  font-size: 1.5rem;
-  color: #000000;
-  text-decoration: none; /* 밑줄 없애기 */
-  color: inherit; /* 클릭 후 색상 변화 없애기 */
 `;
 
 const AddChannelButton = styled.button`
@@ -106,7 +70,6 @@ interface IChannel {
 }
 
 export default function Channel() {
-  const [channels, setChannels] = useState<IChannel[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const bgRef = useRef(null);
 
@@ -118,70 +81,17 @@ export default function Channel() {
     setIsModalOpen(false);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = process.env.REACT_APP_TOKEN;
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-      };
-
-      try {
-        const response = await axios.get(
-          'http://127.0.0.1:3000/channels',
-          config,
-        );
-        setChannels(response.data.channel);
-        console.log(response.data.channel);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   return (
     <Layout>
       <BG ref={bgRef}>
         <h1>Channels</h1>
-        <ChannelList>
-          {channels.map(channel => (
-            <List key={channel.channelId}>
-              <ChannelItem>
-                <Link
-                  to={`/chat/channel/${channel.channelId}`}
-                  style={{
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    display: 'block',
-                    width: '100%',
-                    height: '100%',
-                  }}
-                >
-                  <RoomTitle>
-                    {channel.channelName} (현재인원: {channel.count}명){' '}
-                  </RoomTitle>
-                </Link>
-              </ChannelItem>
-            </List>
-          ))}
-        </ChannelList>
+        <ChannelList />
         <AddChannelButton onClick={openModal}>+</AddChannelButton>
         <Modal
           isOpen={isModalOpen}
           onRequestClose={closeModal}
           ariaHideApp={false}
-          style={
-            channels.length && channels.length > 3
-              ? {
-                  ...customModalStyle,
-                  content: {
-                    ...customModalStyle.content,
-                    width: '412px',
-                  },
-                }
-              : customModalStyle
-          }
+          style={customModalStyle}
         >
           <CloseModalButton onClick={closeModal}>&times;</CloseModalButton>
           {/* 모달 내용, 채널 생성 폼 */}
