@@ -2,13 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useSetRecoilState } from 'recoil';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../../../../commons/layout/Layout';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { PublicToggleButton } from './PublicToggleButton';
-
-export const accessToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdlNGY4MDNkLTE1MDctNDMwNS05OTY1LTRlZDkxMzVjYTJkNyIsImlhdCI6MTY4MjA3NDYwNCwiZXhwIjoxNjgyMTYxMDA0fQ.Iw7bzMfIsa-2KODs5MU0ai1LphHBj_zxJD678CjnYDE';
 
 interface Props {
   isOpenModal: boolean;
@@ -26,6 +23,7 @@ const initialFormValues: FormValues = {
 };
 
 export default function CreateRoom({ isOpenModal, handleClickModal }: Props) {
+  const navigate = useNavigate();
   const setChannelIdState = useSetRecoilState(channelIdState);
 
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
@@ -57,7 +55,7 @@ export default function CreateRoom({ isOpenModal, handleClickModal }: Props) {
       setChannelIdState(response.data.channelId);
       const to = `/chat/channel/${response.data.channelId}`;
       // console.log(to);
-      <Link to={to} />;
+      navigate(to);
     } catch (error) {
       console.log(error);
     }
