@@ -1,6 +1,6 @@
 import { useQuery } from 'react-query';
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import { getFriendList } from '../../../../../api/Channel';
+import { getFriendList } from './Channel';
 
 interface IFriend {
   friendId: string;
@@ -14,6 +14,8 @@ interface IFriend {
 }
 
 // 코드 복붙해서 테스트해보세요
+// 코드를 테스트하기 전에 api폴더에 index.ts에 토큰을 넣어야 합니다
+// 그래야 서버 401 안 뜹니다
 export default function Example() {
   const { isLoading, isError, data } = useQuery<IFriend[], AxiosError>(
     'friends',
