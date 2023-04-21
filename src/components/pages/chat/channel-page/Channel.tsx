@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '../../../commons/layout/Layout';
+import CreateRoom from '../chat-modal/createroom-modal/Createroom';
 
 export default function Channel() {
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const handleClickModal = () => {
+    setIsOpenModal(!isOpenModal);
+  };
+
   return (
     <Layout>
-      <div>Channel</div>
+      <CreateRoom
+        isOpenModal={isOpenModal}
+        handleClickModal={handleClickModal}
+      />
     </Layout>
   );
 }
