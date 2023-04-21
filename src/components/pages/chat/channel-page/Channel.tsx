@@ -5,15 +5,16 @@ import Header from '../../../commons/header/Header';
 import CreateRoom from '../chat-modal/createroom-modal/Createroom';
 
 export default function Channel() {
-  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [isOpenCreateRoomModal, setIsOpenCreateRoomModal] =
+    useState<boolean>(false);
   const handleClickModal = () => {
-    setIsOpenModal(!isOpenModal);
+    setIsOpenCreateRoomModal(!isOpenCreateRoomModal);
   };
 
   return (
     <Layout>
       <CreateRoom
-        isOpenModal={isOpenModal}
+        isOpenCreateRoomModal={isOpenCreateRoomModal}
         handleClickModal={handleClickModal}
       />
     </Layout>

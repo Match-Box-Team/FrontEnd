@@ -8,7 +8,7 @@ import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { PublicToggleButton } from './PublicToggleButton';
 
 interface Props {
-  isOpenModal: boolean;
+  isOpenCreateRoomModal: boolean;
   handleClickModal: () => void;
 }
 
@@ -22,7 +22,10 @@ const initialFormValues: FormValues = {
   password: '',
 };
 
-export default function CreateRoom({ isOpenModal, handleClickModal }: Props) {
+export default function CreateRoom({
+  isOpenCreateRoomModal,
+  handleClickModal,
+}: Props) {
   const navigate = useNavigate();
   const setChannelIdState = useSetRecoilState(channelIdState);
 
@@ -69,7 +72,7 @@ export default function CreateRoom({ isOpenModal, handleClickModal }: Props) {
   return (
     <Layout>
       <XButton onClick={handleClickModal}>모달 생성</XButton>
-      {isOpenModal && (
+      {isOpenCreateRoomModal && (
         <ModalContainer>
           <XButton onClick={handleClickModal}>X</XButton>
           <CreateChannelText>채널 만들기</CreateChannelText>
