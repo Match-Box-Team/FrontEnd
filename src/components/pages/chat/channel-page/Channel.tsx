@@ -12,7 +12,11 @@ export default function Channel() {
   };
 
   return (
-    <Layout>
+    <Layout
+      Header={<Header title="Channel" channelToggle toggleMove />}
+      Footer={<Footer tab="channel" />}
+    >
+      <div>Channel</div>
       <CreateRoom
         isOpenCreateRoomModal={isOpenCreateRoomModal}
         handleClickModal={handleClickModal}

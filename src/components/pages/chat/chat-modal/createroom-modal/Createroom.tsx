@@ -57,7 +57,6 @@ export default function CreateRoom({
       handleClickModal();
       setChannelIdState(response.data.channelId);
       const to = `/chat/channel/${response.data.channelId}`;
-      // console.log(to);
       navigate(to);
     } catch (error) {
       console.log(error);
@@ -70,7 +69,7 @@ export default function CreateRoom({
   };
 
   return (
-    <Layout>
+    <>
       <XButton onClick={handleClickModal}>모달 생성</XButton>
       {isOpenCreateRoomModal && (
         <ModalContainer>
@@ -118,7 +117,7 @@ export default function CreateRoom({
           </FormDiv>
         </ModalContainer>
       )}
-    </Layout>
+    </>
   );
 }
 
@@ -134,7 +133,7 @@ const ModalContainer = styled.div`
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
 
   position: absolute;
-  width: 80%;
+  width: 32rem;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
