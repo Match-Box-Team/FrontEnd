@@ -50,6 +50,7 @@ module.exports = {
         peerDependencies: false,
       },
     ],
+    'no-nested-ternary': 'off',
     'no-use-before-define': 'off', // 정의되기 전에 사용하는 것을 금지하는 규칙을 끈다
     'import/extensions': 'off', // 모듈 import 시 파일 확장자를 생략할 수 있도록 한다
     'import/no-unresolved': 'off', // 경로가 올바르게 해결되지 않는 모듈 import를 허용한다
