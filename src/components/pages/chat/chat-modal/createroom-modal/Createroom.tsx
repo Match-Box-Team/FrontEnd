@@ -49,7 +49,7 @@ export default function CreateRoom({ isOpenModal, handleClickModal }: Props) {
           isPublic,
         },
         {
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
         },
       );
       setFormValues(initialFormValues);
