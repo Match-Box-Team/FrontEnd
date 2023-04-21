@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import axios from 'axios';
 import styled from 'styled-components';
+import { AiOutlineSearch } from 'react-icons/ai';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import {
   ChatFormSubmitButton,
@@ -69,7 +70,17 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
         <ModalContainer>
           <XButton onClick={handleClickModal}>X</XButton>
           <ChatModalMainText>초대하기</ChatModalMainText>
-          {/* <ChatFormSubmitButton type="submit">확인하기</ChatFormSubmitButton> */}
+          <InviteInput
+            type="text"
+            name="password"
+            value={formValues.nickname}
+            onChange={handleChange}
+            required
+          />
+          <AiOutlineSearch />
+          <div>
+            <ChatFormSubmitButton type="submit">확인하기</ChatFormSubmitButton>
+          </div>
         </ModalContainer>
       )}
     </>
@@ -84,4 +95,10 @@ export const OpenButton = styled.strong`
   color: #c2c2c2;
   cursor: pointer;
   font-weight: bold;
+`;
+
+const InviteInput = styled.input`
+  background: #e6e6e6;
+  border-radius: 30px;
+  border: none;
 `;
