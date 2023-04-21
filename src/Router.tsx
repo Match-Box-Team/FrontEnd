@@ -22,7 +22,7 @@ function Router() {
         <Route path="/login" element={<Login />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/chat/channel" element={<Channel />} />
-        <Route path="/chat/room/:id" element={<ChatRoom />} />
+        <Route path="/chat/channel/:id" element={<ChatRoom />} />
         <Route path="/chat/mymsg" element={<MyMsg />} />
         <Route path="/friend/add" element={<AddFriend />} />
         <Route path="/friend/list" element={<FriendList />} />
