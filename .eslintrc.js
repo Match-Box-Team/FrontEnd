@@ -50,16 +50,16 @@ module.exports = {
         peerDependencies: false,
       },
     ],
+    'no-nested-ternary': 'off',
     'no-use-before-define': 'off', // 정의되기 전에 사용하는 것을 금지하는 규칙을 끈다
     'import/extensions': 'off', // 모듈 import 시 파일 확장자를 생략할 수 있도록 한다
     'import/no-unresolved': 'off', // 경로가 올바르게 해결되지 않는 모듈 import를 허용한다
-    'no-restricted-exports': 'off', // 특정 export를 제한하는 규칙을 끈다
     'import/prefer-default-export': 'off', // 단일 export가 있는 경우 기본 export를 선호하는 규칙을 끈다
     'react-hooks/rules-of-hooks': 'error', // 훅의 규칙을 준수하도록 강제한다 (에러로 표시)
     'react-hooks/exhaustive-deps': 'warn', // 훅의 의존성을 검사하고 경고를 표시한다
     'react/jsx-props-no-spreading': 'off', // JSX 속성 전개를 허용한다
-    'no-unused-vars': 'off', // 사용하지 않는 변수를 허용한다 (TypeScript ESLint 규칙에서 처리)
-    '@typescript-eslint/no-unused-vars': ['error'], // 사용하지 않는 변수를 에러로 표시한다
+    'no-unused-vars': 'off', // 사용하지 않는 변수를 허용한다
+    '@typescript-eslint/no-unused-vars': 'off', // 사용하지 않는 변수를 허용한다 (TypeScript)
     'react/require-default-props': 'off',
     '@typescript-eslint/no-use-before-define': ['error'], // TypeScript에서 정의되기 전에 사용하는 것을 에러로 표시한다
     'react/jsx-filename-extension': [
