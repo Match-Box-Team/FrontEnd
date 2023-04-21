@@ -5,6 +5,7 @@ import axios from 'axios';
 
 const Outline = styled.ul`
   display: flex;
+  margin-top: 0;
   flex-direction: column;
   align-items: center;
   list-style-type: none;

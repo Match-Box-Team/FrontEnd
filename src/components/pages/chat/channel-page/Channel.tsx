@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
-import { RecoilRoot, useRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
-<<<<<<< HEAD
 import ChannelList from './sub-components/ChannelList';
 import { isModalOpenState } from '../../../../recoil/locals/chat/atoms/atom';
 import CreateChannelModal from './sub-components/CreateChannel';
+import Footer from '../../../commons/footer/Footer';
+import Header from '../../../commons/header/Header';
 
 const BG = styled.div`
   display: flex-start;
@@ -15,8 +16,9 @@ const BG = styled.div`
   justify-content: center;
   width: 100%;
   height: 100%;
-  background-color: #f0f0f0;
-  padding: 3rem 0;
+  background-color: #ffffff;
+  padding-left: 3rem 0;
+  padding-right: 3rem 0;
   position: relative;
 `;
 
@@ -24,7 +26,7 @@ const AddChannelButton = styled.button`
   position: absolute;
   bottom: 2rem;
   right: 2rem;
-  background-color: #3ab5c5;
+  background-color: #6d77af;
   border: none;
   border-radius: 50%;
   width: 60px;
@@ -36,10 +38,6 @@ const AddChannelButton = styled.button`
   font-size: 3rem;
   color: #ffffff;
 `;
-=======
-import Footer from '../../../commons/footer/Footer';
-import Header from '../../../commons/header/Header';
->>>>>>> develop
 
 export default function Channel() {
   // const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,9 +52,11 @@ export default function Channel() {
   };
 
   return (
-    <Layout>
+    <Layout
+      Header={<Header title="Channel" channelToggle toggleMove />}
+      Footer={<Footer tab="channel" />}
+    >
       <BG>
-        <h1>Channels</h1>
         <ChannelList />
         <AddChannelButton onClick={openModal}>+</AddChannelButton>
         <CreateChannelModal onRequestClose={closeModal} />
