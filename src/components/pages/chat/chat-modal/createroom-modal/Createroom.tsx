@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useSetRecoilState } from 'recoil';
+import { Link } from 'react-router-dom';
 import Layout from '../../../../commons/layout/Layout';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { PublicToggleButton } from './PublicToggleButton';
-// import { Link } from 'react-router-dom';
 
 export const accessToken =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdlNGY4MDNkLTE1MDctNDMwNS05OTY1LTRlZDkxMzVjYTJkNyIsImlhdCI6MTY4MjA3NDYwNCwiZXhwIjoxNjgyMTYxMDA0fQ.Iw7bzMfIsa-2KODs5MU0ai1LphHBj_zxJD678CjnYDE';
@@ -54,9 +54,10 @@ export default function CreateRoom({ isOpenModal, handleClickModal }: Props) {
       );
       setFormValues(initialFormValues);
       handleClickModal();
-      console.log(response.data);
       setChannelIdState(response.data.channelId);
-      // <Link to="/chat/room/:id" />;
+      const to = `/chat/channel/${response.data.channelId}`;
+      // console.log(to);
+      <Link to={to} />;
     } catch (error) {
       console.log(error);
     }
