@@ -24,15 +24,3 @@ export default function Channel() {
     </Layout>
   );
 }
-
-/*
-    Header와 Footer를 넣었을 떄
-    return (
-    <Layout
-      Header={<Header title="Channel" channelToggle toggleMove />}
-      Footer={<Footer tab="channel" />}
-    >
-      <div>Channel</div>
-    </Layout>
-  );
-*/
