@@ -1,5 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { RecoilRoot } from 'recoil';
 import Router from './Router';
 import GlobalStyle from './styles/GlobalStyle';
 
@@ -9,8 +10,10 @@ function App() {
   return (
     <div>
       <QueryClientProvider client={queryClient}>
-        <GlobalStyle />
-        <Router />
+        <RecoilRoot>
+          <GlobalStyle />
+          <Router />
+        </RecoilRoot>
       </QueryClientProvider>
     </div>
   );
