@@ -70,7 +70,7 @@ export default function SetRoom({
 
   return (
     <>
-      <XButton onClick={handleClickModal}>모달 생성</XButton>;
+      <XButton onClick={handleClickModal}>채팅방 설정 모달 생성</XButton>;
       {isOpenSetRoomModal && (
         <ModalContainer>
           <XButton onClick={handleClickModal}>X</XButton>
