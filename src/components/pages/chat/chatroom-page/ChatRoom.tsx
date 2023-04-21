@@ -1,5 +1,7 @@
 import React from 'react';
 import Layout from '../../../commons/layout/Layout';
+import Header from '../../../commons/header/Header';
+import Footer from '../../../commons/footer/Footer';
 
 export default function ChatRoom() {
   return (
@@ -11,7 +13,12 @@ export default function ChatRoom() {
 
 /*
     Header와 Footer를 넣었을 떄
-    <Layout Header={<Header/> Footer={<Footer>}}>
-    {Contents}
-    </Layout>);
-  */
+    return (
+    <Layout
+      Header={<Header title="Channel" channelBurger backPath="/chat/channel" />}
+      Footer={<Footer tab="channel" />}
+    >
+      <div>Chatroom</div>
+    </Layout>
+  );
+*/

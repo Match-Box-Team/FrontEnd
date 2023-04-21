@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Modal from 'react-modal';
 import { RecoilRoot, useRecoilState } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
+<<<<<<< HEAD
 import ChannelList from './sub-components/ChannelList';
 import { isModalOpenState } from '../../../../recoil/locals/chat/atoms/atom';
 import CreateChannelModal from './sub-components/CreateChannel';
@@ -35,6 +36,10 @@ const AddChannelButton = styled.button`
   font-size: 3rem;
   color: #ffffff;
 `;
+=======
+import Footer from '../../../commons/footer/Footer';
+import Header from '../../../commons/header/Header';
+>>>>>>> develop
 
 export default function Channel() {
   // const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,7 +67,12 @@ export default function Channel() {
 
 /*
     Header와 Footer를 넣었을 떄
-    <Layout Header={<Header/> Footer={<Footer>}}>
-    {Contents}
-    </Layout>);
-  */
+    return (
+    <Layout
+      Header={<Header title="Channel" channelToggle toggleMove />}
+      Footer={<Footer tab="channel" />}
+    >
+      <div>Channel</div>
+    </Layout>
+  );
+*/

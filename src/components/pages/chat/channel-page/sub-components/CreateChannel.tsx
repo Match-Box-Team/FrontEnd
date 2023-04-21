@@ -1,12 +1,10 @@
-// CreateChannelModal.tsx
-
-import React from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-modal';
 import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
+import axios from 'axios';
 import { isModalOpenState } from '../../../../../recoil/locals/chat/atoms/atom';
 
-// ... (Styled components declarations and customModalStyle)
 const CloseModalButton = styled.button`
   position: absolute;
   top: 1rem;
@@ -43,6 +41,32 @@ interface CreateChannelModalProps {
 
 function CreateChannelModal({ onRequestClose }: CreateChannelModalProps) {
   const isOpen = useRecoilValue(isModalOpenState);
+  const [channelName, setChannelName] = useState('');
+  const [password, setPassword] = useState('');
+  const [isPublic, setIsPublic] = useState(true);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const token = process.env.REACT_APP_TOKEN;
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
+    const data = {
+      channelName,
+      password: isPublic ? undefined : password,
+      isPublic,
+    };
+
+    try {
+      await axios.post('http://127.0.0.1:3000/channels', data, config);
+      onRequestClose();
+      window.location.reload(); // 채널 목록 갱신을 위해 페이지 새로고침
+    } catch (error) {
+      console.error('Error creating channel:', error);
+    }
+  };
 
   return (
     <Modal
@@ -51,8 +75,49 @@ function CreateChannelModal({ onRequestClose }: CreateChannelModalProps) {
       ariaHideApp={false}
       style={customModalStyle}
     >
-      <CloseModalButton onClick={onRequestClose}>&times;</CloseModalButton>
-      {/* 모달 내용, 채널 생성 폼 */}
+      <form onSubmit={handleSubmit}>
+        <CloseModalButton onClick={onRequestClose}>&times;</CloseModalButton>
+        <div>
+          <label htmlFor="channelName">
+            채널 이름:
+            <input
+              type="text"
+              id="channelName"
+              name="channelName"
+              value={channelName}
+              onChange={event => setChannelName(event.target.value)}
+              required
+            />
+          </label>
+        </div>
+        <div>
+          <label htmlFor="isPublic">
+            공개 여부:
+            <input
+              type="checkbox"
+              id="isPublic"
+              name="isPublic"
+              checked={isPublic}
+              onChange={event => setIsPublic(event.target.checked)}
+            />
+          </label>
+        </div>
+        <div>
+          <label htmlFor="password">
+            비밀번호:
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={password}
+              onChange={event => setPassword(event.target.value)}
+              required={!isPublic}
+            />
+          </label>
+        </div>
+        <button type="submit">채널 생성</button>
+        <CloseModalButton onClick={onRequestClose}>&times;</CloseModalButton>
+      </form>
     </Modal>
   );
 }
