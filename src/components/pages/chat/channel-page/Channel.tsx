@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import Modal from 'react-modal';
@@ -15,6 +15,7 @@ const BG = styled.div`
   height: 100%;
   background-color: #f0f0f0;
   padding: 3rem 0;
+  position: relative;
 `;
 
 const ChannelList = styled.ul`
@@ -52,7 +53,7 @@ const RoomTitle = styled.span`
 `;
 
 const AddChannelButton = styled.button`
-  position: fixed;
+  position: absolute;
   bottom: 2rem;
   right: 2rem;
   background-color: #3ab5c5;
@@ -64,9 +65,39 @@ const AddChannelButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 3rem;
   color: #ffffff;
 `;
+
+const CloseModalButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+`;
+
+const listWidth = `100%`;
+
+const customModalStyle: Modal.Styles = {
+  ...Modal.defaultStyles,
+  content: {
+    ...Modal.defaultStyles.content,
+    width: '80%',
+    maxWidth: '330px',
+    height: '40%',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: '#ffffff',
+    border: '1px solid #d8d8d8',
+    borderRadius: '10px',
+    padding: '2rem',
+    boxSizing: 'border-box',
+  },
+};
 
 interface IChannel {
   channelId: string;
@@ -77,6 +108,7 @@ interface IChannel {
 export default function Channel() {
   const [channels, setChannels] = useState<IChannel[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const bgRef = useRef(null);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -110,7 +142,7 @@ export default function Channel() {
 
   return (
     <Layout>
-      <BG>
+      <BG ref={bgRef}>
         <h1>Channels</h1>
         <ChannelList>
           {channels.map(channel => (
@@ -139,7 +171,19 @@ export default function Channel() {
           isOpen={isModalOpen}
           onRequestClose={closeModal}
           ariaHideApp={false}
+          style={
+            channels.length && channels.length > 3
+              ? {
+                  ...customModalStyle,
+                  content: {
+                    ...customModalStyle.content,
+                    width: '412px',
+                  },
+                }
+              : customModalStyle
+          }
         >
+          <CloseModalButton onClick={closeModal}>&times;</CloseModalButton>
           {/* 모달 내용, 채널 생성 폼 */}
         </Modal>
       </BG>
