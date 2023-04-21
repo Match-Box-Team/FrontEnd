@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Modal from 'react-modal';
+import { RecoilRoot, useRecoilState } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import ChannelList from './sub-components/ChannelList';
+import { isModalOpenState } from '../../../../recoil/locals/chat/atoms/atom';
+import CreateChannelModal from './sub-components/CreateChannel';
 
 const BG = styled.div`
   display: flex-start;
@@ -33,45 +36,9 @@ const AddChannelButton = styled.button`
   color: #ffffff;
 `;
 
-const CloseModalButton = styled.button`
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
-`;
-
-const listWidth = `100%`;
-
-const customModalStyle: Modal.Styles = {
-  ...Modal.defaultStyles,
-  content: {
-    ...Modal.defaultStyles.content,
-    width: '80%',
-    maxWidth: '330px',
-    height: '40%',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    backgroundColor: '#ffffff',
-    border: '1px solid #d8d8d8',
-    borderRadius: '10px',
-    padding: '2rem',
-    boxSizing: 'border-box',
-  },
-};
-
-interface IChannel {
-  channelId: string;
-  channelName: string;
-  count: number;
-}
-
 export default function Channel() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const bgRef = useRef(null);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useRecoilState(isModalOpenState);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -83,19 +50,11 @@ export default function Channel() {
 
   return (
     <Layout>
-      <BG ref={bgRef}>
+      <BG>
         <h1>Channels</h1>
         <ChannelList />
         <AddChannelButton onClick={openModal}>+</AddChannelButton>
-        <Modal
-          isOpen={isModalOpen}
-          onRequestClose={closeModal}
-          ariaHideApp={false}
-          style={customModalStyle}
-        >
-          <CloseModalButton onClick={closeModal}>&times;</CloseModalButton>
-          {/* 모달 내용, 채널 생성 폼 */}
-        </Modal>
+        <CreateChannelModal onRequestClose={closeModal} />
       </BG>
     </Layout>
   );

@@ -1,1 +1,6 @@
-export const a = 1;
+import { atom } from 'recoil';
+
+export const isModalOpenState = atom({
+  key: 'isModalOpenState',
+  default: false,
+});
