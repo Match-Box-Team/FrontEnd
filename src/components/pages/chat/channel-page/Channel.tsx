@@ -8,7 +8,7 @@ import { isModalOpenState } from '../../../../recoil/locals/chat/atoms/atom';
 import CreateChannelModal from './sub-components/CreateChannel';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
-import CreateRoom from '../chat-modal/createroom-modal/Createroom';
+import CreateRoomIcon from '../../../../assets/icon/create-room-icon.svg';
 
 const BG = styled.div`
   display: flex-start;
@@ -40,6 +40,14 @@ const AddChannelButton = styled.button`
   color: #ffffff;
 `;
 
+const Icon = styled.img`
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  flex: none;
+  flex-grow: 0;
+`;
+
 export default function Channel() {
   const [isModalOpen, setIsModalOpen] = useRecoilState(isModalOpenState);
 
@@ -58,7 +66,9 @@ export default function Channel() {
     >
       <BG>
         <ChannelList />
-        <AddChannelButton onClick={openModal}>+</AddChannelButton>
+        <AddChannelButton onClick={openModal}>
+          <Icon src={CreateRoomIcon} />
+        </AddChannelButton>
         <CreateChannelModal onRequestClose={closeModal} />
       </BG>
     </Layout>
