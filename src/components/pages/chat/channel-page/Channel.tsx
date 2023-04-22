@@ -4,11 +4,10 @@ import Modal from 'react-modal';
 import { useRecoilState } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import ChannelList from './sub-components/ChannelList';
-import { isModalOpenState } from '../../../../recoil/locals/chat/atoms/atom';
-import CreateChannelModal from './sub-components/CreateChannel';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
 import CreateRoomIcon from '../../../../assets/icon/create-room-icon.svg';
+import CreateRoom from '../chat-modal/createroom-modal/Createroom';
 
 const BG = styled.div`
   display: flex-start;
@@ -49,14 +48,19 @@ const Icon = styled.img`
 `;
 
 export default function Channel() {
-  const [isModalOpen, setIsModalOpen] = useRecoilState(isModalOpenState);
+  const [isOpenCreateRoomModal, setIsOpenCreateRoomModal] =
+    useState<boolean>(false);
+
+  const handleClickModal = () => {
+    setIsOpenCreateRoomModal(!isOpenCreateRoomModal);
+  };
 
   const openModal = () => {
-    setIsModalOpen(true);
+    setIsOpenCreateRoomModal(true);
   };
 
   const closeModal = () => {
-    setIsModalOpen(false);
+    setIsOpenCreateRoomModal(false);
   };
 
   return (
@@ -69,7 +73,10 @@ export default function Channel() {
         <AddChannelButton onClick={openModal}>
           <Icon src={CreateRoomIcon} />
         </AddChannelButton>
-        <CreateChannelModal onRequestClose={closeModal} />
+        <CreateRoom
+          isOpenCreateRoomModal={isOpenCreateRoomModal}
+          handleClickModal={handleClickModal}
+        />
       </BG>
     </Layout>
   );
@@ -86,6 +93,7 @@ export default function Channel() {
     </Layout>
   );
 */
+
 // const [isOpenCreateRoomModal, setIsOpenCreateRoomModal] =
 // useState<boolean>(false);
 // const handleClickModal = () => {
