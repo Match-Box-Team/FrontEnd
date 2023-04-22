@@ -4,3 +4,7 @@ export const isModalOpenState = atom({
   key: 'isModalOpenState',
   default: false,
 });
+export const channelIdState = atom({
+  key: 'channelIdState',
+  default: '',
+});

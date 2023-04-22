@@ -13,6 +13,8 @@ const Outline = styled.ul`
   margin: 0;
   width: 100%;
   gap: 0;
+  height: inherit;
+  overflow-y: auto;
 `;
 
 const List = styled.div`
@@ -29,6 +31,8 @@ const ChannelItem = styled.li`
   width: 100%;
   text-align: start;
   margin-left: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 `;
 
 const RoomTitle = styled.span`

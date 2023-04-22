@@ -8,6 +8,7 @@ import { isModalOpenState } from '../../../../recoil/locals/chat/atoms/atom';
 import CreateChannelModal from './sub-components/CreateChannel';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
+import CreateRoom from '../chat-modal/createroom-modal/Createroom';
 
 const BG = styled.div`
   display: flex-start;
@@ -15,7 +16,7 @@ const BG = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
+  height: 85vh;
   background-color: #ffffff;
   padding-left: 3rem 0;
   padding-right: 3rem 0;
@@ -40,7 +41,6 @@ const AddChannelButton = styled.button`
 `;
 
 export default function Channel() {
-  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useRecoilState(isModalOpenState);
 
   const openModal = () => {
@@ -76,3 +76,16 @@ export default function Channel() {
     </Layout>
   );
 */
+// const [isOpenCreateRoomModal, setIsOpenCreateRoomModal] =
+// useState<boolean>(false);
+// const handleClickModal = () => {
+// setIsOpenCreateRoomModal(!isOpenCreateRoomModal);
+// };
+
+// return (
+// <Layout>
+//   <CreateRoom
+//     isOpenCreateRoomModal={isOpenCreateRoomModal}
+//     handleClickModal={handleClickModal}
+//   />
+//   </Layout>
