@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import Modal from 'react-modal';
 import { useRecoilState } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import ChannelList from './sub-components/ChannelList';
@@ -81,29 +80,3 @@ export default function Channel() {
     </Layout>
   );
 }
-
-/*
-    Header와 Footer를 넣었을 떄
-    return (
-    <Layout
-      Header={<Header title="Channel" channelToggle toggleMove />}
-      Footer={<Footer tab="channel" />}
-    >
-      <div>Channel</div>
-    </Layout>
-  );
-*/
-
-// const [isOpenCreateRoomModal, setIsOpenCreateRoomModal] =
-// useState<boolean>(false);
-// const handleClickModal = () => {
-// setIsOpenCreateRoomModal(!isOpenCreateRoomModal);
-// };
-
-// return (
-// <Layout>
-//   <CreateRoom
-//     isOpenCreateRoomModal={isOpenCreateRoomModal}
-//     handleClickModal={handleClickModal}
-//   />
-//   </Layout>

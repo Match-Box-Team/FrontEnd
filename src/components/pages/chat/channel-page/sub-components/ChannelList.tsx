@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
+import ErrorPopup from '../../../../commons/error/ErrorPopup';
 
 const Outline = styled.ul`
   display: flex;
@@ -38,8 +41,8 @@ const ChannelItem = styled.li`
 const RoomTitle = styled.span`
   font-size: 1.5rem;
   color: #000000;
-  text-decoration: none; /* 밑줄 없애기 */
-  color: inherit; /* 클릭 후 색상 변화 없애기 */
+  text-decoration: none;
+  color: inherit;
 `;
 
 interface IChannel {
@@ -50,6 +53,7 @@ interface IChannel {
 
 export default function ChannelList() {
   const [channels, setChannels] = useState<IChannel[]>([]);
+  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
   useEffect(() => {
     const fetchData = async () => {
       const token = process.env.REACT_APP_TOKEN;
@@ -63,36 +67,38 @@ export default function ChannelList() {
           config,
         );
         setChannels(response.data.channel);
-        console.log(response.data.channel);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        setIsErrorGet(true);
       }
     };
 
     fetchData();
   }, []);
   return (
-    <Outline>
-      {channels.map(channel => (
-        <List key={channel.channelId}>
-          <ChannelItem>
-            <Link
-              to={`/chat/channel/${channel.channelId}`}
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'block',
-                width: '100%',
-                height: '100%',
-              }}
-            >
-              <RoomTitle>
-                {channel.channelName} (현재인원: {channel.count}명){' '}
-              </RoomTitle>
-            </Link>
-          </ChannelItem>
-        </List>
-      ))}
-    </Outline>
+    <>
+      <ErrorPopup message="요청을 처리할 수 없습니다." />
+      <Outline>
+        {channels.map(channel => (
+          <List key={channel.channelId}>
+            <ChannelItem>
+              <Link
+                to={`/chat/channel/${channel.channelId}`}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'block',
+                  width: '100%',
+                  height: '100%',
+                }}
+              >
+                <RoomTitle>
+                  {channel.channelName} (현재인원: {channel.count}명){' '}
+                </RoomTitle>
+              </Link>
+            </ChannelItem>
+          </List>
+        ))}
+      </Outline>
+    </>
   );
 }
