@@ -36,7 +36,7 @@ export default function SetRoom({
   handleClickModal,
 }: Props) {
   // 채널 id atom getter
-  const setChannelIdState = useRecoilValue(channelIdState);
+  const channelIdStateValue = useRecoilValue(channelIdState);
 
   // form input 초기화
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
@@ -51,7 +51,7 @@ export default function SetRoom({
     event.preventDefault();
     try {
       const response = await axios.patch(
-        `http://localhost:3000/channels/${setChannelIdState}`,
+        `http://localhost:3000/channels/${channelIdStateValue}`,
         {
           password: formValues.password,
         },
