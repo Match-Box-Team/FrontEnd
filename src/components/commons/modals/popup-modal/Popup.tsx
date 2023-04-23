@@ -10,7 +10,7 @@ export default function Popup({ onClose, children }: Props) {
   return (
     <ModalOutside onClick={onClose}>
       <ModalContainer onClick={e => e.stopPropagation()}>
-        <XButton onClick={onClose}>X</XButton>
+        <XButton onClick={onClose}>&times;</XButton>
         {children}
       </ModalContainer>
     </ModalOutside>
@@ -51,8 +51,9 @@ export const XButton = styled.strong`
   position: absolute;
   top: 0;
   right: 0.3rem;
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   color: #c2c2c2;
   cursor: pointer;
   font-weight: bold;
+  margin: 1rem;
 `;
