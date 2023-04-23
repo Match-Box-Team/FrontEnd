@@ -83,11 +83,11 @@ export default function CreateRoom({
       {isOpenCreateRoomModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>채널 만들기</ChatModalMainText>
-          <ChatFormDiv>
-            <ChatFormWarp>
-              <ChatFormContainer onSubmit={handleSubmit}>
-                <ChatFormText>채팅방 이름</ChatFormText>
-                <ChatFormInput
+          <FormDiv>
+            <FormWarp>
+              <FormContainer onSubmit={handleSubmit}>
+                <FormText>채팅방 이름</FormText>
+                <FormInput
                   type="text"
                   name="channelName"
                   value={formValues.channelName}
@@ -103,8 +103,8 @@ export default function CreateRoom({
                     type="button"
                   />
                 </RoomTypeContainer>
-                <ChatFormText>비밀번호 설정</ChatFormText>
-                <ChatFormInput
+                <FormText>비밀번호 설정</FormText>
+                <FormInput
                   type="text"
                   name="password"
                   value={formValues.password}
@@ -117,12 +117,10 @@ export default function CreateRoom({
                 <ChatFormInfoText>
                   * 비밀번호는 다시 찾을 수 없으니 잘 기억해주세요
                 </ChatFormInfoText>
-                <ChatFormSubmitButton type="submit">
-                  제출하기
-                </ChatFormSubmitButton>
-              </ChatFormContainer>
-            </ChatFormWarp>
-          </ChatFormDiv>
+                <FormSubmitButton type="submit">제출하기</FormSubmitButton>
+              </FormContainer>
+            </FormWarp>
+          </FormDiv>
         </Popup>
       )}
     </div>
@@ -135,7 +133,7 @@ export const ChatModalMainText = styled.p`
   font-weight: bolder;
 `;
 
-export const ChatFormDiv = styled.div`
+export const FormDiv = styled.div`
   border-radius: 1.6rem;
   background-color: #f4f4f4;
   width: 80%;
@@ -146,25 +144,25 @@ export const ChatFormDiv = styled.div`
   align-items: center;
 `;
 
-export const ChatFormWarp = styled.div`
+export const FormWarp = styled.div`
   padding: 0.7rem 0px;
   width: 87%;
 `;
 
-export const ChatFormContainer = styled.form`
+export const FormContainer = styled.form`
   width: 100%;
   display: flex;
   flex-direction: column;
 `;
 
-export const ChatFormText = styled.p`
-  font-size: 0.8rem;
+export const FormText = styled.p`
+  font-size: 1rem;
   align-self: flex-start;
   padding-left: 0.2rem;
 `;
 
-export const ChatFormInput = styled.input`
-  font-size: 0.8rem;
+export const FormInput = styled.input`
+  font-size: 1rem;
   align-self: flex-start;
   border: 1px solid #f4f4f4;
   border-radius: 8px;
@@ -178,7 +176,7 @@ const RoomTypeContainer = styled.div`
 `;
 
 const RoomTypeText = styled.p`
-  font-size: 0.8rem;
+  font-size: 1rem;
   align-self: flex-start;
   margin-bottom: 0;
   padding-left: 0.2rem;
@@ -189,16 +187,20 @@ export const ChatFormInfoText = styled.p`
   margin-top: 5px;
   color: #b5b1b1e1;
   align-self: flex-start;
-  font-size: 0.1rem;
+  font-size: 0.8rem;
 `;
 
-export const ChatFormSubmitButton = styled.button`
+export const FormSubmitButton = styled.button`
   font-family: 'NanumGothic';
+  font-weight: bold;
   margin-top: 1rem;
   align-self: center;
-  width: 8rem;
+  width: 7rem;
   color: white;
   background: #313c7a;
   border-radius: 20px;
+  border: none;
+  margin-top: 15px;
   margin-bottom: 10px;
+  padding: 7px;
 `;

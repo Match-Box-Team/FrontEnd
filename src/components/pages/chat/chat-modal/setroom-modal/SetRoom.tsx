@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useRecoilValue } from 'recoil';
 import {
-  ChatFormContainer,
-  ChatFormDiv,
   ChatFormInfoText,
-  ChatFormInput,
-  ChatFormSubmitButton,
-  ChatFormText,
-  ChatFormWarp,
   ChatModalMainText,
+  FormContainer,
+  FormDiv,
+  FormInput,
+  FormSubmitButton,
+  FormText,
+  FormWarp,
 } from '../createroom-modal/Createroom';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import Popup, { XButton } from '../../../../commons/modals/popup-modal/Popup';
@@ -73,11 +73,11 @@ export default function SetRoom({
       {isOpenSetRoomModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>채팅방 설정</ChatModalMainText>
-          <ChatFormDiv>
-            <ChatFormWarp>
-              <ChatFormContainer onSubmit={handleSubmit}>
-                <ChatFormText>비밀번호 설정</ChatFormText>
-                <ChatFormInput
+          <FormDiv>
+            <FormWarp>
+              <FormContainer onSubmit={handleSubmit}>
+                <FormText>비밀번호 설정</FormText>
+                <FormInput
                   type="text"
                   name="password"
                   value={formValues.password}
@@ -87,12 +87,10 @@ export default function SetRoom({
                 <ChatFormInfoText>
                   * 비밀번호는 다시 찾을 수 없으니 잘 기억해주세요
                 </ChatFormInfoText>
-                <ChatFormSubmitButton type="submit">
-                  제출하기
-                </ChatFormSubmitButton>
-              </ChatFormContainer>
-            </ChatFormWarp>
-          </ChatFormDiv>
+                <FormSubmitButton type="submit">제출하기</FormSubmitButton>
+              </FormContainer>
+            </FormWarp>
+          </FormDiv>
         </Popup>
       )}
     </>

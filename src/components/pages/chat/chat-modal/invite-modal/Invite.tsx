@@ -4,7 +4,10 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
-import { ChatModalMainText } from '../createroom-modal/Createroom';
+import {
+  ChatModalMainText,
+  FormSubmitButton,
+} from '../createroom-modal/Createroom';
 import Popup from '../../../../commons/modals/popup-modal/Popup';
 
 // 모달 prop 타입
@@ -159,7 +162,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
             </SelectedUserContainer>
           )}
           <InviteUserForm onSubmit={handleInviteSubmit}>
-            <ChatFormSubmitButton type="submit">확인하기</ChatFormSubmitButton>
+            <FormSubmitButton type="submit">확인하기</FormSubmitButton>
           </InviteUserForm>
         </Popup>
       )}
@@ -171,10 +174,11 @@ export const OpenButton = styled.strong`
   position: absolute;
   top: 3rem;
   right: 0.3rem;
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   color: #c2c2c2;
   cursor: pointer;
   font-weight: bold;
+  margin: 1rem;
 `;
 
 const SearchUserForm = styled.form`
@@ -225,16 +229,4 @@ const InviteUserForm = styled.form`
   display: flex;
   flex-direction: row;
   align-items: center;
-`;
-
-const ChatFormSubmitButton = styled.button`
-  font-family: 'NanumGothic';
-  margin-top: 1rem;
-  align-self: center;
-  width: 8rem;
-  color: white;
-  background: #313c7a;
-  border-radius: 20px;
-  margin-top: 15px;
-  margin-bottom: 15px;
 `;
