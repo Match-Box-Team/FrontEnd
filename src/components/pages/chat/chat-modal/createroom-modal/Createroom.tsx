@@ -5,6 +5,7 @@ import { useSetRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { PublicToggleButton } from './PublicToggleButton';
+import Popup, { XButton } from '../../../../commons/modals/popup-modal/Popup';
 
 // 모달 prop 타입
 interface Props {
@@ -80,96 +81,53 @@ export default function CreateRoom({
     <div>
       <XButton onClick={handleClickModal}>모달 생성</XButton>
       {isOpenCreateRoomModal && (
-        <ModalOutside onClick={handleClickModal}>
-          <ModalContainer onClick={e => e.stopPropagation()}>
-            <XButton onClick={handleClickModal}>X</XButton>
-            <ChatModalMainText>채널 만들기</ChatModalMainText>
-            <ChatFormDiv>
-              <ChatFormWarp>
-                <ChatFormContainer onSubmit={handleSubmit}>
-                  <ChatFormText>채팅방 이름</ChatFormText>
-                  <ChatFormInput
-                    type="text"
-                    name="channelName"
-                    value={formValues.channelName}
-                    onChange={handleChange}
-                    placeholder="채팅방 이름을 설정합니다"
-                    required
+        <Popup onClose={handleClickModal}>
+          <ChatModalMainText>채널 만들기</ChatModalMainText>
+          <ChatFormDiv>
+            <ChatFormWarp>
+              <ChatFormContainer onSubmit={handleSubmit}>
+                <ChatFormText>채팅방 이름</ChatFormText>
+                <ChatFormInput
+                  type="text"
+                  name="channelName"
+                  value={formValues.channelName}
+                  onChange={handleChange}
+                  placeholder="채팅방 이름을 설정합니다"
+                  required
+                />
+                <RoomTypeContainer>
+                  <RoomTypeText>공개/비공개</RoomTypeText>
+                  <PublicToggleButton
+                    isPublic={isPublic}
+                    onClick={handleClick}
+                    type="button"
                   />
-                  <RoomTypeContainer>
-                    <RoomTypeText>공개/비공개</RoomTypeText>
-                    <PublicToggleButton
-                      isPublic={isPublic}
-                      onClick={handleClick}
-                      type="button"
-                    />
-                  </RoomTypeContainer>
-                  <ChatFormText>비밀번호 설정</ChatFormText>
-                  <ChatFormInput
-                    type="text"
-                    name="password"
-                    value={formValues.password}
-                    onChange={handleChange}
-                    placeholder="비밀번호를 설정합니다"
-                  />
-                  <ChatFormInfoText>
-                    * 비밀번호를 설정하지 않으려면 빈칸으로 두세요
-                  </ChatFormInfoText>
-                  <ChatFormInfoText>
-                    * 비밀번호는 다시 찾을 수 없으니 잘 기억해주세요
-                  </ChatFormInfoText>
-                  <ChatFormSubmitButton type="submit">
-                    제출하기
-                  </ChatFormSubmitButton>
-                </ChatFormContainer>
-              </ChatFormWarp>
-            </ChatFormDiv>
-          </ModalContainer>
-        </ModalOutside>
+                </RoomTypeContainer>
+                <ChatFormText>비밀번호 설정</ChatFormText>
+                <ChatFormInput
+                  type="text"
+                  name="password"
+                  value={formValues.password}
+                  onChange={handleChange}
+                  placeholder="비밀번호를 설정합니다"
+                />
+                <ChatFormInfoText>
+                  * 비밀번호를 설정하지 않으려면 빈칸으로 두세요
+                </ChatFormInfoText>
+                <ChatFormInfoText>
+                  * 비밀번호는 다시 찾을 수 없으니 잘 기억해주세요
+                </ChatFormInfoText>
+                <ChatFormSubmitButton type="submit">
+                  제출하기
+                </ChatFormSubmitButton>
+              </ChatFormContainer>
+            </ChatFormWarp>
+          </ChatFormDiv>
+        </Popup>
       )}
     </div>
   );
 }
-
-export const ModalOutside = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 100;
-`;
-
-export const ModalContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  background-color: #ffffff;
-  border-top: none;
-  border-left: 1px solid #ccc;
-  border-right: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
-  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
-
-  position: absolute;
-  width: 32rem;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-`;
-
-export const XButton = styled.strong`
-  position: absolute;
-  top: 0;
-  right: 0.3rem;
-  font-size: 1.5rem;
-  color: #c2c2c2;
-  cursor: pointer;
-  font-weight: bold;
-`;
 
 export const ChatModalMainText = styled.p`
   padding-top: 1rem;

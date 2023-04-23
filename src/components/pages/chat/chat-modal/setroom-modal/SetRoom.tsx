@@ -10,10 +10,9 @@ import {
   ChatFormText,
   ChatFormWarp,
   ChatModalMainText,
-  ModalContainer,
-  XButton,
 } from '../createroom-modal/Createroom';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
+import Popup, { XButton } from '../../../../commons/modals/popup-modal/Popup';
 
 // 모달 prop 타입
 interface Props {
@@ -72,8 +71,7 @@ export default function SetRoom({
     <>
       <XButton onClick={handleClickModal}>채팅방 설정 모달 생성</XButton>;
       {isOpenSetRoomModal && (
-        <ModalContainer>
-          <XButton onClick={handleClickModal}>X</XButton>
+        <Popup onClose={handleClickModal}>
           <ChatModalMainText>채팅방 설정</ChatModalMainText>
           <ChatFormDiv>
             <ChatFormWarp>
@@ -95,7 +93,7 @@ export default function SetRoom({
               </ChatFormContainer>
             </ChatFormWarp>
           </ChatFormDiv>
-        </ModalContainer>
+        </Popup>
       )}
     </>
   );

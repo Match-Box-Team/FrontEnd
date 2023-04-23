@@ -4,11 +4,8 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
-import {
-  ChatModalMainText,
-  ModalContainer,
-  XButton,
-} from '../createroom-modal/Createroom';
+import { ChatModalMainText } from '../createroom-modal/Createroom';
+import Popup from '../../../../commons/modals/popup-modal/Popup';
 
 // 모달 prop 타입
 interface Props {
@@ -139,8 +136,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
     <>
       <OpenButton onClick={handleClickModal}>초대 모달 생성</OpenButton>;
       {isOpenInviteModal && (
-        <ModalContainer>
-          <XButton onClick={handleClickModal}>X</XButton>
+        <Popup onClose={handleClickModal}>
           <ChatModalMainText>초대하기</ChatModalMainText>
           <SearchUserForm onSubmit={handleSearchUserSubmit}>
             <SearchUserInput
@@ -165,7 +161,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
           <InviteUserForm onSubmit={handleInviteSubmit}>
             <ChatFormSubmitButton type="submit">확인하기</ChatFormSubmitButton>
           </InviteUserForm>
-        </ModalContainer>
+        </Popup>
       )}
     </>
   );
