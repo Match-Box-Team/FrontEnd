@@ -221,10 +221,12 @@ export const ChatFormInfoText = styled.p`
 `;
 
 export const ChatFormSubmitButton = styled.button`
+  font-family: 'NanumGothic';
   margin-top: 1rem;
   align-self: center;
   width: 8rem;
   color: white;
   background: #313c7a;
   border-radius: 20px;
+  margin-bottom: 10px;
 `;
