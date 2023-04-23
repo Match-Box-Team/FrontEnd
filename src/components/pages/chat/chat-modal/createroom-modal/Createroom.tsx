@@ -81,7 +81,7 @@ export default function CreateRoom({
       <XButton onClick={handleClickModal}>모달 생성</XButton>
       {isOpenCreateRoomModal && (
         <ModalOutside onClick={handleClickModal}>
-          <ModalContainer>
+          <ModalContainer onClick={e => e.stopPropagation()}>
             <XButton onClick={handleClickModal}>X</XButton>
             <ChatModalMainText>채널 만들기</ChatModalMainText>
             <ChatFormDiv>
