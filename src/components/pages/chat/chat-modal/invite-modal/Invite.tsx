@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import axios from 'axios';
 import styled from 'styled-components';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import {
-  ChatFormSubmitButton,
   ChatModalMainText,
   ModalContainer,
   XButton,
@@ -17,48 +16,121 @@ interface Props {
   handleClickModal: () => void;
 }
 
-// 모달 form input 타입
-interface FormValues {
+// 유저 검색 response 타입
+interface SearchUserResponse {
+  userId: string;
   nickname: string;
+  image: string;
 }
 
-// 모달 form input 초기값
-const initialFormValues: FormValues = {
+// 유저 검색 response 초기값
+const initialSearchUserResponse: SearchUserResponse = {
+  userId: '',
   nickname: '',
+  image: '',
 };
 
 export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
   // 채널 id atom getter
-  const setChannelIdState = useRecoilValue(channelIdState);
+  const channelIdStateValue = useRecoilValue(channelIdState);
 
-  // form input 초기화
-  const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
-  // form input 업데이트
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  // 유저 검색 form input 초기화
+  const [searchUserNickname, setSearchUserNickname] = useState<string>('');
+  // 유저 검색 form input 업데이트
+  const handleSearchChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
     const { name, value } = event.target;
-    setFormValues(prevValues => ({ ...prevValues, [name]: value }));
+    setSearchUserNickname(value);
+  };
+
+  // 검색된 유저 이미지 초기화
+  const [userImgaeUrl, setUserImageUrl] = useState<string>('');
+
+  // 유저 초대 form input 초기화
+  const [searchUserResponse, setSearchUserResponse] =
+    useState<SearchUserResponse>(initialSearchUserResponse);
+
+  // 모든 state를 초기화하는 함수
+  const stateReset = (): void => {
+    setSearchUserNickname('');
+    setUserImageUrl('');
+    setSearchUserResponse(initialSearchUserResponse);
+  };
+
+  // 모달이 꺼질 때 state 들을 초기화함
+  useEffect(() => {
+    stateReset();
+  }, [isOpenInviteModal]);
+
+  // 채팅방 친구 검색 get
+  const handleSearchUserSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    try {
+      // 유저 검색 결과
+      const userData = await axios.get(
+        `http://localhost:3000/channels/${channelIdStateValue}/invite?nickname=${searchUserNickname}`,
+        {
+          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+        },
+      );
+      // 유저 검색 input 초기화
+      setSearchUserNickname('');
+      // 이미 방에 있는 유저일 시 예외 처리
+      if (userData.data.isOnChannel === true) {
+        alert('이미 방 안에 있는 유저입니다');
+        return;
+      }
+
+      // 초대할 유저 id 저장 -> 이거 웃긴게 아래의 axios가 먼저 돌아서
+      // searchUserResponse를 쓰면 에러가 남 -> searchUserResponse.userId = ''임
+      setSearchUserResponse(userData.data);
+
+      // 선택된 유저 이미지 get
+      // 이미지를 같이 받아올 수 있는 방법을 찾지 못했음
+      const imageUrl = await axios.get(
+        `http://localhost:3000/account/image?userId=${userData.data.userId}`,
+        {
+          responseType: 'blob',
+          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+        },
+      );
+      // 유저 이미지 저장
+      setUserImageUrl(URL.createObjectURL(imageUrl.data));
+    } catch (error) {
+      stateReset();
+      alert('존재하지 않는 유저이거나, 본인의 닉네임입니다');
+      console.log(error);
+    }
   };
 
   // 채팅방 친구 초대 post
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleInviteSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
+    if (searchUserResponse.userId === '') {
+      alert('선택된 유저가 없습니다');
+    }
     try {
-      // const response = await axios.get(
-      // `http://localhost:3000/channels/${setChannelIdState}/invite?nickname=jinho`,
       const response = await axios.post(
-        `http://localhost:3000/channels/${setChannelIdState}/invite`,
+        `http://localhost:3000/channels/${channelIdStateValue}/invite`,
         {
-          nickname: formValues.nickname,
+          userId: searchUserResponse.userId,
         },
         {
           headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
         },
       );
-      // form input 초기화
-      setFormValues(initialFormValues);
+      // 모달 안끌거면 아래 주석을 지워야 함
+      // stateReset();
+
       // 모달 끄기
       handleClickModal();
     } catch (error) {
+      stateReset();
       console.log(error);
     }
   };
@@ -70,17 +142,29 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
         <ModalContainer>
           <XButton onClick={handleClickModal}>X</XButton>
           <ChatModalMainText>초대하기</ChatModalMainText>
-          <InviteInput
-            type="text"
-            name="password"
-            value={formValues.nickname}
-            onChange={handleChange}
-            required
-          />
-          <AiOutlineSearch />
-          <div>
+          <SearchUserForm onSubmit={handleSearchUserSubmit}>
+            <SearchUserInput
+              type="text"
+              name="nickname"
+              value={searchUserNickname}
+              onChange={handleSearchChange}
+              required
+            />
+            <SearchUserButton>
+              <AiOutlineSearch type="submit" />
+            </SearchUserButton>
+          </SearchUserForm>
+          {userImgaeUrl && (
+            <SelectedUserContainer>
+              <SelectedUserImageWarp>
+                <img src={userImgaeUrl} alt="검색된 유저 이미지" />
+              </SelectedUserImageWarp>
+              <strong>{searchUserResponse.nickname}</strong>
+            </SelectedUserContainer>
+          )}
+          <InviteUserForm onSubmit={handleInviteSubmit}>
             <ChatFormSubmitButton type="submit">확인하기</ChatFormSubmitButton>
-          </div>
+          </InviteUserForm>
         </ModalContainer>
       )}
     </>
@@ -97,8 +181,64 @@ export const OpenButton = styled.strong`
   font-weight: bold;
 `;
 
-const InviteInput = styled.input`
+const SearchUserForm = styled.form`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const SearchUserInput = styled.input`
   background: #e6e6e6;
   border-radius: 30px;
   border: none;
+  margin-left: 0.8rem;
+  margin-right: 0.5rem;
+`;
+
+const SearchUserButton = styled.button`
+  padding: 0;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const SelectedUserContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 15px;
+`;
+
+const SelectedUserImageWarp = styled.div`
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 1rem;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const InviteUserForm = styled.form`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const ChatFormSubmitButton = styled.button`
+  font-family: 'NanumGothic';
+  margin-top: 1rem;
+  align-self: center;
+  width: 8rem;
+  color: white;
+  background: #313c7a;
+  border-radius: 20px;
+  margin-top: 15px;
+  margin-bottom: 15px;
 `;
