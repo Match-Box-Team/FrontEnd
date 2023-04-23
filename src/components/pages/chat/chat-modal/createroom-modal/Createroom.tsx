@@ -77,11 +77,11 @@ export default function CreateRoom({
   };
 
   return (
-    <>
+    <div>
       <XButton onClick={handleClickModal}>모달 생성</XButton>
       {isOpenCreateRoomModal && (
         <ModalContainer>
-          <XButton onClick={handleClickModal}>X</XButton>
+          <XButton onClick={handleClickModal}>&times;</XButton>
           <ChatModalMainText>채널 만들기</ChatModalMainText>
           <ChatFormDiv>
             <ChatFormWarp>
@@ -125,7 +125,7 @@ export default function CreateRoom({
           </ChatFormDiv>
         </ModalContainer>
       )}
-    </>
+    </div>
   );
 }
 
@@ -134,6 +134,7 @@ export const ModalContainer = styled.div`
   flex-direction: column;
   align-items: center;
 
+  background-color: #ffffff;
   border-top: none;
   border-left: 1px solid #ccc;
   border-right: 1px solid #ccc;
@@ -145,16 +146,18 @@ export const ModalContainer = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  z-index: 1000;
 `;
 
 export const XButton = styled.strong`
   position: absolute;
   top: 0;
   right: 0.3rem;
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   color: #c2c2c2;
   cursor: pointer;
   font-weight: bold;
+  margin: 1rem;
 `;
 
 export const ChatModalMainText = styled.p`
@@ -214,10 +217,11 @@ const RoomTypeText = styled.p`
 `;
 
 export const ChatFormInfoText = styled.p`
-  margin-top: 5px;
+  margin-bottom: 0px;
+  margin-top: 3px;
   color: #b5b1b1e1;
   align-self: flex-start;
-  font-size: 0.1rem;
+  font-size: 0.7rem;
 `;
 
 export const ChatFormSubmitButton = styled.button`
