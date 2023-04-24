@@ -67,6 +67,11 @@ export default function Channel() {
       Header={<Header title="Channel" channelToggle toggleMove />}
       Footer={<Footer tab="channel" />}
     >
+      <div>Channel</div>
+      <CreateRoom
+        isOpenCreateRoomModal={isOpenCreateRoomModal}
+        handleClickModal={handleClickModal}
+      />
       <BG>
         <ChannelList />
         <AddChannelButton onClick={openModal}>

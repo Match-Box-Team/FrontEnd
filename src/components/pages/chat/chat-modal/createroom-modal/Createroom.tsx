@@ -6,40 +6,50 @@ import { useNavigate } from 'react-router-dom';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { PublicToggleButton } from './PublicToggleButton';
 
+// 모달 prop 타입
 interface Props {
   isOpenCreateRoomModal: boolean;
   handleClickModal: () => void;
 }
 
+// 모달 form input 타입
 interface FormValues {
   channelName: string;
   password: string;
 }
 
+// 모달 form input 초기값
 const initialFormValues: FormValues = {
   channelName: '',
   password: '',
 };
 
+// 채팅방 생성 모달
 export default function CreateRoom({
   isOpenCreateRoomModal,
   handleClickModal,
 }: Props) {
+  // 페이지 이동
   const navigate = useNavigate();
+  // 채널 id atom setter
   const setChannelIdState = useSetRecoilState(channelIdState);
 
+  // form input 초기화
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
-
+  // form input 업데이트
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = event.target;
     setFormValues(prevValues => ({ ...prevValues, [name]: value }));
   };
+  // 토글 상태 관리
+  const [isPublic, setIsPublic] = useState<boolean>(false);
+  const handleClick = () => {
+    setIsPublic(!isPublic);
+  };
 
+  // 채팅방 생성 Post
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // console.log(`isPublic?: ${isPublic}`);
-    // console.log(`channelName: ${formValues.channelName}`);
-    // console.log(`password: ${formValues.password}`);
     try {
       const response = await axios.post(
         'http://localhost:3000/channels',
@@ -52,33 +62,32 @@ export default function CreateRoom({
           headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
         },
       );
+      // form input 초기화
       setFormValues(initialFormValues);
+      // 모달 끄기
       handleClickModal();
+      // 채널 id 설정
       setChannelIdState(response.data.channelId);
+      // 채팅방으로 페이지 이동
       const to = `/chat/channel/${response.data.channelId}`;
-      // console.log(to);
       navigate(to);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const [isPublic, setIsPublic] = useState<boolean>(false);
-  const handleClick = () => {
-    setIsPublic(!isPublic);
-  };
-
   return (
     <div>
+      <XButton onClick={handleClickModal}>모달 생성</XButton>
       {isOpenCreateRoomModal && (
         <ModalContainer>
           <XButton onClick={handleClickModal}>&times;</XButton>
-          <CreateChannelText>채널 만들기</CreateChannelText>
-          <FormDiv>
-            <FormWarp>
-              <FormContainer onSubmit={handleSubmit}>
-                <FormText>채팅방 이름</FormText>
-                <FormInput
+          <ChatModalMainText>채널 만들기</ChatModalMainText>
+          <ChatFormDiv>
+            <ChatFormWarp>
+              <ChatFormContainer onSubmit={handleSubmit}>
+                <ChatFormText>채팅방 이름</ChatFormText>
+                <ChatFormInput
                   type="text"
                   name="channelName"
                   value={formValues.channelName}
@@ -94,33 +103,33 @@ export default function CreateRoom({
                     type="button"
                   />
                 </RoomTypeContainer>
-                <FormText>비밀번호 설정</FormText>
-                <FormInput
+                <ChatFormText>비밀번호 설정</ChatFormText>
+                <ChatFormInput
                   type="text"
                   name="password"
                   value={formValues.password}
                   onChange={handleChange}
                   placeholder="비밀번호를 설정합니다"
                 />
-                <FormInfoText>
+                <ChatFormInfoText>
                   * 비밀번호를 설정하지 않으려면 빈칸으로 두세요
-                </FormInfoText>
-                <FormInfoText>
+                </ChatFormInfoText>
+                <ChatFormInfoText>
                   * 비밀번호는 다시 찾을 수 없으니 잘 기억해주세요
-                </FormInfoText>
-                <CreateRoomSubmitButton type="submit">
+                </ChatFormInfoText>
+                <ChatFormSubmitButton type="submit">
                   제출하기
-                </CreateRoomSubmitButton>
-              </FormContainer>
-            </FormWarp>
-          </FormDiv>
+                </ChatFormSubmitButton>
+              </ChatFormContainer>
+            </ChatFormWarp>
+          </ChatFormDiv>
         </ModalContainer>
       )}
     </div>
   );
 }
 
-const ModalContainer = styled.div`
+export const ModalContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -133,14 +142,14 @@ const ModalContainer = styled.div`
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
 
   position: absolute;
-  width: 80%;
+  width: 32rem;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1000;
 `;
 
-const XButton = styled.strong`
+export const XButton = styled.strong`
   position: absolute;
   top: 0;
   right: 0.3rem;
@@ -151,13 +160,13 @@ const XButton = styled.strong`
   margin: 1rem;
 `;
 
-const CreateChannelText = styled.p`
+export const ChatModalMainText = styled.p`
   padding-top: 1rem;
   font-size: 1.5rem;
   font-weight: bolder;
 `;
 
-const FormDiv = styled.div`
+export const ChatFormDiv = styled.div`
   border-radius: 1.6rem;
   background-color: #f4f4f4;
   width: 80%;
@@ -168,24 +177,24 @@ const FormDiv = styled.div`
   align-items: center;
 `;
 
-const FormWarp = styled.div`
+export const ChatFormWarp = styled.div`
   padding: 0.7rem 0px;
   width: 87%;
 `;
 
-const FormContainer = styled.form`
+export const ChatFormContainer = styled.form`
   width: 100%;
   display: flex;
   flex-direction: column;
 `;
 
-const FormText = styled.p`
+export const ChatFormText = styled.p`
   font-size: 0.8rem;
   align-self: flex-start;
   padding-left: 0.2rem;
 `;
 
-const FormInput = styled.input`
+export const ChatFormInput = styled.input`
   font-size: 0.8rem;
   align-self: flex-start;
   border: 1px solid #f4f4f4;
@@ -207,17 +216,18 @@ const RoomTypeText = styled.p`
   padding-right: 1.5rem;
 `;
 
-const FormInfoText = styled.p`
-  margin-top: 5px;
+export const ChatFormInfoText = styled.p`
+  margin-bottom: 0px;
+  margin-top: 3px;
   color: #b5b1b1e1;
   align-self: flex-start;
-  font-size: 0.1rem;
+  font-size: 0.7rem;
 `;
 
-const CreateRoomSubmitButton = styled.button`
-  margin-top: 20px;
+export const ChatFormSubmitButton = styled.button`
+  margin-top: 1rem;
   align-self: center;
-  width: 40%;
+  width: 8rem;
   color: white;
   background: #313c7a;
   border-radius: 20px;
