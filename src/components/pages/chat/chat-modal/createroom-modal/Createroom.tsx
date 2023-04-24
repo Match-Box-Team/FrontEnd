@@ -203,4 +203,5 @@ export const FormSubmitButton = styled.button`
   margin-top: 15px;
   margin-bottom: 10px;
   padding: 7px;
+  cursor: pointer;
 `;

@@ -202,6 +202,7 @@ const SearchUserButton = styled.button`
   display: flex;
   flex-direction: row;
   align-items: center;
+  cursor: pointer;
 `;
 
 const SelectedUserContainer = styled.div`
