@@ -1,12 +1,42 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useRecoilState } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import ChannelList from './sub-components/ChannelList';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
 import CreateRoomIcon from '../../../../assets/icon/create-room-icon.svg';
 import CreateRoom from '../chat-modal/createroom-modal/Createroom';
+
+export default function Channel() {
+  const [isOpenCreateRoomModal, setIsOpenCreateRoomModal] =
+    useState<boolean>(false);
+
+  const handleClickModal = () => {
+    setIsOpenCreateRoomModal(!isOpenCreateRoomModal);
+  };
+
+  const openModal = () => {
+    setIsOpenCreateRoomModal(true);
+  };
+
+  return (
+    <Layout
+      Header={<Header title="Channel" channelToggle toggleMove />}
+      Footer={<Footer tab="channel" />}
+    >
+      <CreateRoom
+        isOpenCreateRoomModal={isOpenCreateRoomModal}
+        handleClickModal={handleClickModal}
+      />
+      <BG>
+        <ChannelList />
+        <AddChannelButton onClick={openModal}>
+          <Icon src={CreateRoomIcon} />
+        </AddChannelButton>
+      </BG>
+    </Layout>
+  );
+}
 
 const BG = styled.div`
   display: flex-start;
@@ -45,43 +75,3 @@ const Icon = styled.img`
   flex: none;
   flex-grow: 0;
 `;
-
-export default function Channel() {
-  const [isOpenCreateRoomModal, setIsOpenCreateRoomModal] =
-    useState<boolean>(false);
-
-  const handleClickModal = () => {
-    setIsOpenCreateRoomModal(!isOpenCreateRoomModal);
-  };
-
-  const openModal = () => {
-    setIsOpenCreateRoomModal(true);
-  };
-
-  const closeModal = () => {
-    setIsOpenCreateRoomModal(false);
-  };
-
-  return (
-    <Layout
-      Header={<Header title="Channel" channelToggle toggleMove />}
-      Footer={<Footer tab="channel" />}
-    >
-      <div>Channel</div>
-      <CreateRoom
-        isOpenCreateRoomModal={isOpenCreateRoomModal}
-        handleClickModal={handleClickModal}
-      />
-      <BG>
-        <ChannelList />
-        <AddChannelButton onClick={openModal}>
-          <Icon src={CreateRoomIcon} />
-        </AddChannelButton>
-        <CreateRoom
-          isOpenCreateRoomModal={isOpenCreateRoomModal}
-          handleClickModal={handleClickModal}
-        />
-      </BG>
-    </Layout>
-  );
-}
