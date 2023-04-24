@@ -1,3 +1,55 @@
+// import React from 'react';
+
+// export default function MyRoomMain() {
+//   return (
+//     <div>
+//       <RoomMain>
+//         <RoomContent>
+//           <ProfileImg>
+//             <img src={imageUrl} alt="profile" width="100%" height="100%" />
+//           </ProfileImg>
+//           <RoomBody>
+//             <RoomTitle>{room.userChannel.channel.channelName}</RoomTitle>
+//             <RoomMemeber>
+//               {myRooms[index] &&
+//                 myRooms[index].map((item: any, memberIndex: number) => {
+//                   if (memberIndex < 2) {
+//                     return (
+//                       <Member key={item.user.userId}>
+//                         {item.user.nickname}
+//                       </Member>
+//                     );
+//                   }
+//                   if (memberIndex === 2) {
+//                     return (
+//                       <Member key={item.user.userId}>
+//                         외 {myRooms[index].length - 2}명
+//                       </Member>
+//                     );
+//                   }
+//                   return null;
+//                 })}
+//             </RoomMemeber>
+//           </RoomBody>
+//         </RoomContent>
+//         <RoomInfo>
+//           <LastMsgTime as="span">
+//             {new Date(room.chat.time).toISOString().split('T')[0]}
+//           </LastMsgTime>
+//           <UnreadMsgCount
+//             style={{
+//               backgroundColor:
+//                 room.chat.computedChatCount === 0 ? 'white' : 'red',
+//             }}
+//           >
+//             <Unread>{room.chat.computedChatCount}</Unread>
+//           </UnreadMsgCount>
+//         </RoomInfo>
+//       </RoomMain>
+//     </div>
+//   );
+// }
+
 import styled from 'styled-components';
 
 export default function MyRoomMain(
@@ -14,48 +66,44 @@ export default function MyRoomMain(
   } = room;
   return (
     <div>
-      <RoomMain>
-        <RoomContent>
-          <ProfileImg>
-            <img src={imageUrl} alt="profile" width="100%" height="100%" />
-          </ProfileImg>
-          <RoomBody>
-            <RoomTitle>{channelName}</RoomTitle>
-            <RoomMemeber>
-              {myRooms[index] &&
-                myRooms[index].map((item: any, memberIndex: number) => {
-                  if (memberIndex < 2) {
-                    return (
-                      <Member key={item.user.userId}>
-                        {item.user.nickname}
-                      </Member>
-                    );
-                  }
-                  if (memberIndex === 2) {
-                    return (
-                      <Member key={item.user.userId}>
-                        외 {myRooms[index].length - 2}명
-                      </Member>
-                    );
-                  }
-                  return null;
-                })}
-            </RoomMemeber>
-          </RoomBody>
-        </RoomContent>
-        <RoomInfo>
-          <LastMsgTime as="span">
-            {new Date(time).toISOString().split('T')[0]}
-          </LastMsgTime>
-          <UnreadMsgCount
-            style={{
-              backgroundColor: computedChatCount === 0 ? 'white' : 'red',
-            }}
-          >
-            <Unread>{computedChatCount}</Unread>
-          </UnreadMsgCount>
-        </RoomInfo>
-      </RoomMain>
+      <RoomContent>
+        <ProfileImg>
+          <img src={imageUrl} alt="profile" width="100%" height="100%" />
+        </ProfileImg>
+        <RoomBody>
+          <RoomTitle>{channelName}</RoomTitle>
+          <RoomMemeber>
+            {myRooms[index] &&
+              myRooms[index].map((item: any, memberIndex: number) => {
+                if (memberIndex < 2) {
+                  return (
+                    <Member key={item.user.userId}>{item.user.nickname}</Member>
+                  );
+                }
+                if (memberIndex === 2) {
+                  return (
+                    <Member key={item.user.userId}>
+                      외 {myRooms[index].length - 2}명
+                    </Member>
+                  );
+                }
+                return null;
+              })}
+          </RoomMemeber>
+        </RoomBody>
+      </RoomContent>
+      <RoomInfo>
+        <LastMsgTime as="span">
+          {new Date(time).toISOString().split('T')[0]}
+        </LastMsgTime>
+        <UnreadMsgCount
+          style={{
+            backgroundColor: computedChatCount === 0 ? 'white' : 'red',
+          }}
+        >
+          <Unread>{computedChatCount}</Unread>
+        </UnreadMsgCount>
+      </RoomInfo>
     </div>
   );
 }
