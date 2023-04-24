@@ -39,6 +39,18 @@ module.exports = {
     'arrow-body-style': 'off', // 화살표 함수의 본문 스타일을 강제하지 않는다
     'prefer-arrow-callback': 'off', // 가능한 경우 화살표 함수를 사용하는 것을 강제하지 않는다
     'react/react-in-jsx-scope': 'off', // 리액트를 JSX 스코프에 가져오는 것을 강제하지 않는다 (React 17 이상)
+    // 'import/no-extraneous-dependencies': [
+    //   'error',
+    //   {
+    //     devDependencies: [
+    //       'src/**/*.{test,spec}.{js,jsx,ts,tsx}',
+    //       '**/__tests__/**/*.{js,jsx,ts,tsx}',
+    //     ],
+    //     optionalDependencies: false,
+    //     peerDependencies: false,
+    //     packagePath: './package.json',
+    //   },
+    // ],
     'no-nested-ternary': 'off',
     'no-use-before-define': 'off', // 정의되기 전에 사용하는 것을 금지하는 규칙을 끈다
     'import/extensions': 'off', // 모듈 import 시 파일 확장자를 생략할 수 있도록 한다

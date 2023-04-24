@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { useSetRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../../../../commons/layout/Layout';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { PublicToggleButton } from './PublicToggleButton';
 
@@ -70,11 +69,10 @@ export default function CreateRoom({
   };
 
   return (
-    <Layout>
-      <XButton onClick={handleClickModal}>모달 생성</XButton>
+    <div>
       {isOpenCreateRoomModal && (
         <ModalContainer>
-          <XButton onClick={handleClickModal}>X</XButton>
+          <XButton onClick={handleClickModal}>&times;</XButton>
           <CreateChannelText>채널 만들기</CreateChannelText>
           <FormDiv>
             <FormWarp>
@@ -118,7 +116,7 @@ export default function CreateRoom({
           </FormDiv>
         </ModalContainer>
       )}
-    </Layout>
+    </div>
   );
 }
 
@@ -127,6 +125,7 @@ const ModalContainer = styled.div`
   flex-direction: column;
   align-items: center;
 
+  background-color: #ffffff;
   border-top: none;
   border-left: 1px solid #ccc;
   border-right: 1px solid #ccc;
@@ -138,16 +137,18 @@ const ModalContainer = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  z-index: 1000;
 `;
 
 const XButton = styled.strong`
   position: absolute;
   top: 0;
   right: 0.3rem;
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   color: #c2c2c2;
   cursor: pointer;
   font-weight: bold;
+  margin: 1rem;
 `;
 
 const CreateChannelText = styled.p`
