@@ -51,11 +51,16 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
   const [searchUserResponse, setSearchUserResponse] =
     useState<SearchUserResponse>(initialSearchUserResponse);
 
-  // 모달이 꺼질 때 state 들을 초기화함
-  useEffect(() => {
+  // 모든 state를 초기화하는 함수
+  const stateReset = (): void => {
     setSearchUserNickname('');
     setUserImageUrl('');
     setSearchUserResponse(initialSearchUserResponse);
+  };
+
+  // 모달이 꺼질 때 state 들을 초기화함
+  useEffect(() => {
+    stateReset();
   }, [isOpenInviteModal]);
 
   // 채팅방 친구 검색 get
@@ -122,7 +127,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
       // 모달 끄기
       handleClickModal();
     } catch (error) {
-      handleClickModal();
+      stateReset();
       console.log(error);
     }
   };
