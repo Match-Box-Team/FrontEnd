@@ -53,8 +53,7 @@ export default function EditMy({
   };
 
   return (
-    <>
-      <XButton onClick={handleClickModal}>초대 모달 생성</XButton>;
+    <div>
       {isOpenEditProfileModal && (
         <Popup onClose={handleClickModal}>
           <EditMyMainText>프로필 수정</EditMyMainText>
@@ -86,7 +85,7 @@ export default function EditMy({
           </FormDiv>
         </Popup>
       )}
-    </>
+    </div>
   );
 }
 
