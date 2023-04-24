@@ -79,7 +79,6 @@ export default function CreateRoom({
 
   return (
     <div>
-      <XButton onClick={handleClickModal}>모달 생성</XButton>
       {isOpenCreateRoomModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>채널 만들기</ChatModalMainText>
@@ -185,7 +184,7 @@ const RoomTypeText = styled.p`
 
 export const ChatFormInfoText = styled.p`
   margin-bottom: 0px;
-  margin-top: 3px;
+  margin-top: 8px;
   color: #b5b1b1e1;
   align-self: flex-start;
   font-size: 0.8rem;

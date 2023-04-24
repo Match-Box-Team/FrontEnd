@@ -23,7 +23,6 @@ export default function ChatRoom() {
       Header={<Header title="Channel" channelBurger backPath="/chat/channel" />}
       Footer={<Footer tab="channel" />}
     >
-      <div>ChatRoom</div>
       <SetRoom
         isOpenSetRoomModal={isOpenSetRoomModal}
         handleClickModal={handleClickSetRoomModal}
