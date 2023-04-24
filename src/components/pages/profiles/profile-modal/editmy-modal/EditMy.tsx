@@ -22,7 +22,25 @@ export default function EditMy({
   handleClickModal,
 }: Props) {
   // 선택된 이미지 초기화
-  const [selectedImage, setSelectedImage] = useState<string>('');
+  // const [selectedImage, setSelectedImage] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setSelectedFile(null);
+      setPreviewUrl('');
+    }
+  };
 
   // nickname input 초기화
   const [Nickname, setNickname] = useState<string>('');
@@ -44,7 +62,15 @@ export default function EditMy({
             <FormWarp>
               {/* <FormContainer onSubmit={handleSubmit}> */}
               <FormContainer>
-                <SelectImageInput type="file" id="image-input" />
+                {/* <SelectImageInput type="file" id="image-input" /> */}
+                <input type="file" onChange={handleFileInputChange} />
+                {previewUrl && (
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    style={{ maxWidth: '100%' }}
+                  />
+                )}
                 <FormText>닉네임 수정</FormText>
                 <FormInput
                   type="text"
