@@ -184,7 +184,8 @@ const RoomTypeText = styled.p`
 `;
 
 export const ChatFormInfoText = styled.p`
-  margin-top: 5px;
+  margin-bottom: 0px;
+  margin-top: 3px;
   color: #b5b1b1e1;
   align-self: flex-start;
   font-size: 0.8rem;
