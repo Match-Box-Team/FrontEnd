@@ -44,7 +44,7 @@ const BG = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 85vh;
+  height: 82.5vh;
   background-color: #ffffff;
   padding-left: 3rem 0;
   padding-right: 3rem 0;
