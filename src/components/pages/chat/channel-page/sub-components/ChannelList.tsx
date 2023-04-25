@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
@@ -50,6 +50,7 @@ interface IChannel {
   channelId: string;
   channelName: string;
   count: number;
+  password: string | null;
 }
 
 export default function ChannelList() {
@@ -74,6 +75,14 @@ export default function ChannelList() {
     navigate(`/chat/channel/${currentChannelId}`);
   };
 
+  const handleClick = (channelId: string, password: string | null) => {
+    if (password === null) {
+      navigate(`/chat/channel/${channelId}`);
+    } else {
+      openModal(channelId);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const token = process.env.REACT_APP_TOKEN;
@@ -87,6 +96,7 @@ export default function ChannelList() {
           config,
         );
         setChannels(response.data.channel);
+        console.log('Res: ', response.data.channel); //
       } catch (error) {
         setIsErrorGet(true);
       }
@@ -112,8 +122,8 @@ export default function ChannelList() {
           <List key={channel.channelId}>
             <ChannelItem>
               <div
-                role="button" // Add the 'button' role
-                tabIndex={0} // Add tabIndex
+                role="button"
+                tabIndex={0}
                 style={{
                   textDecoration: 'none',
                   color: 'inherit',
@@ -121,10 +131,8 @@ export default function ChannelList() {
                   width: '100%',
                   height: '100%',
                 }}
-                onClick={() => openModal(channel.channelId)}
-                onKeyDown={
-                  event => handleKeyDown(event, channel.channelId) // Add onKeyDown event handler
-                }
+                onClick={() => handleClick(channel.channelId, channel.password)}
+                onKeyDown={event => handleKeyDown(event, channel.channelId)}
               >
                 <RoomTitle>
                   {channel.channelName} (현재인원: {channel.count}명){' '}
