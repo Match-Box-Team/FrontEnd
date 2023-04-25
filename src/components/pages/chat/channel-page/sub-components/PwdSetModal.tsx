@@ -35,12 +35,8 @@ export default function PwdSetModal({
   children,
 }: PwdSetModalProps) {
   return (
-    <div>
-      <ModalWrapper show={show} onClick={handleClose}>
-        <ModalContent onClick={e => e.stopPropagation()}>
-          {children}
-        </ModalContent>
-      </ModalWrapper>
-    </div>
+    <ModalWrapper show={show} onClick={handleClose}>
+      <ModalContent onClick={e => e.stopPropagation()}>{children}</ModalContent>
+    </ModalWrapper>
   );
 }

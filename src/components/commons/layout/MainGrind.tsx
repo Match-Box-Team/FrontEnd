@@ -23,6 +23,7 @@ export const HeaderWrap = styled.header`
 
 export const MainWrap = styled.main`
   grid-area: main;
+  overflow-y: auto;
 `;
 
 export const FooterWrap = styled.footer`

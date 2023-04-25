@@ -1,50 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
 import ErrorPopup from '../../../../commons/error/ErrorPopup';
 import PwdSetModal from './PwdSetModal';
-
-const Outline = styled.ul`
-  display: flex;
-  margin-top: 0;
-  flex-direction: column;
-  align-items: center;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  gap: 0;
-  height: inherit;
-  overflow-y: auto;
-`;
-
-const List = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 5rem;
-  background-color: #ffffff;
-  border: 1px solid #d8d8d8;
-`;
-
-const ChannelItem = styled.li`
-  width: 100%;
-  text-align: start;
-  margin-left: 2rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-`;
-
-const RoomTitle = styled.span`
-  font-size: 1.5rem;
-  color: #000000;
-  text-decoration: none;
-  color: inherit;
-`;
 
 interface IChannel {
   channelId: string;
@@ -58,6 +19,8 @@ export default function ChannelList() {
   const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
   const [showModal, setShowModal] = useState(false);
   const [currentChannelId, setCurrentChannelId] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const navigate = useNavigate();
 
@@ -68,11 +31,32 @@ export default function ChannelList() {
 
   const closeModal = () => {
     setShowModal(false);
+    setPasswordInput('');
+    setErrorMessage('');
   };
 
-  const handleConfirm = () => {
-    closeModal();
-    navigate(`/chat/channel/${currentChannelId}`);
+  const handleConfirm = async () => {
+    const token = process.env.REACT_APP_TOKEN;
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
+    try {
+      await axios.post(
+        `http://127.0.0.1:3000/channels/${currentChannelId}/join`,
+        { password: passwordInput },
+        config,
+      );
+      closeModal();
+      navigate(`/chat/channel/${currentChannelId}`);
+    } catch (err) {
+      const e = err as AxiosError;
+      if (e.response && e.response.status === 400) {
+        setErrorMessage('틀렸습니다. 다시 입력하세요.');
+      } else {
+        setErrorMessage('요청을 처리할 수 없습니다.');
+      }
+    }
   };
 
   const handleClick = (channelId: string, password: string | null) => {
@@ -96,7 +80,6 @@ export default function ChannelList() {
           config,
         );
         setChannels(response.data.channel);
-        console.log('Res: ', response.data.channel); //
       } catch (error) {
         setIsErrorGet(true);
       }
@@ -143,14 +126,80 @@ export default function ChannelList() {
         ))}
       </Outline>
       <PwdSetModal show={showModal} handleClose={closeModal}>
-        <h2>모달의 내용이 여기에 표시됩니다.</h2>
-        <button type="button" onClick={handleConfirm}>
-          확인
-        </button>
-        <button type="button" onClick={closeModal}>
-          닫기
-        </button>
+        <ModalContent>
+          <h2>비밀번호를 입력하세요.</h2>
+          <input
+            type="password"
+            value={passwordInput}
+            onChange={e => setPasswordInput(e.target.value)}
+          />
+          <div>
+            {errorMessage ? (
+              <p style={{ color: 'red' }}>{errorMessage}</p>
+            ) : (
+              <p>나가려면 닫기를 누르세요.</p>
+            )}
+          </div>
+        </ModalContent>
+        <ButtonContainer>
+          <button type="button" onClick={handleConfirm}>
+            확인
+          </button>
+          <button type="button" onClick={closeModal}>
+            닫기
+          </button>
+        </ButtonContainer>
       </PwdSetModal>
     </>
   );
 }
+
+const Outline = styled.ul`
+  display: flex;
+  margin-top: 0;
+  flex-direction: column;
+  align-items: center;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  gap: 0;
+  height: inherit;
+  overflow-y: auto;
+`;
+
+const List = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 5rem;
+  background-color: #ffffff;
+  border: 1px solid #d8d8d8;
+`;
+
+const ChannelItem = styled.li`
+  width: 100%;
+  text-align: start;
+  margin-left: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+`;
+
+const RoomTitle = styled.span`
+  font-size: 1.5rem;
+  color: #000000;
+  text-decoration: none;
+  color: inherit;
+`;
+
+const ModalContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
