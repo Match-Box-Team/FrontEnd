@@ -48,7 +48,7 @@ export default function ChatRoom() {
 
   // 친구 프로필 모달 예시
   const member: Member = {
-    userId: '0d6d117f-4d0f-4579-b0da-1ce51c1e41b8',
+    userId: '',
     intraId: 'chaekim',
     nickname: '김채린',
     image: '',

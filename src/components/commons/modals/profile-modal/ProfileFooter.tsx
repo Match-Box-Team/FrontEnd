@@ -245,9 +245,6 @@ const Button = styled.button`
 `;
 
 const FooterWrapper = styled.footer`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
   padding: 3rem 2rem 0.8rem;
   bottom: 0rem;
   top: 80rem;
