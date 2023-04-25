@@ -1,53 +1,81 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
 import ErrorPopup from '../../../../commons/error/ErrorPopup';
 import { getImageUrl } from '../../../../../api/ProfileImge';
 import { getChatRoomInfo } from '../../../../../api/ChatRoomInfo';
-import MyRoomMain from './MyRoomMain';
+
+interface User {
+  userId: number;
+  nickname: string;
+}
+
+interface Channel {
+  channelId: string;
+  channelName: string;
+}
+
+interface UserChannel {
+  userChannelId: string;
+  user: User;
+  channel: Channel;
+}
+
+interface Chat {
+  time: string;
+  computedChatCount: number;
+}
+
+interface ChannelData {
+  userChannel: UserChannel;
+  chat: Chat;
+}
+
+interface RoomList {
+  userChannel: UserChannel;
+}
 
 export default function MyMsgList() {
-  const [channels, setChannels] = useState<any[]>([]);
+  const [channels, setChannels] = useState<ChannelData[]>([]);
   const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
-  const [imageUrl, setImageUrl] = useState('');
-  const [myRooms, setMyRooms] = useState<any[]>([]);
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [myRooms, setMyRooms] = useState<RoomList[][]>([]);
 
   useEffect(() => {
+    setIsErrorGet(false);
     const fetchData = async () => {
-      const token = process.env.REACT_APP_TOKEN;
+      const token: string | undefined = process.env.REACT_APP_TOKEN;
       const config = {
         headers: { Authorization: `Bearer ${token}` },
       };
-
       try {
-        const response = await axios.get(
+        const response: AxiosResponse<any, any> = await axios.get(
           'http://127.0.0.1:3000/channels/my',
           config,
         );
         // console.log(response.data);
 
-        const roomListPromises = response.data.channel.map(
-          async (channel: any) => {
-            const RoomList = await getChatRoomInfo(
+        const roomListPromises: Promise<RoomList[]>[] =
+          response.data.channel.map(async (channel: ChannelData) => {
+            const roomList = await getChatRoomInfo(
               channel.userChannel.channel.channelId,
             );
-            return RoomList;
-          },
-        );
+            return roomList;
+          });
 
         const tmpList: any[] = [];
-        const fetchedRoomLists = await Promise.all(roomListPromises);
-        const rooms = fetchedRoomLists.map(item => item.userChannel);
+        const fetchedRoomLists: any[] = await Promise.all(roomListPromises);
+        const rooms: any[] = fetchedRoomLists.map(item => item.userChannel);
         rooms.forEach(list => {
           tmpList.push(list);
         });
 
         setMyRooms(tmpList);
 
-        const tmpUrl = await getImageUrl(
+        const tmpUrl: string | undefined = await getImageUrl(
           response.data.channel[0].user[0].user.userId,
         );
         setImageUrl(tmpUrl);
@@ -123,16 +151,12 @@ export default function MyMsgList() {
                           room.chat.computedChatCount === 0 ? 'white' : 'red',
                       }}
                     >
-                      <Unread>{room.chat.computedChatCount}</Unread>
+                      <Unread>
+                        {room.chat.computedChatCount - 1 /* 더미 메시지 - 1 */}
+                      </Unread>
                     </UnreadMsgCount>
                   </RoomInfo>
                 </RoomMain>
-                {/* <MyRoomMain
-                  imageUrl={imageUrl}
-                  room={room}
-                  index={index}
-                  myRooms={myRooms}
-                /> */}
               </Link>
             </RoomItem>
           </List>
