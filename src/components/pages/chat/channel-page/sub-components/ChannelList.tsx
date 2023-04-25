@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
 import axios from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
 import ErrorPopup from '../../../../commons/error/ErrorPopup';
+import PwdSetModal from './PwdSetModal';
 
 const Outline = styled.ul`
   display: flex;
@@ -54,6 +55,25 @@ interface IChannel {
 export default function ChannelList() {
   const [channels, setChannels] = useState<IChannel[]>([]);
   const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [showModal, setShowModal] = useState(false);
+  const [currentChannelId, setCurrentChannelId] = useState('');
+
+  const navigate = useNavigate();
+
+  const openModal = (channelId: string) => {
+    setCurrentChannelId(channelId);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const handleConfirm = () => {
+    closeModal();
+    navigate(`/chat/channel/${currentChannelId}`);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const token = process.env.REACT_APP_TOKEN;
@@ -74,6 +94,16 @@ export default function ChannelList() {
 
     fetchData();
   }, []);
+
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLDivElement>,
+    channelId: string,
+  ) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      openModal(channelId);
+    }
+  };
+
   return (
     <>
       <ErrorPopup message="요청을 처리할 수 없습니다." />
@@ -81,8 +111,9 @@ export default function ChannelList() {
         {channels.map(channel => (
           <List key={channel.channelId}>
             <ChannelItem>
-              <Link
-                to={`/chat/channel/${channel.channelId}`}
+              <div
+                role="button" // Add the 'button' role
+                tabIndex={0} // Add tabIndex
                 style={{
                   textDecoration: 'none',
                   color: 'inherit',
@@ -90,15 +121,28 @@ export default function ChannelList() {
                   width: '100%',
                   height: '100%',
                 }}
+                onClick={() => openModal(channel.channelId)}
+                onKeyDown={
+                  event => handleKeyDown(event, channel.channelId) // Add onKeyDown event handler
+                }
               >
                 <RoomTitle>
                   {channel.channelName} (현재인원: {channel.count}명){' '}
                 </RoomTitle>
-              </Link>
+              </div>
             </ChannelItem>
           </List>
         ))}
       </Outline>
+      <PwdSetModal show={showModal} handleClose={closeModal}>
+        <h2>모달의 내용이 여기에 표시됩니다.</h2>
+        <button type="button" onClick={handleConfirm}>
+          확인
+        </button>
+        <button type="button" onClick={closeModal}>
+          닫기
+        </button>
+      </PwdSetModal>
     </>
   );
 }
