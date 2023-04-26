@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../../../commons/layout/Layout';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
@@ -17,6 +18,17 @@ interface User {
   phoneNumber: string;
 }
 
+interface UserGame {
+  game: {
+    gameId: string;
+    name: string;
+  };
+  gameHistory: {
+    winCount: number;
+    loseCount: number;
+  };
+}
+
 const initailUserValues = {
   userId: '',
   image: '',
@@ -27,6 +39,9 @@ const initailUserValues = {
 };
 
 export default function MyProfile() {
+  // 페이지 이동
+  const navigate = useNavigate();
+
   // 모달 관리
   const [isOpenEditProfileModal, setIsOpenEditProfileModal] =
     useState<boolean>(false);
@@ -40,13 +55,27 @@ export default function MyProfile() {
   // 유저 정보
   const [user, setUser] = useState<User>(initailUserValues);
 
+  // 유저 게임 정보들
+  const [userGames, setUserGames] = useState<UserGame[] | null>(null);
+
   // 게임 선택 박스 상태
   const [selectedOpen, setSelectedOpen] = useState<boolean>(false);
 
   // 선택된 게임 -> 초기 게임 핑퐁핑퐁(0)
-  const [selectedGame, setSelectedGame] = useState<string>('0');
+  const [selectedGame, setSelectedGame] = useState<string>('핑퐁핑퐁');
   const handleGameChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedGame(event.target.value);
+  };
+
+  const getUserGameHistoryText = (gameName: string) => {
+    const selectedUserGame = userGames?.filter(
+      userGame => userGame.game.name === gameName,
+    );
+    const history = selectedUserGame?.at(0)?.gameHistory;
+    if (!history) {
+      return '0승 0패';
+    }
+    return `${history.winCount}승 ${history.loseCount}패`;
   };
 
   useEffect(() => {
@@ -55,7 +84,7 @@ export default function MyProfile() {
         headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
       });
       setUser(data.data.user);
-      console.log(data.data.userGame);
+      setUserGames(data.data.userGame);
       // 선택된 유저 이미지 get
       const imageUrl = await axios.get(
         `http://localhost:3000/account/image?userId=${data.data.user.userId}`,
@@ -112,70 +141,41 @@ export default function MyProfile() {
           <PingPongImageWrap>
             <img src={PingPongIcon} alt={PingPongIcon} />
           </PingPongImageWrap>
-          <SelectWrapper>
-            <Select
-              name="game"
-              onClick={() => setSelectedOpen(!selectedOpen)}
-              onChange={handleGameChange}
-            >
-              <option value="0">핑퐁핑퐁</option>
-              <option value="1">테트리스</option>
-              <option value="2">퍼즐팡팡</option>
-              <option value="3">좀비좀비</option>
-            </Select>
-            <ArrowIcon
-              onClick={() => setSelectedOpen(!selectedOpen)}
-              isOpen={selectedOpen}
-            >
-              <img src={SelectArrow} alt={SelectArrow} />
-            </ArrowIcon>
-          </SelectWrapper>
+          <SelectContainer>
+            <SelectWrapper>
+              <Select
+                name="game"
+                onClick={() => {
+                  setSelectedOpen(!selectedOpen);
+                }}
+                onChange={handleGameChange}
+              >
+                <option value="핑퐁핑퐁">핑퐁핑퐁</option>
+                <option value="테트리스">테트리스</option>
+                <option value="퍼즐팡팡">퍼즐팡팡</option>
+                <option value="좀비좀비">좀비좀비</option>
+              </Select>
+              <ArrowIcon
+                onClick={() => setSelectedOpen(!selectedOpen)}
+                isOpen={selectedOpen}
+              >
+                <img src={SelectArrow} alt={SelectArrow} />
+              </ArrowIcon>
+            </SelectWrapper>
+          </SelectContainer>
         </SelectGameContainer>
         <GameContainer>
-          <HistoryText>34승 11패</HistoryText>
-          <GameButton>전적 보기</GameButton>
+          {/* <HistoryText>34승 11패</HistoryText> */}
+          <HistoryText>{getUserGameHistoryText(selectedGame)}</HistoryText>
+          <GameButton onClick={() => navigate('/game/record')}>
+            전적 보기
+          </GameButton>
           <GameButton>게임하기</GameButton>
         </GameContainer>
       </MyPageDiv>
     </Layout>
   );
 }
-
-/*
- ** 게임
- */
-const GameContainer = styled.div`
-  margin-top: 2.5rem;
-  background: #e1e3ee;
-  border-radius: 10px;
-  width: 85%;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const HistoryText = styled.p`
-  margin-top: 20px;
-  margin-bottom: 15px;
-  font-family: 'SEBANG Gothic';
-  font-size: 4rem;
-`;
-
-const GameButton = styled.button`
-  font-family: 'SEBANG Gothic';
-  font-size: 4rem;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding: 1rem;
-  width: 20rem;
-  color: white;
-  background: #6d77af;
-  border-radius: 10px;
-  border: 1px solid black;
-  cursor: pointer;
-`;
 
 // 전체 div
 const MyPageDiv = styled.div`
@@ -310,15 +310,23 @@ const PingPongImageWrap = styled.div`
   }
 `;
 
+const SelectContainer = styled.div`
+  width: 19rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const SelectWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  width: 100%;
 `;
 
 const Select = styled.select`
-  width: 19rem;
+  width: 100%;
   font-family: 'NanumGothic';
   font-size: 2.5rem;
   font-weight: bold;
@@ -335,6 +343,7 @@ const Select = styled.select`
   }
 
   option {
+    width: 100%;
     font-family: 'NanumGothic';
     font-size: 2rem;
     color: #555555;
@@ -354,4 +363,40 @@ const ArrowIcon = styled.div<{ isOpen: boolean }>`
     width: 3.2rem;
     height: 3.2rem;
   }
+`;
+
+/*
+ ** 게임
+ */
+const GameContainer = styled.div`
+  margin-top: 2.5rem;
+  background: #e1e3ee;
+  border-radius: 10px;
+  width: 85%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const HistoryText = styled.p`
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-family: 'SEBANG Gothic';
+  font-size: 4rem;
+`;
+
+const GameButton = styled.button`
+  font-family: 'SEBANG Gothic';
+  font-size: 4rem;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 1rem;
+  width: 20rem;
+  color: white;
+  background: #6d77af;
+  border-radius: 10px;
+  border: 1px solid black;
+  cursor: pointer;
 `;
