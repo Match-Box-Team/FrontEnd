@@ -72,6 +72,7 @@ export default function CreateRoom({
       // 모달 끄기
       handleClickModal();
       // 채널 id 설정
+      console.log(response.data.channelId);
       setChannelIdState(response.data.channelId);
       // 채팅방으로 페이지 이동
       const to = `/chat/channel/${response.data.channelId}`;
