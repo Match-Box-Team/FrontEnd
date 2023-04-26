@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRecoilValue } from 'recoil';
 import {
@@ -37,13 +37,18 @@ export default function SetRoom({
   // 채널 id atom getter
   const channelIdStateValue = useRecoilValue(channelIdState);
 
-  // form input 초기화
-  const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
-  // form input 업데이트
+  // password 초기화
+  const [password, setPassword] = useState<string>('');
+  // password 업데이트
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = event.target;
-    setFormValues(prevValues => ({ ...prevValues, [name]: value }));
+    setPassword(value);
   };
+
+  // 모달이 꺼질 때 state 들을 초기화함
+  useEffect(() => {
+    setPassword('');
+  }, [isOpenSetRoomModal]);
 
   // 채팅방 설정 patch
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -52,17 +57,16 @@ export default function SetRoom({
       const response = await axios.patch(
         `http://localhost:3000/channels/${channelIdStateValue}`,
         {
-          password: formValues.password,
+          password,
         },
         {
           headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
         },
       );
-      // form input 초기화
-      setFormValues(initialFormValues);
       // 모달 끄기
       handleClickModal();
     } catch (error) {
+      handleClickModal();
       console.log(error);
     }
   };
@@ -80,7 +84,7 @@ export default function SetRoom({
                 <FormInput
                   type="text"
                   name="password"
-                  value={formValues.password}
+                  value={password}
                   onChange={handleChange}
                   placeholder="비밀번호를 설정합니다"
                 />
