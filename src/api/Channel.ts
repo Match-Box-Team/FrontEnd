@@ -1,7 +1,10 @@
 import axios from 'axios';
 import { AxiosInstanceWithToken } from '.';
 
-// 예시
-export function getFriendList() {
-  return AxiosInstanceWithToken.get(`/friends`);
+export function joinChannel(channelId: string) {
+  return AxiosInstanceWithToken.post(`/channels/${channelId}/join`);
+}
+
+export function getChatRoomLog(channelId: string) {
+  return AxiosInstanceWithToken.get(`/channels/${channelId}`);
 }

@@ -4,6 +4,7 @@ import { useTheme } from '@emotion/react';
 import { AiOutlineArrowUp } from 'react-icons/ai';
 import { BsPlusSquare } from 'react-icons/bs';
 import defaultTheme from '../../../../../styles/theme';
+import { ISendedMessage } from '..';
 
 const Base = styled.div<{ borderColor: string; backgroundColor: string }>`
   width: 100%;
@@ -69,10 +70,11 @@ const SendButton = styled.button<{ backgroundColor: string }>`
 `;
 
 interface Props {
-  onClick(content: string): void;
+  onClick(content: ISendedMessage): void;
+  channelId?: string;
 }
 
-export default function InputChat({ onClick }: Props) {
+export default function InputChat({ onClick, channelId }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
   const [content, setContent] = useState<string>('');
@@ -82,7 +84,19 @@ export default function InputChat({ onClick }: Props) {
   };
 
   const handleClick = () => {
-    onClick(content);
+    if (!channelId) {
+      // 에러 모달로 수정
+      console.error('메세지를 보낼 수 없습니다');
+      return;
+    }
+
+    const sendedMessage: ISendedMessage = {
+      channelId,
+      message: content,
+      time: new Date(),
+    };
+
+    onClick(sendedMessage);
 
     setContent('');
 

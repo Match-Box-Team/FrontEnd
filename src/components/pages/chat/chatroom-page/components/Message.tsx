@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 
 import { MessageType } from './MessageList';
 import defaultTheme from '../../../../../styles/theme';
+import { IProfile } from '..';
 
 interface ReceivedMessage extends MessageType {
   receiver: string;
@@ -57,19 +58,12 @@ const ReceivedAt = styled.span`
   opacity: 0.8;
 `;
 
-export interface Props {
-  receiver?: string;
-  receiverThumbnailImage?: string;
-  content: string;
-  timestamp: boolean;
-}
-
 export function Message({
   receiverThumbnailImage,
   receiver,
   timestamp,
   content,
-}: Props) {
+}: IProfile) {
   const maxLength = 10; // 줄바꿈이 적용되는 최대 문자열 길이
 
   const formatContent = (text: string) => {
@@ -98,11 +92,11 @@ export function Message({
       />
       <Content>
         <UserName>{receiver}</UserName>
+        <ReceivedAt>{timestamp}</ReceivedAt>
         <Info>
           <SpeechBubble backgroundColor={defaultTheme.colors.white}>
             {formatContent(content)}
           </SpeechBubble>
-          <ReceivedAt>{timestamp}</ReceivedAt>
         </Info>
       </Content>
     </Base>

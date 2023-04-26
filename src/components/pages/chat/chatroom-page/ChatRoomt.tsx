@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { AxiosError, AxiosResponse } from 'axios';
-import { io } from 'socket.io-client';
+import { Socket, io } from 'socket.io-client';
 import { useMutation, useQuery } from 'react-query';
 // import { fetchChatRoomDetail } from '../apis/roomApi';
 // import { IChat, IProfile, IRoom } from '../types';
@@ -13,6 +13,10 @@ import Layout from '../../../commons/layout/Layout';
 import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
+import Header from '../../../commons/header/Header';
+import { useJoinChannel } from './hooks/UseJoinChannel';
+import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
+import { getChatRoomLog } from '../../../../api/Channel';
 
 const Base = styled.div`
   position: relative;
@@ -27,8 +31,10 @@ const Container = styled.div`
 `;
 
 export default function ChatRoom() {
+  const socketRef = useRef<Socket | null>(null);
   const scrollBottomRef = useRef<HTMLLIElement>(null);
-  const { roomId } = useParams<string>();
+  const { id } = useParams<string>();
+  // const joinChannelMutation = useJoinChannel(id);
 
   //   const { data: profileData } = useQuery<AxiosResponse<IProfile>, AxiosError>(
   //     'fetchMyProfile',
@@ -41,116 +47,105 @@ export default function ChatRoom() {
   //     fetchChatRoomDetail(roomId as string),
   //   );
 
-  //   const [messages, setMessages] = useState<Array<IChat>>([]);
+  const [messages, setMessages] = useState<Array<IChat>>([]);
 
-  //   const { data: chatListData } = useQuery<
-  //     AxiosResponse<Array<IChat>>,
-  //     AxiosError
-  //   >(['fetchChatMessageList', roomId, messages], () =>
-  //     fetchChatMessageList(roomId as string),
-  //   );
+  // const { data: chatListData } = useQuery<
+  //   AxiosResponse<Array<IReceivedMessage>>,
+  //   AxiosError
+  // >(['fetchChatMessageList', roomId, messages], () =>
+  //   fetchChatMessageList(roomId as string),
+  // );
 
-  //   const mutation = useMutation('sendChatMessage', (content: string) =>
-  //     sendChatMessage(roomId as string, content),
-  //   );
+  const {
+    isLoading,
+    isError,
+    data: chatListData,
+  } = useQuery<IChatLog, AxiosError>('channels', () =>
+    getChatRoomLog(id || '').then(
+      (response: AxiosResponse<IChatLog>) => response.data,
+    ),
+  );
 
-  //   const handleSend = (content: string) => {
-  //     if (content.length) {
-  //       mutation.mutate(content);
-  //     }
-  //   };
+  // const mutation = useMutation('sendChatMessage', (content: string) =>
+  //   sendChatMessage(roomId as string, content),
+  // );
 
-  //   useEffect(() => {
-  //     const socket = io(`${API_HOST}/chat`, { path: '/socket.io' });
+  const handleSend = (content: ISendedMessage) => {
+    socketRef.current?.emit('chat', content, (newMessage: IChat) => {
+      console.log('Received new message from server:', newMessage);
 
-  //     socket.emit('join', roomId);
+      setMessages(prevMessages => [...prevMessages, newMessage]);
+    });
+  };
 
-  //     socket.on('chat', (newMessage: IChat) => {
-  //       setMessages(prevMessages => [...prevMessages, newMessage]);
-  //     });
-  //   }, []);
+  useEffect(() => {
+    socketRef.current = io(
+      `${process.env.REACT_APP_BASE_BACKEND_URL}/channel`,
+      {
+        path: '/socket.io',
+        extraHeaders: {
+          authorization: `Bearer ${process.env.REACT_APP_BASE_TOKEN}`,
+        },
+      },
+    );
 
-  //   useEffect(() => {
-  //     scrollBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  //   }, [messages]);
+    socketRef.current.emit('enterChannel', id);
+
+    // eslint-disable-next-line no-undef
+    socketRef.current?.on('message', (message: IEnterReply) => {
+      // 채팅방에 글 띄우는 걸로 변경
+      console.log(message);
+    });
+
+    socketRef.current.on('error', (error: IError) => {
+      // 에러모달로 변경
+      console.error(error);
+    });
+
+    socketRef.current.on('chat', (newMessage: IChat) => {
+      setMessages(prevMessages => {
+        return [...prevMessages, newMessage];
+      });
+    });
+
+    return () => {
+      socketRef.current?.off('error');
+      socketRef.current?.off('chat');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (chatListData) {
+      setMessages(chatListData.chat);
+    }
+  }, [chatListData]);
+
+  useEffect(() => {
+    scrollBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   return (
-    <Layout>
+    <Layout Header={<Header title="untitle" />}>
       <Base>
         {/* {chatRoomDetailData && (
           <TopNavigation title={chatRoomDetailData.data.user.username} />
         )} */}
         <Container>
           <MessageList>
-            {/* <Message
-                receiver={"Test"}
-                receiverThumbnailImage={"Test"}
-                //senderId={"Test"}
-                content={"Test"}
-                timestamp={dayjs("Test").format('HH:mm')/> */}
-            {
-              /* {chatListData?.data.map(() => (
+            {messages.map((message: IChat) => (
               <Message
-                key={message.id}
-                receiver={message.user?.username}
-                receiverThumbnailImage={message.user?.thumbnailImageUrl}
-                senderId={message.senderId}
-                content={message.content}
-                timestamp={dayjs(message.createdAt).format('HH:mm')}
+                key={message.chatId}
+                receiver={message.userChannel.user.nickname}
+                receiverThumbnailImage={message.userChannel.user.image}
+                content={message.message}
+                timestamp={message.time}
               />
-            }
-            */
-
-              <li ref={scrollBottomRef} />
-            }
+            ))}
+            <li ref={scrollBottomRef} />
           </MessageList>
         </Container>
-        {/* <InputChat onClick={handleSend} /> */}
-        <InputChat onClick={handleSend} />
+        <InputChat onClick={handleSend} channelId={id} />
       </Base>
     </Layout>
   );
 }
-
-/*
-import React, { useState } from 'react';
-import Layout from '../../../commons/layout/Layout';
-import Header from '../../../commons/header/Header';
-import Footer from '../../../commons/footer/Footer';
-import SetRoom from '../chat-modal/setroom-modal/SetRoom';
-import Invite from '../chat-modal/invite-modal/Invite';
-
-export default function ChatRoom() {
-  // 채팅방 설정 모달
-  const [isOpenSetRoomModal, setIsOpenSetRoomModal] = useState<boolean>(false);
-  const handleClickSetRoomModal = () => {
-    setIsOpenSetRoomModal(!isOpenSetRoomModal);
-  };
-
-  // 친구 초대 모달
-  const [isOpenInviteModal, setIsOpenInviteModal] = useState<boolean>(false);
-  const handleClickSetInviteModal = () => {
-    setIsOpenInviteModal(!isOpenInviteModal);
-  };
-
-  return (
-    <Layout
-      Header={<Header title="Channel" channelBurger backPath="/chat/channel" />}
-      Footer={<Footer tab="channel" />}
-    >
-      <SetRoom
-        isOpenSetRoomModal={isOpenSetRoomModal}
-        handleClickModal={handleClickSetRoomModal}
-      />
-
-      <Invite
-        isOpenInviteModal={isOpenInviteModal}
-        handleClickModal={handleClickSetInviteModal}
-      />
-    </Layout>
-  );
-}
-
-
-
-*/
