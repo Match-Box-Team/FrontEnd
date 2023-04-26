@@ -6,6 +6,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
 import ErrorPopup from '../../../../commons/error/ErrorPopup';
 import PwdSetModal from './PwdSetModal';
+import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 
 interface IChannel {
   channelId: string;
@@ -17,6 +18,7 @@ interface IChannel {
 export default function ChannelList() {
   const [channels, setChannels] = useState<IChannel[]>([]);
   const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [myChannelId, setMyChannelId] = useRecoilState(channelIdState);
   const [showModal, setShowModal] = useState(false);
   const [currentChannelId, setCurrentChannelId] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
@@ -48,6 +50,7 @@ export default function ChannelList() {
         config,
       );
       closeModal();
+      setMyChannelId(currentChannelId);
       navigate(`/chat/channel/${currentChannelId}`);
     } catch (err) {
       const e = err as AxiosError;
@@ -59,9 +62,33 @@ export default function ChannelList() {
     }
   };
 
+  const enterOpenChannel = async (channelId: string) => {
+    const token = process.env.REACT_APP_TOKEN;
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+    try {
+      await axios.post(
+        `http://127.0.0.1:3000/channels/${channelId}/join`,
+        { password: passwordInput },
+        config,
+      );
+      setErrorMessage('');
+      setMyChannelId(channelId);
+      navigate(`/chat/channel/${channelId}`);
+    } catch (err) {
+      const e = err as AxiosError;
+      if (e.response && e.response.status === 400) {
+        setErrorMessage('틀렸습니다. 다시 입력하세요.');
+      } else {
+        setErrorMessage('요청을 처리할 수 없습니다.');
+      }
+    }
+  };
   const handleClick = (channelId: string, password: string | null) => {
     if (password === null) {
-      navigate(`/chat/channel/${channelId}`);
+      setPasswordInput('');
+      enterOpenChannel(channelId);
     } else {
       openModal(channelId);
     }
@@ -184,6 +211,7 @@ const ChannelItem = styled.li`
   margin-left: 2rem;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+  cursor: pointer;
 `;
 
 const RoomTitle = styled.span`
