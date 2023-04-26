@@ -124,9 +124,6 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
           headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
         },
       );
-      // 모달 안끌거면 아래 주석을 지워야 함
-      // stateReset();
-
       // 모달 끄기
       handleClickModal();
     } catch (error) {
