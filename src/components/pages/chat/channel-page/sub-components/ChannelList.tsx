@@ -1,10 +1,185 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import axios, { AxiosError } from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
 import ErrorPopup from '../../../../commons/error/ErrorPopup';
+import PwdSetModal from './PwdSetModal';
+import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
+
+interface IChannel {
+  channelId: string;
+  channelName: string;
+  count: number;
+  password: string | null;
+}
+
+export default function ChannelList() {
+  const [channels, setChannels] = useState<IChannel[]>([]);
+  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [myChannelId, setMyChannelId] = useRecoilState(channelIdState);
+  const [showModal, setShowModal] = useState(false);
+  const [currentChannelId, setCurrentChannelId] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const navigate = useNavigate();
+
+  const openModal = (channelId: string) => {
+    setCurrentChannelId(channelId);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setPasswordInput('');
+    setErrorMessage('');
+  };
+
+  const handleConfirm = async () => {
+    const token = process.env.REACT_APP_TOKEN;
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
+    try {
+      await axios.post(
+        `http://127.0.0.1:3000/channels/${currentChannelId}/join`,
+        { password: passwordInput },
+        config,
+      );
+      closeModal();
+      setMyChannelId(currentChannelId);
+      navigate(`/chat/channel/${currentChannelId}`);
+    } catch (err) {
+      const e = err as AxiosError;
+      if (e.response && e.response.status === 400) {
+        setErrorMessage('틀렸습니다. 다시 입력하세요.');
+      } else {
+        setErrorMessage('요청을 처리할 수 없습니다.');
+      }
+    }
+  };
+
+  const enterOpenChannel = async (channelId: string) => {
+    const token = process.env.REACT_APP_TOKEN;
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+    try {
+      await axios.post(
+        `http://127.0.0.1:3000/channels/${channelId}/join`,
+        { password: passwordInput },
+        config,
+      );
+      setErrorMessage('');
+      setMyChannelId(channelId);
+      navigate(`/chat/channel/${channelId}`);
+    } catch (err) {
+      const e = err as AxiosError;
+      if (e.response && e.response.status === 400) {
+        setErrorMessage('틀렸습니다. 다시 입력하세요.');
+      } else {
+        setErrorMessage('요청을 처리할 수 없습니다.');
+      }
+    }
+  };
+  const handleClick = (channelId: string, password: string | null) => {
+    if (password === null) {
+      setPasswordInput('');
+      enterOpenChannel(channelId);
+    } else {
+      openModal(channelId);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = process.env.REACT_APP_TOKEN;
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+
+      try {
+        const response = await axios.get(
+          'http://127.0.0.1:3000/channels',
+          config,
+        );
+        setChannels(response.data.channel);
+      } catch (error) {
+        setIsErrorGet(true);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLDivElement>,
+    channelId: string,
+  ) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      openModal(channelId);
+    }
+  };
+
+  return (
+    <>
+      <ErrorPopup message="요청을 처리할 수 없습니다." />
+      <Outline>
+        {channels.map(channel => (
+          <List key={channel.channelId}>
+            <ChannelItem>
+              <div
+                role="button"
+                tabIndex={0}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'block',
+                  width: '100%',
+                  height: '100%',
+                }}
+                onClick={() => handleClick(channel.channelId, channel.password)}
+                onKeyDown={event => handleKeyDown(event, channel.channelId)}
+              >
+                <RoomTitle>
+                  {channel.channelName} (현재인원: {channel.count}명){' '}
+                </RoomTitle>
+              </div>
+            </ChannelItem>
+          </List>
+        ))}
+      </Outline>
+      <PwdSetModal show={showModal} handleClose={closeModal}>
+        <ModalContent>
+          <h2>비밀번호를 입력하세요.</h2>
+          <input
+            type="password"
+            value={passwordInput}
+            onChange={e => setPasswordInput(e.target.value)}
+          />
+          <div>
+            {errorMessage ? (
+              <p style={{ color: 'red' }}>{errorMessage}</p>
+            ) : (
+              <p>나가려면 닫기를 누르세요.</p>
+            )}
+          </div>
+        </ModalContent>
+        <ButtonContainer>
+          <button type="button" onClick={handleConfirm}>
+            확인
+          </button>
+          <button type="button" onClick={closeModal}>
+            닫기
+          </button>
+        </ButtonContainer>
+      </PwdSetModal>
+    </>
+  );
+}
 
 const Outline = styled.ul`
   display: flex;
@@ -36,6 +211,7 @@ const ChannelItem = styled.li`
   margin-left: 2rem;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+  cursor: pointer;
 `;
 
 const RoomTitle = styled.span`
@@ -45,60 +221,13 @@ const RoomTitle = styled.span`
   color: inherit;
 `;
 
-interface IChannel {
-  channelId: string;
-  channelName: string;
-  count: number;
-}
+const ModalContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
 
-export default function ChannelList() {
-  const [channels, setChannels] = useState<IChannel[]>([]);
-  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = process.env.REACT_APP_TOKEN;
-      const config = {
-        headers: { Authorization: `Bearer ${token}` },
-      };
-
-      try {
-        const response = await axios.get(
-          'http://127.0.0.1:3000/channels',
-          config,
-        );
-        setChannels(response.data.channel);
-      } catch (error) {
-        setIsErrorGet(true);
-      }
-    };
-
-    fetchData();
-  }, []);
-  return (
-    <>
-      <ErrorPopup message="요청을 처리할 수 없습니다." />
-      <Outline>
-        {channels.map(channel => (
-          <List key={channel.channelId}>
-            <ChannelItem>
-              <Link
-                to={`/chat/channel/${channel.channelId}`}
-                style={{
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  display: 'block',
-                  width: '100%',
-                  height: '100%',
-                }}
-              >
-                <RoomTitle>
-                  {channel.channelName} (현재인원: {channel.count}명){' '}
-                </RoomTitle>
-              </Link>
-            </ChannelItem>
-          </List>
-        ))}
-      </Outline>
-    </>
-  );
-}
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;

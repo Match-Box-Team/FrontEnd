@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios, { AxiosResponse } from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
 import ErrorPopup from '../../../../commons/error/ErrorPopup';
 import { getImageUrl } from '../../../../../api/ProfileImge';
 import { getChatRoomInfo } from '../../../../../api/ChatRoomInfo';
+import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 
 interface User {
   userId: number;
@@ -40,9 +41,11 @@ interface RoomList {
 
 export default function MyMsgList() {
   const [channels, setChannels] = useState<ChannelData[]>([]);
+  const [myChannelId, setMyChannelId] = useRecoilState(channelIdState);
   const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
   const [imageUrl, setImageUrl] = useState<string>('');
   const [myRooms, setMyRooms] = useState<RoomList[][]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsErrorGet(false);
@@ -88,76 +91,73 @@ export default function MyMsgList() {
     fetchData();
   }, []);
 
+  const handleClick = (channelId: string) => {
+    setMyChannelId(channelId);
+    navigate(`/chat/channel/${channelId}`);
+  };
+
   return (
     <>
       <ErrorPopup message="요청을 처리할 수 없습니다." />
       <Outline>
         {channels.map((room, index) => (
-          <List key={room.userChannel.userChannelId}>
+          <List
+            key={room.userChannel.userChannelId}
+            onClick={() => handleClick(room.userChannel.channel.channelId)}
+          >
             <RoomItem>
-              <Link
-                to={`/chat/channel/${room.userChannel.channel.channelId}`}
-                style={{
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  width: '100%',
-                }}
-              >
-                <RoomMain>
-                  <RoomContent>
-                    <ProfileImg>
-                      <img
-                        src={imageUrl}
-                        alt="profile"
-                        width="100%"
-                        height="100%"
-                      />
-                    </ProfileImg>
-                    <RoomBody>
-                      <RoomTitle>
-                        {room.userChannel.channel.channelName}
-                      </RoomTitle>
-                      <RoomMemeber>
-                        {myRooms[index] &&
-                          myRooms[index].map(
-                            (item: any, memberIndex: number) => {
-                              if (memberIndex < 2) {
-                                return (
-                                  <Member key={item.user.userId}>
-                                    {item.user.nickname}
-                                  </Member>
-                                );
-                              }
-                              if (memberIndex === 2) {
-                                return (
-                                  <Member key={item.user.userId}>
-                                    외 {myRooms[index].length - 2}명
-                                  </Member>
-                                );
-                              }
-                              return null;
-                            },
-                          )}
-                      </RoomMemeber>
-                    </RoomBody>
-                  </RoomContent>
-                  <RoomInfo>
-                    <LastMsgTime as="span">
-                      {new Date(room.chat.time).toISOString().split('T')[0]}
-                    </LastMsgTime>
-                    <UnreadMsgCount
-                      style={{
-                        backgroundColor:
-                          room.chat.computedChatCount === 0 ? 'white' : 'red',
-                      }}
-                    >
-                      <Unread>
-                        {room.chat.computedChatCount - 1 /* 더미 메시지 - 1 */}
-                      </Unread>
-                    </UnreadMsgCount>
-                  </RoomInfo>
-                </RoomMain>
-              </Link>
+              <RoomMain>
+                <RoomContent>
+                  <ProfileImg>
+                    <img
+                      src={imageUrl}
+                      alt="profile"
+                      width="100%"
+                      height="100%"
+                    />
+                  </ProfileImg>
+                  <RoomBody>
+                    <RoomTitle>
+                      {room.userChannel.channel.channelName}
+                    </RoomTitle>
+                    <RoomMemeber>
+                      {myRooms[index] &&
+                        myRooms[index].map((item: any, memberIndex: number) => {
+                          if (memberIndex < 2) {
+                            return (
+                              <Member key={item.user.userId}>
+                                {item.user.nickname}
+                              </Member>
+                            );
+                          }
+                          if (memberIndex === 2) {
+                            return (
+                              <Member key={item.user.userId}>
+                                외 {myRooms[index].length - 2}명
+                              </Member>
+                            );
+                          }
+                          return null;
+                        })}
+                    </RoomMemeber>
+                  </RoomBody>
+                </RoomContent>
+                <RoomInfo>
+                  <LastMsgTime as="span">
+                    {new Date(room.chat.time).toISOString().split('T')[0]}
+                  </LastMsgTime>
+                  <UnreadMsgCount
+                    style={{
+                      backgroundColor:
+                        room.chat.computedChatCount === 0 ? 'white' : 'red',
+                    }}
+                  >
+                    <Unread>
+                      {room.chat.computedChatCount - 1 /* 더미 메시지 - 1 */}
+                    </Unread>
+                  </UnreadMsgCount>
+                </RoomInfo>
+              </RoomMain>
             </RoomItem>
           </List>
         ))}
@@ -198,6 +198,7 @@ const RoomItem = styled.li`
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
   display: flex;
+  cursor: pointer;
 `;
 
 const RoomMain = styled.div`
