@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useSetRecoilState } from 'recoil';
@@ -48,6 +48,12 @@ export default function CreateRoom({
     setIsPublic(!isPublic);
   };
 
+  // 모달이 꺼질 때 state 들을 초기화함
+  useEffect(() => {
+    setFormValues(initialFormValues);
+    setIsPublic(false);
+  }, [isOpenCreateRoomModal]);
+
   // 채팅방 생성 Post
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -63,8 +69,6 @@ export default function CreateRoom({
           headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
         },
       );
-      // form input 초기화
-      setFormValues(initialFormValues);
       // 모달 끄기
       handleClickModal();
       // 채널 id 설정
@@ -73,6 +77,7 @@ export default function CreateRoom({
       const to = `/chat/channel/${response.data.channelId}`;
       navigate(to);
     } catch (error) {
+      handleClickModal();
       console.log(error);
     }
   };
