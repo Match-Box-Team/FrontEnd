@@ -1,20 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { AxiosError, AxiosResponse } from 'axios';
 import { Socket, io } from 'socket.io-client';
-import { useMutation, useQuery } from 'react-query';
-// import { fetchChatRoomDetail } from '../apis/roomApi';
-// import { IChat, IProfile, IRoom } from '../types';
-// import { fetchChatMessageList, sendChatMessage } from '../apis/chatApi';
-// import { API_HOST } from '../config';
-// import { fetchMyProfile } from '../apis/userApi';
+import { useQuery } from 'react-query';
 import Layout from '../../../commons/layout/Layout';
 import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
-import { useJoinChannel } from './hooks/UseJoinChannel';
 import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
 import { getChatRoomLog } from '../../../../api/Channel';
 
@@ -34,7 +28,6 @@ export default function ChatRoom() {
   const socketRef = useRef<Socket | null>(null);
   const scrollBottomRef = useRef<HTMLLIElement>(null);
   const { id } = useParams<string>();
-  // const joinChannelMutation = useJoinChannel(id);
 
   //   const { data: profileData } = useQuery<AxiosResponse<IProfile>, AxiosError>(
   //     'fetchMyProfile',
