@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import Popup, { XButton } from '../../../../commons/modals/popup-modal/Popup';
+import Popup from '../../../../commons/modals/popup-modal/Popup';
 import {
   FormContainer,
   FormDiv,
@@ -43,13 +43,49 @@ export default function EditMy({
   };
 
   // nickname input 초기화
-  const [Nickname, setNickname] = useState<string>('');
+  const [nickname, setNickname] = useState<string>('');
   // nickname input 업데이트
   const handleNicknameChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ): void => {
     const { name, value } = event.target;
     setNickname(value);
+  };
+
+  // 프로필 수정 patch
+  const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      // 이미지 업데이트
+      if (selectedFile) {
+        const form = new FormData();
+        form.append('image', selectedFile!);
+        const user = await axios.patch(
+          `http://localhost:3000/account/image`,
+          form,
+          {
+            headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+          },
+        );
+      }
+      // 닉네임 업데이트
+      if (nickname) {
+        const user = await axios.patch(
+          `http://localhost:3000/account/nickname`,
+          {
+            nickname,
+          },
+          {
+            headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+          },
+        );
+      }
+      // 모달 끄기
+      handleClickModal();
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -59,8 +95,7 @@ export default function EditMy({
           <EditMyMainText>프로필 수정</EditMyMainText>
           <FormDiv>
             <FormWarp>
-              {/* <FormContainer onSubmit={handleSubmit}> */}
-              <FormContainer>
+              <FormContainer onSubmit={handleEditSubmit}>
                 {/* <SelectImageInput type="file" id="image-input" /> */}
                 <input type="file" onChange={handleFileInputChange} />
                 {previewUrl && (
@@ -74,10 +109,9 @@ export default function EditMy({
                 <FormInput
                   type="text"
                   name="channelName"
-                  value={Nickname}
+                  value={nickname}
                   onChange={handleNicknameChange}
                   placeholder="닉네임을 수정합니다"
-                  required
                 />
                 <FormSubmitButton type="submit">저장</FormSubmitButton>
               </FormContainer>
