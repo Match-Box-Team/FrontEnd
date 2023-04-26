@@ -165,7 +165,6 @@ export default function MyProfile() {
           </SelectContainer>
         </SelectGameContainer>
         <GameContainer>
-          {/* <HistoryText>34승 11패</HistoryText> */}
           <HistoryText>{getUserGameHistoryText(selectedGame)}</HistoryText>
           <GameButton onClick={() => navigate('/game/record')}>
             전적 보기

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import Popup from '../../../../commons/modals/popup-modal/Popup';
@@ -22,7 +22,6 @@ export default function EditMy({
   handleClickModal,
 }: Props) {
   // 선택된 이미지 초기화
-  // const [selectedImage, setSelectedImage] = useState<string>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
@@ -51,6 +50,12 @@ export default function EditMy({
     const { name, value } = event.target;
     setNickname(value);
   };
+
+  useEffect(() => {
+    setSelectedFile(null);
+    setPreviewUrl('');
+    setNickname('');
+  }, [isOpenEditProfileModal]);
 
   // 프로필 수정 patch
   const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -82,9 +87,8 @@ export default function EditMy({
       }
       // 모달 끄기
       handleClickModal();
-      window.location.reload();
     } catch (error) {
-      console.log(error);
+      alert('중복된 닉네임입니다');
     }
   };
 
