@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 import Layout from '../../../commons/layout/Layout';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
@@ -7,6 +8,14 @@ import PingPongIcon from '../../../../assets/icon/pingpong.svg';
 import TestrisIcon from '../../../../assets/icon/testris.svg';
 import PuzzleIcon from '../../../../assets/icon/puzzle.svg';
 import ZombieIcon from '../../../../assets/icon/zombie.svg';
+
+interface Game {
+  gameId: string;
+  name: string;
+  price: number;
+  isPlayable: boolean;
+  isBuy: boolean;
+}
 
 interface BuyButtonProps {
   isBuy: boolean;
@@ -16,14 +25,29 @@ interface SelectGameContainerProps {
   isSelected: boolean;
 }
 
+const gameIcons = [PingPongIcon, TestrisIcon, PuzzleIcon, ZombieIcon];
+
 export default function GameShop() {
+  const [games, setGames] = useState<Game[] | null>(null);
+
   const [selectedGameIndex, setSelectedGameIndex] = useState<number | null>(
     null,
   );
 
   const handleGameSelect = (index: number) => {
     setSelectedGameIndex(index);
+    console.log(games);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await axios.get(`http://localhost:3000/games`, {
+        headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+      });
+      setGames(data.data);
+    };
+    fetchData();
+  }, []);
 
   return (
     <Layout
@@ -36,50 +60,21 @@ export default function GameShop() {
         </ManualTextWrap>
         <SelectGameDiv>
           <SelectGameGridDiv>
-            <SelectGameContainer
-              isSelected={selectedGameIndex === 0}
-              onClick={() => handleGameSelect(0)}
-            >
-              <GameImageWrap>
-                <img src={PingPongIcon} alt={PingPongIcon} />
-                <strong>핑퐁핑퐁</strong>
-                <p>5.000₩</p>
-                <BuyButton isBuy>BUY</BuyButton>
-              </GameImageWrap>
-            </SelectGameContainer>
-            <SelectGameContainer
-              isSelected={selectedGameIndex === 1}
-              onClick={() => handleGameSelect(1)}
-            >
-              <GameImageWrap>
-                <img src={TestrisIcon} alt={TestrisIcon} />
-                <strong>테트리스</strong>
-                <p>7.000₩</p>
-                <BuyButton isBuy={false}>BUY</BuyButton>
-              </GameImageWrap>
-            </SelectGameContainer>
-            <SelectGameContainer
-              isSelected={selectedGameIndex === 2}
-              onClick={() => handleGameSelect(2)}
-            >
-              <GameImageWrap>
-                <img src={PuzzleIcon} alt={PuzzleIcon} />
-                <strong>퍼즐팡팡</strong>
-                <p>6.000₩</p>
-                <BuyButton isBuy={false}>BUY</BuyButton>
-              </GameImageWrap>
-            </SelectGameContainer>
-            <SelectGameContainer
-              isSelected={selectedGameIndex === 3}
-              onClick={() => handleGameSelect(3)}
-            >
-              <GameImageWrap>
-                <img src={ZombieIcon} alt={ZombieIcon} />
-                <strong>좀비좀비</strong>
-                <p>8.000₩</p>
-                <BuyButton isBuy={false}>BUY</BuyButton>
-              </GameImageWrap>
-            </SelectGameContainer>
+            {games?.map((game, index) => {
+              return (
+                <SelectGameContainer
+                  isSelected={selectedGameIndex === index}
+                  onClick={() => handleGameSelect(index)}
+                >
+                  <GameImageWrap>
+                    <img src={gameIcons[index]} alt={gameIcons[index]} />
+                    <strong>{game.name}</strong>
+                    <p>{`${game.price.toLocaleString('en-US')}₩`}</p>
+                    <BuyButton isBuy={game.isBuy}>BUY</BuyButton>
+                  </GameImageWrap>
+                </SelectGameContainer>
+              );
+            })}
           </SelectGameGridDiv>
           <GameWatchingButton>관전하기</GameWatchingButton>
         </SelectGameDiv>
