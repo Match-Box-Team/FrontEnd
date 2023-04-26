@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
 const clickAnimation = keyframes`
@@ -37,7 +38,9 @@ export default function ReadyGame({ onClick }: ReadyGameProps) {
         <GameMapFlow>{/* <MapList /> */}</GameMapFlow>
       </GameMaps>
       <GameStart>
-        <StartButton>START</StartButton>
+        <Link to="/game/play">
+          <StartButton>START</StartButton>
+        </Link>
       </GameStart>
     </ModalWrapper>
   );
