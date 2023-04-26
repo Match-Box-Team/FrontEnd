@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Layout from '../../../commons/layout/Layout';
 import Footer from '../../../commons/footer/Footer';
@@ -12,7 +12,19 @@ interface BuyButtonProps {
   isBuy: boolean;
 }
 
+interface SelectGameContainerProps {
+  isSelected: boolean;
+}
+
 export default function GameShop() {
+  const [selectedGameIndex, setSelectedGameIndex] = useState<number | null>(
+    null,
+  );
+
+  const handleGameSelect = (index: number) => {
+    setSelectedGameIndex(index);
+  };
+
   return (
     <Layout
       Header={<Header title="Game Shop" />}
@@ -24,7 +36,10 @@ export default function GameShop() {
         </ManualTextWrap>
         <SelectGameDiv>
           <SelectGameGridDiv>
-            <SelectGameContainer>
+            <SelectGameContainer
+              isSelected={selectedGameIndex === 0}
+              onClick={() => handleGameSelect(0)}
+            >
               <GameImageWrap>
                 <img src={PingPongIcon} alt={PingPongIcon} />
                 <strong>핑퐁핑퐁</strong>
@@ -32,7 +47,10 @@ export default function GameShop() {
                 <BuyButton isBuy>BUY</BuyButton>
               </GameImageWrap>
             </SelectGameContainer>
-            <SelectGameContainer>
+            <SelectGameContainer
+              isSelected={selectedGameIndex === 1}
+              onClick={() => handleGameSelect(1)}
+            >
               <GameImageWrap>
                 <img src={TestrisIcon} alt={TestrisIcon} />
                 <strong>테트리스</strong>
@@ -40,7 +58,10 @@ export default function GameShop() {
                 <BuyButton isBuy={false}>BUY</BuyButton>
               </GameImageWrap>
             </SelectGameContainer>
-            <SelectGameContainer>
+            <SelectGameContainer
+              isSelected={selectedGameIndex === 2}
+              onClick={() => handleGameSelect(2)}
+            >
               <GameImageWrap>
                 <img src={PuzzleIcon} alt={PuzzleIcon} />
                 <strong>퍼즐팡팡</strong>
@@ -48,7 +69,10 @@ export default function GameShop() {
                 <BuyButton isBuy={false}>BUY</BuyButton>
               </GameImageWrap>
             </SelectGameContainer>
-            <SelectGameContainer>
+            <SelectGameContainer
+              isSelected={selectedGameIndex === 3}
+              onClick={() => handleGameSelect(3)}
+            >
               <GameImageWrap>
                 <img src={ZombieIcon} alt={ZombieIcon} />
                 <strong>좀비좀비</strong>
@@ -64,7 +88,6 @@ export default function GameShop() {
   );
 }
 
-// 전체 div
 const GameShopDiv = styled.div`
   display: flex;
   flex-direction: column;
@@ -97,12 +120,20 @@ const SelectGameGridDiv = styled.div`
   padding: 10px;
 `;
 
-const SelectGameContainer = styled.div`
+const SelectGameContainer = styled.div<SelectGameContainerProps>`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 20px 3rem;
+  margin: 20px 2rem;
+  border: 5px solid transparent;
+  cursor: pointer;
+
+  ${({ isSelected }) =>
+    isSelected &&
+    `
+  border: 5px solid #31D37C;
+  `};
 `;
 
 const GameImageWrap = styled.div`
