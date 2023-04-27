@@ -130,7 +130,7 @@ export default function Auth() {
   );
 }
 
-export const InfoText = styled.text`
+export const InfoText = styled.p`
   font-family: 'NanumGothic';
   font-weight: 400;
   font-size: 1.6rem;
