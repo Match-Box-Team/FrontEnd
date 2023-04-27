@@ -1,27 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
 import { getImageUrl } from '../../../../api/ProfileImge';
-
-const GetImageUrl = async (userId: string): Promise<string> => {
-  // recoil 유저 토큰
-  const userInfo = useRecoilValue(userState);
-  const response: AxiosResponse<Blob> = await axios.get(
-    `http://localhost:3000/account/image?userId=${userId}`,
-    {
-      responseType: 'blob',
-      headers: { Authorization: `Bearer ${userInfo.token}` },
-    },
-  );
-  const imageUrl: string = URL.createObjectURL(response.data);
-  return imageUrl;
-};
 
 export default function Auth() {
   // 페이지 이동
@@ -32,8 +18,8 @@ export default function Auth() {
   const [inputValue, setInputValue] = useState('');
   // recoil 유저 토큰 저장
   const setUserState = useSetRecoilState(userState);
-  // 쿠키에서 userId 받기
-  const [cookies] = useCookies(['token']);
+  // 쿠키
+  const [cookies, setCookie, removeCookie] = useCookies(['token']);
 
   // 입력 변화 핸들러
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,6 +52,7 @@ export default function Auth() {
         imageUrl: userImage,
       };
       console.log(storeUser);
+      removeCookie('token');
       setUserState(storeUser);
       navigate(`/chat/channel`);
     } catch (error) {
