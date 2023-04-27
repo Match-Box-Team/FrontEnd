@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -9,15 +9,29 @@ import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
 import { getImageUrl } from '../../../../api/ProfileImge';
 
+const GetImageUrl = async (userId: string): Promise<string> => {
+  // recoil 유저 토큰
+  const userInfo = useRecoilValue(userState);
+  const response: AxiosResponse<Blob> = await axios.get(
+    `http://localhost:3000/account/image?userId=${userId}`,
+    {
+      responseType: 'blob',
+      headers: { Authorization: `Bearer ${userInfo.token}` },
+    },
+  );
+  const imageUrl: string = URL.createObjectURL(response.data);
+  return imageUrl;
+};
+
 export default function Auth() {
   // 페이지 이동
   const navigate = useNavigate();
   // 타이머
-  const [time, setTime] = useState(15);
+  const [time, setTime] = useState(300);
   // 입력
   const [inputValue, setInputValue] = useState('');
   // recoil 유저 토큰 저장
-  const setUserToken = useSetRecoilState(userState);
+  const setUserState = useSetRecoilState(userState);
   // 쿠키에서 userId 받기
   const [cookies] = useCookies(['token']);
 
@@ -29,28 +43,30 @@ export default function Auth() {
   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     try {
+      const userIdInCookie = cookies.token;
       const response = await axios.post(
         `http://localhost:3000/auth/verifyCode`,
         {
-          userId: cookies.token,
+          userId: userIdInCookie,
           code: inputValue,
         },
       );
-      const userImageUrl = await getImageUrl(cookies.token);
+      const jwtToken = response.data.token;
       const userInfoResponse = await axios.post(
         `http://localhost:3000/account/info`,
         {
-          userId: cookies.token,
+          userId: userIdInCookie,
         },
       );
+      const userImage = await getImageUrl(userIdInCookie, jwtToken);
       const storeUser = {
-        token: response.data.token,
-        userId: userInfoResponse.data.userId,
+        token: jwtToken,
+        userId: userIdInCookie,
         nickname: userInfoResponse.data.nickname,
-        imageUrl: userImageUrl,
+        imageUrl: userImage,
       };
       console.log(storeUser);
-      setUserToken(storeUser);
+      setUserState(storeUser);
       navigate(`/chat/channel`);
     } catch (error) {
       alert('인증 코드를 다시 입력해주세요');

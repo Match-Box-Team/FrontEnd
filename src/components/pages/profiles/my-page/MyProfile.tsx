@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
 import EditMy from '../profile-modal/editmy-modal/EditMy';
 import PingPongIcon from '../../../../assets/icon/pingpong.svg';
 import SelectArrow from '../../../../assets/icon/SelectArrow.svg';
+import { userState } from '../../../../recoil/locals/login/atoms/atom';
 
 interface User {
   userId: string;
@@ -41,6 +43,7 @@ const initailUserValues = {
 export default function MyProfile() {
   // 페이지 이동
   const navigate = useNavigate();
+  const userInfo = useRecoilValue(userState);
 
   // 모달 관리
   const [isOpenEditProfileModal, setIsOpenEditProfileModal] =
@@ -81,7 +84,7 @@ export default function MyProfile() {
   useEffect(() => {
     const fetchData = async () => {
       const data = await axios.get(`http://localhost:3000/account`, {
-        headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+        headers: { Authorization: `Bearer ${userInfo.token}` },
       });
       setUser(data.data.user);
       setUserGames(data.data.userGame);
@@ -90,7 +93,7 @@ export default function MyProfile() {
         `http://localhost:3000/account/image?userId=${data.data.user.userId}`,
         {
           responseType: 'blob',
-          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+          headers: { Authorization: `Bearer ${userInfo.token}` },
         },
       );
       // 유저 이미지 저장

@@ -8,6 +8,7 @@ import ErrorPopup from '../../../../commons/error/ErrorPopup';
 import { getImageUrl } from '../../../../../api/ProfileImge';
 import { getChatRoomInfo } from '../../../../../api/ChatRoomInfo';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
+import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 
 interface User {
   userId: number;
@@ -46,13 +47,14 @@ export default function MyMsgList() {
   const [imageUrl, setImageUrl] = useState<string>('');
   const [myRooms, setMyRooms] = useState<RoomList[][]>([]);
   const navigate = useNavigate();
+  const userInfo = useRecoilValue(userState);
 
   useEffect(() => {
     setIsErrorGet(false);
     const fetchData = async () => {
-      const token: string | undefined = process.env.REACT_APP_TOKEN;
+      // const token: string | undefined = userInfo.token;
       const config = {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${userInfo.token}` },
       };
       try {
         const response: AxiosResponse<any, any> = await axios.get(
@@ -65,6 +67,7 @@ export default function MyMsgList() {
           response.data.channel.map(async (channel: ChannelData) => {
             const roomList = await getChatRoomInfo(
               channel.userChannel.channel.channelId,
+              userInfo.token,
             );
             return roomList;
           });
@@ -80,6 +83,7 @@ export default function MyMsgList() {
 
         const tmpUrl: string | undefined = await getImageUrl(
           response.data.channel[0].user[0].user.userId,
+          userInfo.token,
         );
         setImageUrl(tmpUrl);
         setChannels(response.data.channel);

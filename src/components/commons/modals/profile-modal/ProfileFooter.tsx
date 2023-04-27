@@ -11,6 +11,7 @@ import GameIcon from '../../../../assets/icon/game.svg';
 import KickIcon from '../../../../assets/icon/kick.svg';
 import MuteIcon from '../../../../assets/icon/mute.svg';
 import UnmuteIcon from '../../../../assets/icon/unmute.svg';
+import { userState } from '../../../../recoil/locals/login/atoms/atom';
 
 interface BanProps {
   friendId: string;
@@ -43,6 +44,7 @@ export default function ProfileFooter({
   const navigate = useNavigate();
   // 리코일 - 채널 id atom getter
   const channelIdStateValue = useRecoilValue(channelIdState);
+  const userInfo = useRecoilValue(userState);
   // 음소거 유무
   const [isMute, setIsMute] = useState<boolean | undefined>(
     user.muteKick?.isMute,
@@ -60,7 +62,7 @@ export default function ProfileFooter({
     await axios
       .patch(muteKickUrl.concat(isMute ? `/unmute` : `/mute`), null, {
         headers: {
-          Authorization: `Bearer ${process.env.REACT_APP_TOKEN}`,
+          Authorization: `Bearer ${userInfo.token}`,
         },
       })
       .then(function (response) {
@@ -91,7 +93,7 @@ export default function ProfileFooter({
     await axios
       .delete(muteKickUrl, {
         headers: {
-          Authorization: `Bearer ${process.env.REACT_APP_TOKEN}`,
+          Authorization: `Bearer ${userInfo.token}`,
         },
       })
       .then(function (response) {
@@ -124,7 +126,7 @@ export default function ProfileFooter({
         },
         {
           headers: {
-            Authorization: `Bearer ${process.env.REACT_APP_TOKEN}`,
+            Authorization: `Bearer ${userInfo.token}`,
           },
         },
       )
@@ -157,7 +159,7 @@ export default function ProfileFooter({
         },
         {
           headers: {
-            Authorization: `Bearer ${process.env.REACT_APP_TOKEN}`,
+            Authorization: `Bearer ${userInfo.token}`,
           },
         },
       )

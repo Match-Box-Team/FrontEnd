@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { PublicToggleButton } from './PublicToggleButton';
 import Popup, { XButton } from '../../../../commons/modals/popup-modal/Popup';
+import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 
 // 모달 prop 타입
 interface Props {
@@ -34,6 +35,7 @@ export default function CreateRoom({
   const navigate = useNavigate();
   // 채널 id atom setter
   const setChannelIdState = useSetRecoilState(channelIdState);
+  const userInfo = useRecoilValue(userState);
 
   // form input 초기화
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
@@ -66,7 +68,7 @@ export default function CreateRoom({
           isPublic,
         },
         {
-          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+          headers: { Authorization: `Bearer ${userInfo.token}` },
         },
       );
       // 모달 끄기

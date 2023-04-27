@@ -13,6 +13,7 @@ import {
 } from '../createroom-modal/Createroom';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import Popup, { XButton } from '../../../../commons/modals/popup-modal/Popup';
+import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 
 // 모달 prop 타입
 interface Props {
@@ -36,6 +37,7 @@ export default function SetRoom({
 }: Props) {
   // 채널 id atom getter
   const channelIdStateValue = useRecoilValue(channelIdState);
+  const userInfo = useRecoilValue(userState);
 
   // password 초기화
   const [password, setPassword] = useState<string>('');
@@ -60,7 +62,7 @@ export default function SetRoom({
           password,
         },
         {
-          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+          headers: { Authorization: `Bearer ${userInfo.token}` },
         },
       );
       // 모달 끄기
