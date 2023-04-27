@@ -150,7 +150,6 @@ export const FormSubmitButton = styled.button`
   background: #313c7a;
   border-radius: 20px;
   border: none;
-  /* margin-top: 44.9rem; */
   margin-bottom: 10px;
   padding: 7px;
   cursor: pointer;
@@ -163,12 +162,10 @@ const Container = styled.div`
   justify-content: space-around;
   align-items: center;
   list-style-type: none;
-  padding: 30rem 0rem 40rem;
+  padding: 50% 0rem 0rem;
   margin: 0;
   width: 100%;
   gap: 0;
-  height: 100%;
-  /* overflow-y: auto; */
 `;
 
 const InputContainer = styled.div`
