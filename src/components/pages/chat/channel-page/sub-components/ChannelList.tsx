@@ -7,6 +7,7 @@ import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
 import ErrorPopup from '../../../../commons/error/ErrorPopup';
 import PwdSetModal from './PwdSetModal';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
+import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 
 interface IChannel {
   channelId: string;
@@ -23,6 +24,7 @@ export default function ChannelList() {
   const [currentChannelId, setCurrentChannelId] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const userInfo = useRecoilValue(userState);
 
   const navigate = useNavigate();
 
@@ -38,9 +40,8 @@ export default function ChannelList() {
   };
 
   const handleConfirm = async () => {
-    const token = process.env.REACT_APP_TOKEN;
     const config = {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${userInfo.token}` },
     };
 
     try {
@@ -63,9 +64,8 @@ export default function ChannelList() {
   };
 
   const enterOpenChannel = async (channelId: string) => {
-    const token = process.env.REACT_APP_TOKEN;
     const config = {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${userInfo.token}` },
     };
     try {
       await axios.post(
@@ -96,9 +96,8 @@ export default function ChannelList() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = process.env.REACT_APP_TOKEN;
       const config = {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${userInfo.token}` },
       };
 
       try {

@@ -16,11 +16,12 @@ interface ChatRoomListResponse {
 
 export const getChatRoomInfo = async (
   channelId: string,
+  token: string,
 ): Promise<ChatRoomListResponse> => {
   const response = await axios.get<ChatRoomListResponse>(
     `http://localhost:3000/channels/${channelId}/friends`,
     {
-      headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+      headers: { Authorization: `Bearer ${token}` },
     },
   );
 

@@ -9,6 +9,7 @@ import {
   FormSubmitButton,
 } from '../createroom-modal/Createroom';
 import Popup from '../../../../commons/modals/popup-modal/Popup';
+import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 
 // 모달 prop 타입
 interface Props {
@@ -33,6 +34,7 @@ const initialSearchUserResponse: SearchUserResponse = {
 export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
   // 채널 id atom getter
   const channelIdStateValue = useRecoilValue(channelIdState);
+  const userInfo = useRecoilValue(userState);
 
   // 유저 검색 form input 초기화
   const [searchUserNickname, setSearchUserNickname] = useState<string>('');
@@ -73,7 +75,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
       const userData = await axios.get(
         `http://localhost:3000/channels/${channelIdStateValue}/invite?nickname=${searchUserNickname}`,
         {
-          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+          headers: { Authorization: `Bearer ${userInfo.token}` },
         },
       );
       // 유저 검색 input 초기화
@@ -94,7 +96,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
         `http://localhost:3000/account/image?userId=${userData.data.userId}`,
         {
           responseType: 'blob',
-          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+          headers: { Authorization: `Bearer ${userInfo.token}` },
         },
       );
       // 유저 이미지 저장
@@ -121,7 +123,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
           userId: searchUserResponse.userId,
         },
         {
-          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+          headers: { Authorization: `Bearer ${userInfo.token}` },
         },
       );
       // 모달 끄기
