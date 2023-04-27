@@ -4,14 +4,16 @@ import styled from '@emotion/styled';
 import { AxiosError, AxiosResponse } from 'axios';
 import { Socket, io } from 'socket.io-client';
 import { useQuery } from 'react-query';
+import { useRecoilValue } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
 import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
-import { getChatRoomLog } from '../../../../api/Channel';
+import { useGetChatRoomLog } from '../../../../api/Channel';
 import Footer from '../../../commons/footer/Footer';
+import { userState } from '../../../../recoil/locals/login/atoms/atom';
 
 const Base = styled.div`
   position: relative;
@@ -30,16 +32,22 @@ export default function ChatRoom() {
   const scrollBottomRef = useRef<HTMLLIElement>(null);
   const { id } = useParams<string>();
   const [messages, setMessages] = useState<Array<IChat>>([]);
-
+  const userInfo = useRecoilValue(userState);
   const {
+    data: chatListData,
     isLoading,
     isError,
-    data: chatListData,
-  } = useQuery<IChatLog, AxiosError>('channels', () =>
-    getChatRoomLog(id || '').then(
-      (response: AxiosResponse<IChatLog>) => response.data,
-    ),
-  );
+  } = useGetChatRoomLog(id || '');
+
+  // const {
+  //   isLoading,
+  //   isError,
+  //   data: chatListData,
+  // } = useQuery<IChatLog, AxiosError>('channels', () =>
+  //   useGetChatRoomLog(id || '').then(
+  //     (response: AxiosResponse<IChatLog>) => response.data,
+  //   ),
+  // );
 
   const handleSend = (content: ISendedMessage) => {
     socketRef.current?.emit('chat', content, (newMessage: IChat) => {
@@ -53,7 +61,7 @@ export default function ChatRoom() {
       {
         path: '/socket.io',
         extraHeaders: {
-          authorization: `Bearer ${process.env.REACT_APP_BASE_TOKEN}`,
+          authorization: `Bearer ${userInfo.token}`,
         },
       },
     );
