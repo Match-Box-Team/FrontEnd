@@ -84,7 +84,7 @@ const ProfileContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20rem 6.95rem 0rem;
+  padding: 10rem 6.95rem 0rem;
 `;
 
 const ProfileImage = styled.div`
@@ -138,6 +138,11 @@ const Container = styled.div`
     'nav'
     'main'
     'footer';
+  border-top: none;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
 `;
 
 export const HeaderWrap = styled.header`
@@ -147,7 +152,7 @@ export const HeaderWrap = styled.header`
 export const MainWrap = styled.main`
   grid-area: main;
   width: 100%;
-  height: 85%;
+  height: 80%;
 `;
 
 export const FooterWrap = styled.footer`
