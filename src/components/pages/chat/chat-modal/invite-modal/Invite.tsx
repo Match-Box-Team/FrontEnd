@@ -135,8 +135,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
   };
 
   return (
-    <>
-      <OpenButton onClick={handleClickModal}>초대 모달 생성</OpenButton>;
+    <div>
       {isOpenInviteModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>초대하기</ChatModalMainText>
@@ -165,7 +164,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
           </InviteUserForm>
         </Popup>
       )}
-    </>
+    </div>
   );
 }
 
