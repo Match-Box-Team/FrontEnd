@@ -31,24 +31,6 @@ export default function ChatRoom() {
   const { id } = useParams<string>();
   const [messages, setMessages] = useState<Array<IChat>>([]);
 
-  // const { data: profileData } = useQuery<AxiosResponse<IProfile>, AxiosError>(
-  //   'fetchMyProfile',
-  //   fetchMyProfile,
-  // );
-  // const { data: chatRoomDetailData } = useQuery<
-  //   AxiosResponse<IRoom>,
-  //   AxiosError
-  // >(['fetchChatRoomDetail', roomId], () =>
-  //   fetchChatRoomDetail(roomId as string),
-  // );
-
-  // const { data: chatListData } = useQuery<
-  //   AxiosResponse<Array<IReceivedMessage>>,
-  //   AxiosError
-  // >(['fetchChatMessageList', roomId, messages], () =>
-  //   fetchChatMessageList(roomId as string),
-  // );
-
   const {
     isLoading,
     isError,
@@ -58,10 +40,6 @@ export default function ChatRoom() {
       (response: AxiosResponse<IChatLog>) => response.data,
     ),
   );
-
-  // const mutation = useMutation('sendChatMessage', (content: string) =>
-  //   sendChatMessage(roomId as string, content),
-  // );
 
   const handleSend = (content: ISendedMessage) => {
     socketRef.current?.emit('chat', content, (newMessage: IChat) => {
@@ -121,9 +99,6 @@ export default function ChatRoom() {
       Footer={<InputChat onClick={handleSend} channelId={id} />}
     >
       <Base>
-        {/* {chatRoomDetailData && (
-          <TopNavigation title={chatRoomDetailData.data.user.username} />
-        )} */}
         <Container>
           <MessageList>
             {messages.map((message: IChat) => (
