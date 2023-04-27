@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { AxiosError, AxiosResponse } from 'axios';
@@ -12,7 +12,9 @@ import Header from '../../../commons/header/Header';
 import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
 import { getChatRoomLog } from '../../../../api/Channel';
 import Footer from '../../../commons/footer/Footer';
-import RoomSide from '../chat-modal/roomside-modal/RoomSide';
+import { userState } from '../../../../recoil/locals/login/atoms/atom';
+import { getImageUrl } from '../../../../api/ProfileImge';
+import { useNewChatMessageHandler } from './hooks';
 
 const Base = styled.div`
   position: relative;
@@ -37,21 +39,13 @@ export default function ChatRoom() {
   const scrollBottomRef = useRef<HTMLLIElement>(null);
   const { id } = useParams<string>();
   const [messages, setMessages] = useState<Array<IChat>>([]);
-
-  const {
-    isLoading,
-    isError,
-    data: chatListData,
-  } = useQuery<IChatLog, AxiosError>('channels', () =>
-    getChatRoomLog(id || '').then(
-      (response: AxiosResponse<IChatLog>) => response.data,
-    ),
-  );
+  const userInfo = useRecoilValue(userState);
+  const [channelName, setChannelName] = useState<string>('Channel');
+  const { isLoading, isError } = useGetChatRoomLog(id || '');
+  const handleNewChatMessage = useNewChatMessageHandler(userInfo, setMessages);
 
   const handleSend = (content: ISendedMessage) => {
-    socketRef.current?.emit('chat', content, (newMessage: IChat) => {
-      setMessages(prevMessages => [...prevMessages, newMessage]);
-    });
+    socketRef.current?.emit('chat', content, handleNewChatMessage);
   };
 
   useEffect(() => {
@@ -76,12 +70,7 @@ export default function ChatRoom() {
       // 에러모달로 변경
       console.error(error);
     });
-
-    socketRef.current.on('chat', (newMessage: IChat) => {
-      setMessages(prevMessages => {
-        return [...prevMessages, newMessage];
-      });
-    });
+    socketRef.current.on('chat', handleNewChatMessage);
 
     return () => {
       socketRef.current?.off('error');
@@ -91,8 +80,29 @@ export default function ChatRoom() {
 
   useEffect(() => {
     if (chatListData) {
-      setMessages(chatListData.chat);
-      console.log(chatListData.chat);
+      setChannelName(chatListData.channel.channelName);
+      const updateMessages = async () => {
+        const updatedMessages = await Promise.all(
+          chatListData.chat.map(async message => {
+            const imageUrl = await getImageUrl(
+              message.userChannel.user.userId,
+              userInfo.token,
+            );
+            return {
+              ...message,
+              userChannel: {
+                ...message.userChannel,
+                user: {
+                  ...message.userChannel.user,
+                  image: imageUrl,
+                },
+              },
+            };
+          }),
+        );
+        setMessages(updatedMessages);
+      };
+      updateMessages();
     }
   }, [chatListData]);
 
@@ -102,7 +112,9 @@ export default function ChatRoom() {
 
   return (
     <Layout
-      Header={<Header title="Channel" channelBurger backPath="/chat/channel" />}
+      Header={
+        <Header title={channelName} channelBurger backPath="/chat/channel" />
+      }
       Footer={<InputChat onClick={handleSend} channelId={id} />}
     >
       <RoomSide

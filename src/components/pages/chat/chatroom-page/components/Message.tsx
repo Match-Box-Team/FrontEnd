@@ -86,13 +86,7 @@ export function Message({
 
   return (
     <Base>
-      <Image
-        src={
-          receiverThumbnailImage ||
-          'file:///Users/joohyunkang/matchpoint/backend/assets/default/default.jpg'
-        }
-        alt={`${receiver}의 썸네일`}
-      />
+      <Image src={receiverThumbnailImage} alt={`${receiver}의 썸네일`} />
       <Content>
         <UserName>{receiver}</UserName>
         <ReceivedAt>{timestamp}</ReceivedAt>

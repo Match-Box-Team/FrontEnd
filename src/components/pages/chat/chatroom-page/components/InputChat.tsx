@@ -107,7 +107,7 @@ export default function InputChat({ onClick, channelId }: Props) {
   return (
     <Base
       borderColor={defaultTheme.colors.white}
-      backgroundColor={defaultTheme.colors.brightGray}
+      backgroundColor={defaultTheme.colors.white}
     >
       <PlusButtonWrapper>
         <PlusButton>
@@ -124,7 +124,7 @@ export default function InputChat({ onClick, channelId }: Props) {
       </InputWrapper>
       <SendButtonWrapper>
         <SendButton
-          backgroundColor={defaultTheme.colors.polarBlue}
+          backgroundColor={defaultTheme.colors.yellow}
           onClick={handleClick}
         >
           <AiOutlineArrowUp />
