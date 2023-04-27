@@ -9,10 +9,6 @@ import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
 import { getImageUrl } from '../../../../api/ProfileImge';
 
-function socketConnection() {
-  console.log('to be continued');
-}
-
 export default function Auth() {
   // 페이지 이동
   const navigate = useNavigate();
@@ -30,7 +26,7 @@ export default function Auth() {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
-  // confirm 버튼 클릭 핸들러 - socket 연결 추가
+  // confirm 버튼 클릭 핸들러
   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     try {
@@ -62,8 +58,6 @@ export default function Auth() {
       console.log(storeUser);
       removeCookie('token');
       setUserState(storeUser);
-      // 소켓 연결
-      socketConnection();
       navigate(`/chat/channel`);
     } catch (error) {
       alert('인증 코드를 다시 입력해주세요');
@@ -73,8 +67,12 @@ export default function Auth() {
   };
 
   useEffect(() => {
-    if (userInfo.token !== '') {
-      navigate('/chat/channel');
+    if (cookies.token === undefined) {
+      if (userInfo.token === '') {
+        navigate('/');
+      } else {
+        navigate('/chat/channel');
+      }
     }
   }, []);
 

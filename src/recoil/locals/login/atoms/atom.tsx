@@ -5,7 +5,7 @@ const sessionStorage =
   typeof window !== 'undefined' ? window.sessionStorage : undefined;
 
 const { persistAtom } = recoilPersist({
-  key: 'storage',
+  key: 'userState',
   storage: sessionStorage,
 });
 
