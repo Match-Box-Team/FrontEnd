@@ -18,24 +18,22 @@ export default function Footer({ tab }: Props) {
   return (
     <FooterWrap>
       <Link to="/game/shop">
-        <ChatButtonImage src={tab === 'game' ? GameIconClicked : GameIcon} />
+        <ButtonImage src={tab === 'game' ? GameIconClicked : GameIcon} />
       </Link>
       <Link to="/chat/channel">
-        <ChatButtonImage src={tab === 'channel' ? ChatIconClicked : ChatIcon} />
+        <ButtonImage src={tab === 'channel' ? ChatIconClicked : ChatIcon} />
       </Link>
       <Link to="/friend/list">
-        <ChatButtonImage
-          src={tab === 'friend' ? FriendIconClicked : FriendIcon}
-        />
+        <ButtonImage src={tab === 'friend' ? FriendIconClicked : FriendIcon} />
       </Link>
       <Link to="/profile/my/:id">
-        <ChatButtonImage src={tab === 'my' ? MyIconClicked : MyIcon} />
+        <ButtonImage src={tab === 'my' ? MyIconClicked : MyIcon} />
       </Link>
     </FooterWrap>
   );
 }
 
-const ChatButtonImage = styled.img`
+const ButtonImage = styled.img`
   width: 25%;
   height: 4.4rem;
   cursor: pointer;

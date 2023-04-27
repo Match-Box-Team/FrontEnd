@@ -1,5 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Layout from '../../../commons/layout/Layout';
+import ReadyGame from '../../game/game-modal/readygame-modal/ReadyGame';
 
 export default function FriendProfile() {
-  return <div>friend</div>;
+  const [showReadyGameModal, setShowReadyGameModal] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowReadyGameModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowReadyGameModal(false);
+  };
+
+  return (
+    <Layout>
+      <button type="button" onClick={handleButtonClick}>
+        Ready Game
+      </button>
+      {showReadyGameModal && <ReadyGame onClick={handleCloseModal} />}
+    </Layout>
+  );
 }
