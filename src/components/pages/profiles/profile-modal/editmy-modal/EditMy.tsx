@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import Popup from '../../../../commons/modals/popup-modal/Popup';
 import {
   FormContainer,
@@ -20,14 +19,27 @@ interface Props {
   handleClickModal: () => void;
 }
 
+export const fileToBase64 = (
+  file: File,
+): Promise<string | ArrayBuffer | null> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+};
+
 export default function EditMy({
   isOpenEditProfileModal,
   handleClickModal,
 }: Props) {
-  // 선택된 이미지 초기화
+  // 유저 정보
+  const [userInfo, setUserInfo] = useRecoilState(userState);
+
+  // 선택된 파일, 이미지 초기화
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
-  const userInfo = useRecoilValue(userState);
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -76,6 +88,9 @@ export default function EditMy({
             headers: { Authorization: `Bearer ${userInfo.token}` },
           },
         );
+        const updateImageUrl = await fileToBase64(selectedFile);
+        const newUserInfo = { ...userInfo, imageUrl: updateImageUrl };
+        setUserInfo(newUserInfo);
       }
       // 닉네임 업데이트
       if (nickname) {
@@ -88,6 +103,8 @@ export default function EditMy({
             headers: { Authorization: `Bearer ${userInfo.token}` },
           },
         );
+        const newUserInfo = { ...userInfo, nickname };
+        setUserInfo(newUserInfo);
       }
       // 모달 끄기
       handleClickModal();
@@ -104,15 +121,32 @@ export default function EditMy({
           <FormDiv>
             <FormWarp>
               <FormContainer onSubmit={handleEditSubmit}>
-                {/* <SelectImageInput type="file" id="image-input" /> */}
-                <input type="file" onChange={handleFileInputChange} />
-                {previewUrl && (
-                  <img
-                    src={previewUrl}
-                    alt="Preview"
-                    style={{ maxWidth: '100%' }}
-                  />
-                )}
+                <SelectImageContainer>
+                  {previewUrl ? (
+                    <SelectImageWrap>
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        style={{ maxWidth: '100%' }}
+                      />
+                    </SelectImageWrap>
+                  ) : (
+                    <SelectImageWrap>
+                      <img
+                        src={userInfo.imageUrl}
+                        alt="Preview"
+                        style={{ maxWidth: '100%' }}
+                      />
+                    </SelectImageWrap>
+                  )}
+                  <SelectImageInputWrapper>
+                    <SelectImageInput
+                      type="file"
+                      onChange={handleFileInputChange}
+                    />
+                    사진 선택
+                  </SelectImageInputWrapper>
+                </SelectImageContainer>
                 <FormText>닉네임 수정</FormText>
                 <FormInput
                   type="text"
@@ -138,28 +172,39 @@ const EditMyMainText = styled.p`
   font-weight: bold;
 `;
 
-const SelectImageInput = styled.input`
+const SelectImageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const SelectImageWrap = styled.div`
+  margin-top: 15px;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 50%;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const SelectImageInputWrapper = styled.label`
   font-family: 'NanumGothic';
-  align-self: center;
-  width: 8rem;
+  font-size: 1.4rem;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  padding: 1rem;
+  width: 9rem;
   color: white;
   background: #6d77af;
-  border-radius: 20px;
-  border: none;
-  margin-top: 10px;
-  padding: 10px;
+  border-radius: 15px;
   cursor: pointer;
 `;
 
-const InputFile = styled.input`
-  font-family: 'NanumGothic';
-  align-self: center;
-  width: 8rem;
-  color: white;
-  background: #6d77af;
-  border-radius: 20px;
-  border: none;
-  margin-top: 10px;
-  padding: 10px;
-  cursor: pointer;
+const SelectImageInput = styled.input`
+  display: none;
 `;
