@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../../../commons/layout/Layout';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
@@ -28,15 +29,36 @@ interface SelectGameContainerProps {
 const gameIcons = [PingPongIcon, TestrisIcon, PuzzleIcon, ZombieIcon];
 
 export default function GameShop() {
+  // 페이지 이동
+  const navigate = useNavigate();
+
+  // 모달 관리
+  const [isOpenBuyGameModal, setIsOpenBuyGameModal] = useState<boolean>(false);
+  const handleClickModal = () => {
+    setIsOpenBuyGameModal(!isOpenBuyGameModal);
+  };
+
+  // 게임 정보들
   const [games, setGames] = useState<Game[] | null>(null);
 
-  const [selectedGameIndex, setSelectedGameIndex] = useState<number | null>(
-    null,
-  );
+  // 선택된 게임 Id
+  const [selectedGameId, setSelectedGameId] = useState<string>('');
+  const handleGameSelect = (gameId: string) => {
+    setSelectedGameId(gameId);
+  };
 
-  const handleGameSelect = (index: number) => {
-    setSelectedGameIndex(index);
-    console.log(games);
+  // 게임 구매
+  const handleBuyGame = (gameId: string) => {
+    console.log(gameId);
+    const buyGame = async () => {
+      const data = await axios.post(
+        `http://localhost:3000/games/${gameId}/buy`,
+        {
+          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+        },
+      );
+    };
+    buyGame();
   };
 
   useEffect(() => {
@@ -63,8 +85,9 @@ export default function GameShop() {
             {games?.map((game, index) => {
               return (
                 <SelectGameContainer
-                  isSelected={selectedGameIndex === index}
-                  onClick={() => handleGameSelect(index)}
+                  key={game.gameId}
+                  isSelected={selectedGameId === game.gameId}
+                  onClick={() => handleGameSelect(game.gameId)}
                 >
                   <GameImageWrap>
                     <img src={gameIcons[index]} alt={gameIcons[index]} />
@@ -76,7 +99,9 @@ export default function GameShop() {
               );
             })}
           </SelectGameGridDiv>
-          <GameWatchingButton>관전하기</GameWatchingButton>
+          <GameWatchingButton onClick={() => navigate('/game/watch')}>
+            관전하기
+          </GameWatchingButton>
         </SelectGameDiv>
       </GameShopDiv>
     </Layout>
