@@ -76,7 +76,6 @@ interface Props {
 
 export default function InputChat({ onClick, channelId }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const theme = useTheme();
   const [content, setContent] = useState<string>('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
