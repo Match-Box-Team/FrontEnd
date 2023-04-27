@@ -4,16 +4,15 @@ import styled from '@emotion/styled';
 import { AxiosError, AxiosResponse } from 'axios';
 import { Socket, io } from 'socket.io-client';
 import { useQuery } from 'react-query';
-import { useRecoilValue } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
 import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
-import { useGetChatRoomLog } from '../../../../api/Channel';
+import { getChatRoomLog } from '../../../../api/Channel';
 import Footer from '../../../commons/footer/Footer';
-import { userState } from '../../../../recoil/locals/login/atoms/atom';
+import RoomSide from '../chat-modal/roomside-modal/RoomSide';
 
 const Base = styled.div`
   position: relative;
@@ -28,26 +27,26 @@ const Container = styled.div`
 `;
 
 export default function ChatRoom() {
+  const [isOpenSideModal, setIsOpenSideModal] = useState<boolean>(false);
+
+  const handleClickModal = () => {
+    setIsOpenSideModal(!isOpenSideModal);
+  };
+
   const socketRef = useRef<Socket | null>(null);
   const scrollBottomRef = useRef<HTMLLIElement>(null);
   const { id } = useParams<string>();
   const [messages, setMessages] = useState<Array<IChat>>([]);
-  const userInfo = useRecoilValue(userState);
+
   const {
-    data: chatListData,
     isLoading,
     isError,
-  } = useGetChatRoomLog(id || '');
-
-  // const {
-  //   isLoading,
-  //   isError,
-  //   data: chatListData,
-  // } = useQuery<IChatLog, AxiosError>('channels', () =>
-  //   useGetChatRoomLog(id || '').then(
-  //     (response: AxiosResponse<IChatLog>) => response.data,
-  //   ),
-  // );
+    data: chatListData,
+  } = useQuery<IChatLog, AxiosError>('channels', () =>
+    getChatRoomLog(id || '').then(
+      (response: AxiosResponse<IChatLog>) => response.data,
+    ),
+  );
 
   const handleSend = (content: ISendedMessage) => {
     socketRef.current?.emit('chat', content, (newMessage: IChat) => {
@@ -61,7 +60,7 @@ export default function ChatRoom() {
       {
         path: '/socket.io',
         extraHeaders: {
-          authorization: `Bearer ${userInfo.token}`,
+          authorization: `Bearer ${process.env.REACT_APP_BASE_TOKEN}`,
         },
       },
     );
@@ -106,6 +105,10 @@ export default function ChatRoom() {
       Header={<Header title="Channel" channelBurger backPath="/chat/channel" />}
       Footer={<InputChat onClick={handleSend} channelId={id} />}
     >
+      <RoomSide
+        isOpenSideModal={isOpenSideModal}
+        handleClickModal={handleClickModal}
+      />
       <Base>
         <Container>
           <MessageList>
