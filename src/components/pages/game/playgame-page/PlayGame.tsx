@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import Layout from '../../../commons/layout/Layout';
+import PingPong from './games/PingPong';
 
 const clickAnimation = keyframes`
   0% {
@@ -28,7 +29,9 @@ export default function PlayGame() {
           <h1>SCORE</h1>
           <Player2Score />
         </Score>
-        <GameBoard />
+        <GameBoard>
+          <PingPong />
+        </GameBoard>
         <GameFooter>
           <GGButton>GG</GGButton>
         </GameFooter>
@@ -107,9 +110,10 @@ const Player2Score = styled.div`
 
 const GameBoard = styled.div`
   width: 90%;
-  height: 80%;
+  height: 80vh;
   background-color: white;
   border: black solid 0.4rem;
+  padding: 1rem;
 `;
 
 const GameFooter = styled.div`
