@@ -28,8 +28,8 @@ export default function Login() {
   return (
     <Layout>
       <Container>
-        <LogoImage src={LogoIcon} />
-        <LoginImage src={LoginIcon} onClick={handleLogin} />
+        <LogoImage src={LogoIcon} alt={LogoIcon} />
+        <LoginImage src={LoginIcon} alt={LoginIcon} onClick={handleLogin} />
       </Container>
     </Layout>
   );
