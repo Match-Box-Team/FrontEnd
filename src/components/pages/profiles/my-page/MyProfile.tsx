@@ -43,6 +43,8 @@ const initailUserValues = {
 export default function MyProfile() {
   // 페이지 이동
   const navigate = useNavigate();
+
+  // 유저  정보
   const userInfo = useRecoilValue(userState);
 
   // 모달 관리
