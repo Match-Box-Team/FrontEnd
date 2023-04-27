@@ -8,8 +8,8 @@ export default function PingPong() {
     x: 0,
     y: 0,
     radius: 10,
-    velocityX: 2,
-    velocityY: 2,
+    velocityX: 5,
+    velocityY: 5,
     color: 'white',
   };
 
@@ -19,7 +19,7 @@ export default function PingPong() {
     width: 100,
     height: 10,
     speed: 4,
-    color: 'white',
+    color: 'yellow',
   };
 
   const paddleB = {
@@ -28,7 +28,7 @@ export default function PingPong() {
     width: 100,
     height: 10,
     speed: 4,
-    color: 'white',
+    color: 'skyblue',
   };
 
   function drawBall(ctx: CanvasRenderingContext2D) {
