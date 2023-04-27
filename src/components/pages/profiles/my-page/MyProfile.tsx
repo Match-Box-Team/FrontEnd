@@ -90,16 +90,6 @@ export default function MyProfile() {
       });
       setUser(data.data.user);
       setUserGames(data.data.userGame);
-      // 선택된 유저 이미지 get
-      const imageUrl = await axios.get(
-        `http://localhost:3000/account/image?userId=${data.data.user.userId}`,
-        {
-          responseType: 'blob',
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        },
-      );
-      // 유저 이미지 저장
-      setUserImageUrl(URL.createObjectURL(imageUrl.data));
     };
     fetchData();
   }, []);
@@ -114,10 +104,10 @@ export default function MyProfile() {
         {/* 유저 프로필 */}
         <UserProfileContainer>
           <UserImageWrap>
-            <img src={userImgaeUrl} alt="검색된 유저 이미지" />
+            <img src={userInfo.imageUrl} alt="유저 이미지" />
           </UserImageWrap>
           <UserCardWrap>
-            <UserNameText>{user.nickname}</UserNameText>
+            <UserNameText>{userInfo.nickname}</UserNameText>
             <UserNinknameText>{user.intraId}</UserNinknameText>
           </UserCardWrap>
           <EditProfileButton onClick={handleClickModal}>
