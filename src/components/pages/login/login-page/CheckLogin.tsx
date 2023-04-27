@@ -12,6 +12,7 @@ interface Props {
 //   const decodedToken = jwt.decode(token);
 //   console.log(decodedToken);
 // };
+// 토큰 만료 시 offline 요청, recoil 비워주기
 
 export default function CheckLogin({ children }: Props) {
   const navigate = useNavigate();

@@ -3,11 +3,15 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
 import { getImageUrl } from '../../../../api/ProfileImge';
+
+function socketConnection() {
+  console.log('to be continued');
+}
 
 export default function Auth() {
   // 페이지 이동
@@ -18,6 +22,7 @@ export default function Auth() {
   const [inputValue, setInputValue] = useState('');
   // recoil 유저 토큰 저장
   const setUserState = useSetRecoilState(userState);
+  const userInfo = useRecoilValue(userState);
   // 쿠키
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
 
@@ -29,6 +34,7 @@ export default function Auth() {
   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     try {
+      // 인증 코드 검증
       const userIdInCookie = cookies.token;
       const response = await axios.post(
         `http://localhost:3000/auth/verifyCode`,
@@ -38,12 +44,14 @@ export default function Auth() {
         },
       );
       const jwtToken = response.data.token;
+      // 유저 정보 저장
       const userInfoResponse = await axios.post(
         `http://localhost:3000/account/info`,
         {
           userId: userIdInCookie,
         },
       );
+      // 유저 이미지 저장
       const userImage = await getImageUrl(userIdInCookie, jwtToken);
       const storeUser = {
         token: jwtToken,
@@ -54,6 +62,8 @@ export default function Auth() {
       console.log(storeUser);
       removeCookie('token');
       setUserState(storeUser);
+      // 소켓 연결
+      socketConnection();
       navigate(`/chat/channel`);
     } catch (error) {
       alert('인증 코드를 다시 입력해주세요');
@@ -61,6 +71,12 @@ export default function Auth() {
       navigate(`/`);
     }
   };
+
+  useEffect(() => {
+    if (userInfo.token !== '') {
+      navigate('/chat/channel');
+    }
+  }, []);
 
   // 타이머
   useEffect(() => {
@@ -117,7 +133,7 @@ export default function Auth() {
   );
 }
 
-export const InfoText = styled.text`
+export const InfoText = styled.p`
   font-family: 'NanumGothic';
   font-weight: 400;
   font-size: 1.6rem;

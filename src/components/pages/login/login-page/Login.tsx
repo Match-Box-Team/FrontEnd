@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-// import { useHistory } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Layout from '../../../commons/layout/Layout';
 import LogoIcon from '../../../../assets/icon/logo.svg';
 import LoginIcon from '../../../../assets/icon/login.svg';
+import { userState } from '../../../../recoil/locals/login/atoms/atom';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState<boolean>(false);
+  const userInfo = useRecoilValue(userState);
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     setIsLogin(!isLogin);
@@ -24,6 +28,12 @@ export default function Login() {
         }
       });
   };
+
+  useEffect(() => {
+    if (userInfo.token !== '') {
+      navigate('/chat/channel');
+    }
+  }, []);
 
   return (
     <Layout>
