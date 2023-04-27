@@ -1,6 +1,7 @@
-import { AxiosInstanceWithToken } from '.';
+import { useAxiosWithToken } from '.';
 
 // 예시
-export function getFriendList() {
-  return AxiosInstanceWithToken.get(`/friends`);
+export function useGetFriendList() {
+  const AxiosInstance = useAxiosWithToken();
+  return AxiosInstance.get(`/friends`);
 }
