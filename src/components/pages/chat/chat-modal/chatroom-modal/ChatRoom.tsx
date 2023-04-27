@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
-import Layout from '../../../commons/layout/Layout';
-import Header from '../../../commons/header/Header';
-import Footer from '../../../commons/footer/Footer';
-import SetRoom from '../chat-modal/setroom-modal/SetRoom';
-import Invite from '../chat-modal/invite-modal/Invite';
-import Profile from '../../../commons/modals/profile-modal/Profile';
+import Layout from '../../../../commons/layout/Layout';
+import Header from '../../../../commons/header/Header';
+import Footer from '../../../../commons/footer/Footer';
+import SetRoom from '../setroom-modal/SetRoom';
+import Invite from '../invite-modal/Invite';
+import Profile from '../../../../commons/modals/profile-modal/Profile';
 
 interface Member {
   userId: string;
