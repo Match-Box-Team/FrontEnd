@@ -87,7 +87,10 @@ export function Message({
   return (
     <Base>
       <Image
-        src={receiverThumbnailImage || '/placeholder.png'}
+        src={
+          receiverThumbnailImage ||
+          'file:///Users/joohyunkang/matchpoint/backend/assets/default/default.jpg'
+        }
         alt={`${receiver}의 썸네일`}
       />
       <Content>

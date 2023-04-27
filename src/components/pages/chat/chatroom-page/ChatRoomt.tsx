@@ -28,19 +28,18 @@ export default function ChatRoom() {
   const socketRef = useRef<Socket | null>(null);
   const scrollBottomRef = useRef<HTMLLIElement>(null);
   const { id } = useParams<string>();
-
-  //   const { data: profileData } = useQuery<AxiosResponse<IProfile>, AxiosError>(
-  //     'fetchMyProfile',
-  //     fetchMyProfile,
-  //   );
-  //   const { data: chatRoomDetailData } = useQuery<
-  //     AxiosResponse<IRoom>,
-  //     AxiosError
-  //   >(['fetchChatRoomDetail', roomId], () =>
-  //     fetchChatRoomDetail(roomId as string),
-  //   );
-
   const [messages, setMessages] = useState<Array<IChat>>([]);
+
+  // const { data: profileData } = useQuery<AxiosResponse<IProfile>, AxiosError>(
+  //   'fetchMyProfile',
+  //   fetchMyProfile,
+  // );
+  // const { data: chatRoomDetailData } = useQuery<
+  //   AxiosResponse<IRoom>,
+  //   AxiosError
+  // >(['fetchChatRoomDetail', roomId], () =>
+  //   fetchChatRoomDetail(roomId as string),
+  // );
 
   // const { data: chatListData } = useQuery<
   //   AxiosResponse<Array<IReceivedMessage>>,
@@ -65,8 +64,6 @@ export default function ChatRoom() {
 
   const handleSend = (content: ISendedMessage) => {
     socketRef.current?.emit('chat', content, (newMessage: IChat) => {
-      console.log('Received new message from server:', newMessage);
-
       setMessages(prevMessages => [...prevMessages, newMessage]);
     });
   };
@@ -82,9 +79,8 @@ export default function ChatRoom() {
       },
     );
 
-    socketRef.current.emit('enterChannel', id);
+    socketRef.current.emit('enterChannel', { channelId: id });
 
-    // eslint-disable-next-line no-undef
     socketRef.current?.on('message', (message: IEnterReply) => {
       // 채팅방에 글 띄우는 걸로 변경
       console.log(message);
@@ -110,6 +106,7 @@ export default function ChatRoom() {
   useEffect(() => {
     if (chatListData) {
       setMessages(chatListData.chat);
+      console.log(chatListData.chat);
     }
   }, [chatListData]);
 
