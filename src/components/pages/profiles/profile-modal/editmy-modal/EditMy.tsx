@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
 import Popup from '../../../../commons/modals/popup-modal/Popup';
 import {
   FormContainer,
@@ -11,6 +12,7 @@ import {
   FormText,
   FormWarp,
 } from '../../../chat/chat-modal/createroom-modal/Createroom';
+import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 
 // 모달 prop 타입
 interface Props {
@@ -25,6 +27,7 @@ export default function EditMy({
   // 선택된 이미지 초기화
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const userInfo = useRecoilValue(userState);
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -70,7 +73,7 @@ export default function EditMy({
           `http://localhost:3000/account/image`,
           form,
           {
-            headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+            headers: { Authorization: `Bearer ${userInfo.token}` },
           },
         );
       }
@@ -82,7 +85,7 @@ export default function EditMy({
             nickname,
           },
           {
-            headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+            headers: { Authorization: `Bearer ${userInfo.token}` },
           },
         );
       }
