@@ -60,8 +60,9 @@ export default function Auth() {
       setUserState(storeUser);
       navigate(`/chat/channel`);
     } catch (error) {
-      alert('인증 코드를 다시 입력해주세요');
+      alert('틀린 인증 코드입니다. 다시 로그인해주세요.');
       console.log(error);
+      removeCookie('token');
       navigate(`/`);
     }
   };
@@ -99,6 +100,7 @@ export default function Auth() {
     } else {
       verifyTimeOut();
       alert('시간이 지났습니다. 다시 로그인해주세요.');
+      removeCookie('token');
       navigate(`/`);
     }
 
