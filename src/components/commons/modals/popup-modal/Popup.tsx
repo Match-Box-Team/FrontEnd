@@ -34,7 +34,7 @@ export const ModalOutside = styled.div`
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 100;
+  z-index: 300;
 `;
 
 export const ModalContainer = styled.div`
@@ -54,7 +54,7 @@ export const ModalContainer = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1000;
+  z-index: 999;
 `;
 
 export const XButton = styled.strong`
