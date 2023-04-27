@@ -11,6 +11,7 @@ import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
 import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
 import { getChatRoomLog } from '../../../../api/Channel';
+import Footer from '../../../commons/footer/Footer';
 
 const Base = styled.div`
   position: relative;
@@ -115,7 +116,10 @@ export default function ChatRoom() {
   }, [messages]);
 
   return (
-    <Layout Header={<Header title="untitle" />}>
+    <Layout
+      Header={<Header title="Channel" channelBurger backPath="/chat/channel" />}
+      Footer={<InputChat onClick={handleSend} channelId={id} />}
+    >
       <Base>
         {/* {chatRoomDetailData && (
           <TopNavigation title={chatRoomDetailData.data.user.username} />
@@ -134,7 +138,6 @@ export default function ChatRoom() {
             <li ref={scrollBottomRef} />
           </MessageList>
         </Container>
-        <InputChat onClick={handleSend} channelId={id} />
       </Base>
     </Layout>
   );
