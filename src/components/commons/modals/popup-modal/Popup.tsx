@@ -17,6 +17,16 @@ export default function Popup({ onClose, children }: Props) {
   );
 }
 
+export function NoXPopup({ onClose, children }: Props) {
+  return (
+    <ModalOutside onClick={onClose}>
+      <ModalContainer onClick={e => e.stopPropagation()}>
+        {children}
+      </ModalContainer>
+    </ModalOutside>
+  );
+}
+
 export const ModalOutside = styled.div`
   position: absolute;
   top: 0;

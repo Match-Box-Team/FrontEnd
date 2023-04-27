@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import Popup from '../../../../commons/modals/popup-modal/Popup';
 import {
@@ -103,6 +104,7 @@ export default function EditMy({
           <FormDiv>
             <FormWarp>
               <FormContainer onSubmit={handleEditSubmit}>
+                {/* <SelectImageInput type="file" id="image-input" /> */}
                 <input type="file" onChange={handleFileInputChange} />
                 {previewUrl && (
                   <img
@@ -134,4 +136,30 @@ const EditMyMainText = styled.p`
   color: #3f4d97;
   font-size: 2rem;
   font-weight: bold;
+`;
+
+const SelectImageInput = styled.input`
+  font-family: 'NanumGothic';
+  align-self: center;
+  width: 8rem;
+  color: white;
+  background: #6d77af;
+  border-radius: 20px;
+  border: none;
+  margin-top: 10px;
+  padding: 10px;
+  cursor: pointer;
+`;
+
+const InputFile = styled.input`
+  font-family: 'NanumGothic';
+  align-self: center;
+  width: 8rem;
+  color: white;
+  background: #6d77af;
+  border-radius: 20px;
+  border: none;
+  margin-top: 10px;
+  padding: 10px;
+  cursor: pointer;
 `;

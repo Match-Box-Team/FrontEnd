@@ -2,7 +2,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Login from './components/pages/login/login-page/Login';
 import Auth from './components/pages/login/auth-page/Auth';
 import Channel from './components/pages/chat/channel-page/Channel';
-import ChatRoom from './components/pages/chat/chatroom-page/ChatRoom';
 import MyMsg from './components/pages/chat/mymsg-page/MyMsg';
 import AddFriend from './components/pages/friend/addfriend-page/AddFriend';
 import FriendList from './components/pages/friend/friendlist-page/FriendList';
@@ -13,6 +12,7 @@ import PlayGame from './components/pages/game/playgame-page/PlayGame';
 import WatchGame from './components/pages/game/watchgame-page/WatchGame';
 import FriendProfile from './components/pages/profiles/friend-page/FriendProfile';
 import MyProfile from './components/pages/profiles/my-page/MyProfile';
+import ChatRoom from './components/pages/chat/chatroom-page/ChatRoomt';
 import CheckLogin from './components/pages/login/login-page/CheckLogin';
 
 function Router() {

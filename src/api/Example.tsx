@@ -1,6 +1,6 @@
 import { useQuery } from 'react-query';
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import { getFriendList } from './Channel';
+import { getFriendList } from './Friends';
 
 interface IFriend {
   friendId: string;
