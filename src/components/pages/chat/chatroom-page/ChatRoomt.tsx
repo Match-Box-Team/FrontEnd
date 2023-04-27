@@ -4,17 +4,20 @@ import styled from '@emotion/styled';
 import { AxiosError, AxiosResponse } from 'axios';
 import { Socket, io } from 'socket.io-client';
 import { useQuery } from 'react-query';
+import { useRecoilValue } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
 import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
-import { getChatRoomLog } from '../../../../api/Channel';
+// import { getChatRoomLog } from '../../../../api/Channel';
 import Footer from '../../../commons/footer/Footer';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import { getImageUrl } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
+import { useGetChatRoomLog } from '../../../../api/Channel';
+import RoomSide from '../chat-modal/roomside-modal/RoomSide';
 
 const Base = styled.div`
   position: relative;
@@ -31,7 +34,7 @@ const Container = styled.div`
 export default function ChatRoom() {
   const [isOpenSideModal, setIsOpenSideModal] = useState<boolean>(false);
 
-  const handleClickModal = () => {
+  const handleClickSideModal = () => {
     setIsOpenSideModal(!isOpenSideModal);
   };
 
@@ -41,7 +44,11 @@ export default function ChatRoom() {
   const [messages, setMessages] = useState<Array<IChat>>([]);
   const userInfo = useRecoilValue(userState);
   const [channelName, setChannelName] = useState<string>('Channel');
-  const { isLoading, isError } = useGetChatRoomLog(id || '');
+  const {
+    data: chatListData,
+    isLoading,
+    isError,
+  } = useGetChatRoomLog(id || '');
   const handleNewChatMessage = useNewChatMessageHandler(userInfo, setMessages);
 
   const handleSend = (content: ISendedMessage) => {
@@ -113,13 +120,18 @@ export default function ChatRoom() {
   return (
     <Layout
       Header={
-        <Header title={channelName} channelBurger backPath="/chat/channel" />
+        <Header
+          title={channelName}
+          channelBurger
+          handleClickSideModal={handleClickSideModal}
+          backPath="/chat/channel"
+        />
       }
       Footer={<InputChat onClick={handleSend} channelId={id} />}
     >
       <RoomSide
         isOpenSideModal={isOpenSideModal}
-        handleClickModal={handleClickModal}
+        handleClickModal={handleClickSideModal}
       />
       <Base>
         <Container>

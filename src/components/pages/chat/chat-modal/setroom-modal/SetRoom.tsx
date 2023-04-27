@@ -74,8 +74,7 @@ export default function SetRoom({
   };
 
   return (
-    <>
-      <XButton onClick={handleClickModal}>채팅방 설정 모달 생성</XButton>;
+    <div>
       {isOpenSetRoomModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>채팅방 설정</ChatModalMainText>
@@ -99,6 +98,6 @@ export default function SetRoom({
           </FormDiv>
         </Popup>
       )}
-    </>
+    </div>
   );
 }
