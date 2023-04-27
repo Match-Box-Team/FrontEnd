@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
@@ -9,6 +10,8 @@ import PingPongIcon from '../../../../assets/icon/pingpong.svg';
 import TestrisIcon from '../../../../assets/icon/testris.svg';
 import PuzzleIcon from '../../../../assets/icon/puzzle.svg';
 import ZombieIcon from '../../../../assets/icon/zombie.svg';
+import { userState } from '../../../../recoil/locals/login/atoms/atom';
+import BuyGame from '../game-modal/buygame-modal/BuyGame';
 
 interface Game {
   gameId: string;
@@ -32,9 +35,15 @@ export default function GameShop() {
   // 페이지 이동
   const navigate = useNavigate();
 
+  // 유저  정보
+  const userInfo = useRecoilValue(userState);
+
   // 모달 관리
   const [isOpenBuyGameModal, setIsOpenBuyGameModal] = useState<boolean>(false);
   const handleClickModal = () => {
+    if (selectedGameId === '') {
+      return;
+    }
     setIsOpenBuyGameModal(!isOpenBuyGameModal);
   };
 
@@ -47,24 +56,10 @@ export default function GameShop() {
     setSelectedGameId(gameId);
   };
 
-  // 게임 구매
-  const handleBuyGame = (gameId: string) => {
-    console.log(gameId);
-    const buyGame = async () => {
-      const data = await axios.post(
-        `http://localhost:3000/games/${gameId}/buy`,
-        {
-          headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
-        },
-      );
-    };
-    buyGame();
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       const data = await axios.get(`http://localhost:3000/games`, {
-        headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
+        headers: { Authorization: `Bearer ${userInfo.token}` },
       });
       setGames(data.data);
     };
@@ -76,6 +71,11 @@ export default function GameShop() {
       Header={<Header title="Game Shop" />}
       Footer={<Footer tab="game" />}
     >
+      <BuyGame
+        isOpenBuyGameModal={isOpenBuyGameModal}
+        handleClickModal={handleClickModal}
+        gameId={selectedGameId}
+      />
       <GameShopDiv>
         <ManualTextWrap>
           <p>게임을 관전하려면 아이콘을 클릭하세요!</p>
@@ -93,7 +93,9 @@ export default function GameShop() {
                     <img src={gameIcons[index]} alt={gameIcons[index]} />
                     <strong>{game.name}</strong>
                     <p>{`${game.price.toLocaleString('en-US')}₩`}</p>
-                    <BuyButton isBuy={game.isBuy}>BUY</BuyButton>
+                    <BuyButton isBuy={game.isBuy} onClick={handleClickModal}>
+                      BUY
+                    </BuyButton>
                   </GameImageWrap>
                 </SelectGameContainer>
               );
@@ -147,13 +149,9 @@ const SelectGameContainer = styled.div<SelectGameContainerProps>`
   justify-content: center;
   margin: 20px 2rem;
   border: 5px solid transparent;
+  border: ${({ isSelected }) =>
+    isSelected ? '5px solid #31D37C;' : '5px solid transparent;'};
   cursor: pointer;
-
-  ${({ isSelected }) =>
-    isSelected &&
-    `
-  border: 5px solid #31D37C;
-  `};
 `;
 
 const GameImageWrap = styled.div`
