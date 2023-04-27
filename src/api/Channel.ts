@@ -1,10 +1,15 @@
-import axios from 'axios';
-import { AxiosInstanceWithToken } from '.';
+import { useQuery } from 'react-query';
+import { AxiosResponse } from 'axios';
+import { useAxiosWithToken } from '.';
+import { IChatLog } from '../components/pages/chat/chatroom-page';
 
-export function joinChannel(channelId: string) {
-  return AxiosInstanceWithToken.post(`/channels/${channelId}/join`);
-}
+export const useGetChatRoomLog = (channelId: string) => {
+  const axiosInstance = useAxiosWithToken();
 
-export function getChatRoomLog(channelId: string) {
-  return AxiosInstanceWithToken.get(`/channels/${channelId}`);
-}
+  return useQuery(['chatRoomLog', channelId], async () => {
+    const response: AxiosResponse<IChatLog> = await axiosInstance.get(
+      `/channels/${channelId}`,
+    );
+    return response.data;
+  });
+};
