@@ -86,6 +86,8 @@ export default function ChatRoom() {
     return () => {
       socketRef.current?.off('error');
       socketRef.current?.off('chat');
+      socketRef.current?.off('message');
+      socketRef.current?.close();
     };
   }, []);
 
