@@ -84,8 +84,6 @@ export default function InputChat({ onClick, channelId }: Props) {
       | React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (!channelId) {
-      // 에러 모달로 수정
-      console.error('메세지를 보낼 수 없습니다');
       return;
     }
 
