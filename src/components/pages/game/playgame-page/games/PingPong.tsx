@@ -1,7 +1,28 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useSocket } from '../game-socket/GameSocketContext';
+
+interface GameState {
+  ball: { x: number; y: number };
+  paddleA: { x: number; y: number };
+  paddleB: { x: number; y: number };
+}
 
 export default function PingPong() {
+  const socket = useSocket();
+  const [gameState, setGameState] = useState<GameState>({
+    ball: { x: 0, y: 0 },
+    paddleA: { x: 0, y: 0 },
+    paddleB: { x: 0, y: 0 },
+  });
+
+  useEffect(() => {
+    if (socket) {
+      socket.emit('ready', { gameControl: 'controls..' });
+      console.log('pingpong~!!');
+    }
+  }, [socket]);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const ball = {
@@ -92,6 +113,21 @@ export default function PingPong() {
     ) {
       ball.velocityY = -ball.velocityY;
     }
+
+    gameState.ball.x = ball.x;
+    gameState.ball.y = ball.y;
+    gameState.paddleA.x = paddleA.x;
+    gameState.paddleA.y = paddleA.y;
+    gameState.paddleB.x = paddleB.x;
+    gameState.paddleB.y = paddleB.y;
+
+    if (socket) {
+      socket.emit('gamestate', {
+        ball: { x: ball.x, y: ball.y },
+        paddleA: { x: paddleA.x, y: paddleA.y },
+        paddleB: { x: paddleB.x, y: paddleB.y },
+      });
+    }
   }
 
   function draw() {
@@ -146,7 +182,7 @@ export default function PingPong() {
       ball.y = canvas.height / 2;
 
       paddleA.x = canvas.width / 2 - paddleA.width / 2;
-      paddleA.y = 30; // 수정된 부분
+      paddleA.y = 30;
       paddleB.x = canvas.width / 2 - paddleB.width / 2;
       paddleB.y = canvas.height - paddleB.height - 30;
 
