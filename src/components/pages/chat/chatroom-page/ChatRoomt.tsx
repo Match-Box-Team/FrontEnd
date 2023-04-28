@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { Socket, io } from 'socket.io-client';
 import { useQuery } from 'react-query';
 import { useRecoilValue } from 'recoil';
@@ -14,10 +14,14 @@ import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
 // import { getChatRoomLog } from '../../../../api/Channel';
 import Footer from '../../../commons/footer/Footer';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
-import { getImageUrl } from '../../../../api/ProfileImge';
+import { getImageUrl, toBase64 } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
 import { useGetChatRoomLog } from '../../../../api/Channel';
 import RoomSide from '../chat-modal/roomside-modal/RoomSide';
+import Profile, {
+  Member,
+  initialMember,
+} from '../../../commons/modals/profile-modal/Profile';
 
 const Base = styled.div`
   position: relative;
@@ -61,7 +65,7 @@ export default function ChatRoom() {
       {
         path: '/socket.io',
         extraHeaders: {
-          authorization: `Bearer ${process.env.REACT_APP_BASE_TOKEN}`,
+          authorization: `Bearer ${userInfo.token}`,
         },
       },
     );
@@ -117,6 +121,38 @@ export default function ChatRoom() {
     scrollBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // 유저 프로필 모달
+  const [isOpenProfileModal, setIsOpenProfileModal] = useState<boolean>(false);
+  const handleClickProfileModal = async () => {
+    setIsOpenProfileModal(!isOpenProfileModal);
+  };
+
+  const [selectedUser, setSelectedUser] = useState<Member>(initialMember);
+  const [selectedChat, setSelectedChat] = useState<IChat | null>(null);
+  const handleSelectChat = async (message: IChat) => {
+    setSelectedChat(message);
+    const member: Member = {
+      userId: message.userChannel.user.userId,
+      intraId: message.userChannel.user.intraId,
+      nickname: message.userChannel.user.nickname,
+      image: '',
+      muteKick: {
+        isAdmin: message.userChannel.isAdmin,
+        isMute: message.userChannel.isMute,
+      },
+    };
+    const imageUrl = await axios.get(
+      `http://localhost:3000/account/image?userId=${member.userId}`,
+      {
+        responseType: 'blob',
+        headers: { Authorization: `Bearer ${userInfo.token}` },
+      },
+    );
+    member.image = await toBase64(imageUrl.data);
+    setSelectedUser(member);
+    setIsOpenProfileModal(true);
+  };
+
   return (
     <Layout
       Header={
@@ -129,6 +165,13 @@ export default function ChatRoom() {
       }
       Footer={<InputChat onClick={handleSend} channelId={id} />}
     >
+      {isOpenProfileModal && selectedChat && (
+        <Profile
+          handleClickModal={handleClickProfileModal}
+          user={selectedUser}
+          inChat
+        />
+      )}
       <RoomSide
         isOpenSideModal={isOpenSideModal}
         handleClickModal={handleClickSideModal}
@@ -143,6 +186,9 @@ export default function ChatRoom() {
                 receiverThumbnailImage={message.userChannel.user.image}
                 content={message.message}
                 timestamp={message.time}
+                message={message}
+                onClickCapture={handleSelectChat}
+                onClick={handleClickProfileModal}
               />
             ))}
             <li ref={scrollBottomRef} />

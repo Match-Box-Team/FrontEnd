@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 import Invite from '../invite-modal/Invite';
 import SetRoom from '../setroom-modal/SetRoom';
 import What from '../../../../../assets/icon/what.svg';
 import Plus from '../../../../../assets/icon/plus.svg';
 import { toBase64 } from '../../../../../api/ProfileImge';
-import Profile from '../../../../commons/modals/profile-modal/Profile';
+import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 
 // 모달 prop 타입
 interface Props {
@@ -16,35 +16,26 @@ interface Props {
   handleClickModal: () => void;
 }
 
-interface MuteKickProps {
+interface Res {
+  userChannel: UserChannel[];
+}
+
+interface UserChannel {
   isAdmin: boolean;
-  isMute: boolean;
+  isFriend: boolean;
+  user: {
+    userId: string;
+    nickname: string;
+    image: string;
+  };
 }
-
-interface Member {
-  userId: string;
-  intraId: string;
-  nickname: string;
-  image: string;
-  muteKick: MuteKickProps;
-}
-
-// 채팅방 멤버 state 초기값
-const initialMember: Member = {
-  userId: '',
-  intraId: '',
-  nickname: '',
-  image: '',
-  muteKick: {
-    isAdmin: false,
-    isMute: false,
-  },
-};
 
 export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
   // 유저  정보
   const userInfo = useRecoilValue(userState);
-  const testUserList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+
+  // 채널 Id
+  const channelId = useRecoilValue(channelIdState);
 
   // 채팅방 설정 모달
   const [isOpenSetRoomModal, setIsOpenSetRoomModal] = useState<boolean>(false);
@@ -58,54 +49,57 @@ export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
     setIsOpenInviteModal(!isOpenInviteModal);
   };
 
-  // 친구 프로필 모달 예시
-  const member: Member = {
-    userId: '4b72d640-9998-4fbb-96bd-2c9463b550f1',
-    intraId: 'jinhokim',
-    nickname: 'jinhokim',
-    image: '',
-    muteKick: {
-      isAdmin: true,
-      isMute: true,
-    },
-  };
+  const [userChannels, setUserChannels] = useState<UserChannel[]>([]);
 
-  const [isOpenProfileModal, setIsOpenProfileModal] = useState<boolean>(false);
-  const handleClickSetProfileModal = async () => {
-    setIsOpenProfileModal(!isOpenProfileModal);
-  };
-
-  const [selectedUser, setSelectedUser] = useState<Member>(initialMember);
-  const handleGameSelect = async () => {
-    console.log(member);
-    const imageUrl = await axios.get(
-      `http://localhost:3000/account/image?userId=${member.userId}`,
-      {
-        responseType: 'blob',
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      },
-    );
-    console.log(imageUrl);
-    member.image = await toBase64(imageUrl.data);
-    setSelectedUser(member);
-    setIsOpenProfileModal(true);
-  };
-
-  const handleAddFriend = async (userId: string) => {
+  const handleAddFriend = async (userChannel: UserChannel) => {
     try {
+      if (userChannel.isFriend) {
+        throw new Error('이미 친구인 유저입니다');
+      }
       const response = await axios.post(
         'http://localhost:3000/friends',
         {
-          userId: 'de9b5226-d4ec-49e8-9257-056998f63fc0',
+          userId: userChannel.user.userId,
         },
         {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         },
       );
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log(error.me);
     }
   };
+
+  useEffect(() => {
+    const getUserChannels = async () => {
+      const res = await axios.get<Res>(
+        `http://127.0.0.1:3000/channels/${channelId}/friends`,
+        {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
+        },
+      );
+      const results = res.data.userChannel;
+      const updateResults = results.map(async item => {
+        const imageUrl = await axios.get(
+          `http://localhost:3000/account/image?userId=${item.user.userId}`,
+          {
+            responseType: 'blob',
+            headers: { Authorization: `Bearer ${userInfo.token}` },
+          },
+        );
+        const updateItem = {
+          ...item,
+          user: {
+            ...item.user,
+            image: await toBase64(imageUrl.data),
+          },
+        };
+        return updateItem;
+      });
+      setUserChannels(await Promise.all(updateResults));
+    };
+    getUserChannels();
+  }, []);
 
   return (
     <div>
@@ -117,13 +111,6 @@ export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
         isOpenInviteModal={isOpenInviteModal}
         handleClickModal={handleClickSetInviteModal}
       />
-      {isOpenProfileModal && selectedUser && (
-        <Profile
-          handleClickModal={handleClickSetProfileModal}
-          user={selectedUser}
-          inChat
-        />
-      )}
       {isOpenSideModal && (
         <ModalOutside onClick={() => handleClickModal()}>
           <SideModalDiv onClick={e => e.stopPropagation()}>
@@ -137,29 +124,41 @@ export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
               <p># 대화상대</p>
             </Header>
             <div>
-              {testUserList.map(user => {
-                return (
-                  // onClickCapture로 부모 컴포넌트 이벤트 먼저 돌게함
-                  // 아래는 유저 선택 이벤트가 동작해야함
-                  <UserListContainer
-                    key={user}
-                    onClickCapture={handleGameSelect}
-                  >
-                    {/* <UserListContainer key={user}> */}
-                    <UserImageWrap onClick={() => handleClickSetProfileModal()}>
-                      <img src={userInfo.imageUrl} alt={userInfo.imageUrl} />
-                    </UserImageWrap>
-                    <p>{userInfo.nickname}</p>
-                    <IconWrap>
-                      <img src={What} alt={What} />
-                    </IconWrap>
-                    <IconWrap onClick={() => handleAddFriend(userInfo.userId)}>
-                      <img src={Plus} alt={Plus} />
-                    </IconWrap>
-                    <Hr />
-                  </UserListContainer>
-                );
-              })}
+              {userChannels ? (
+                userChannels.map(userChannel => {
+                  return (
+                    <UserListContainer>
+                      <UserListWrap key={userChannel.user.userId}>
+                        <Wrap>
+                          <UserImageWrap>
+                            <img
+                              src={userChannel.user.image}
+                              alt={userChannel.user.image}
+                            />
+                          </UserImageWrap>
+                        </Wrap>
+                        <Wrap>
+                          <p>{userChannel.user.nickname}</p>
+                        </Wrap>
+                        <Wrap>
+                          <IconWrap>
+                            <img src={What} alt={What} />
+                          </IconWrap>
+                        </Wrap>
+                        <Wrap>
+                          <IconWrap
+                            onClick={() => handleAddFriend(userChannel)}
+                          >
+                            <img src={Plus} alt={Plus} />
+                          </IconWrap>
+                        </Wrap>
+                      </UserListWrap>
+                    </UserListContainer>
+                  );
+                })
+              ) : (
+                <Text>Loading...</Text>
+              )}
             </div>
           </SideModalDiv>
         </ModalOutside>
@@ -176,6 +175,7 @@ const ModalOutside = styled.div`
   width: 100%;
   height: 100%;
   max-width: 412px;
+  max-height: 915px;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 100;
 `;
@@ -187,6 +187,7 @@ const SideModalDiv = styled.div`
   width: 50%;
   height: 100%;
   max-width: 206px;
+  max-height: 915px;
   background-color: white;
   overflow-y: auto;
   z-index: 200;
@@ -200,8 +201,7 @@ const Header = styled.div`
     margin: 0;
     margin-left: 10px;
     color: white;
-    font-weight: bold;
-    font-size: 2rem;
+    font-size: 1.5rem;
     text-align: left;
   }
 `;
@@ -212,7 +212,7 @@ const Text = styled.p`
   padding: 10px 0;
   padding-left: 12px;
   text-align: left;
-  font-size: 2rem;
+  font-size: 1.5rem;
   cursor: pointer;
 `;
 
@@ -222,28 +222,40 @@ const Hr = styled.hr`
 `;
 
 const UserListContainer = styled.div`
-  padding: 0 7px;
+  margin: 0 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
+const UserListWrap = styled.div`
+  padding: 0;
   width: 100%;
   margin-top: 10px;
   margin-bottom: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+`;
+
+const Wrap = styled.div`
   display: flex;
-  flex-direction: row;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
 
   > p {
-    margin: 0px;
-    font-size: 1.5rem;
-    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    font-size: 1.2rem;
+    font-weight: bolder;
   }
 `;
 
 const UserImageWrap = styled.div`
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   overflow: hidden;
-  cursor: pointer;
 
   img {
     width: 100%;
@@ -253,8 +265,8 @@ const UserImageWrap = styled.div`
 `;
 
 const IconWrap = styled.div`
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 1.6rem;
+  height: 1.6rem;
   overflow: hidden;
   cursor: pointer;
 
