@@ -1,5 +1,6 @@
 interface IUser {
   userId: string;
+  intraId: string;
   nickname: string;
   image: string;
 }
@@ -49,6 +50,9 @@ export interface IProfile {
   receiverThumbnailImage?: string;
   content: string;
   timestamp: string;
+  message: IChat;
+  onClickCapture: (chat: IChat) => void;
+  onClick: () => void;
 }
 
 export interface IError {
