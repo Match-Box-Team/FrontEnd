@@ -87,12 +87,17 @@ export default function PingPong() {
     }
 
     if (socket) {
-      socket.on('gamecontrol', (data: any) => {
+      socket.on('gamecontrolB', (data: any) => {
         paddleBDirection = data.direction;
       });
       paddleB.x += paddleB.speed * paddleBDirection;
     }
-    paddleA.x += paddleA.speed * paddleADirection;
+    if (socket) {
+      socket.on('gamecontrolA', (data: any) => {
+        paddleADirection = data.direction;
+      });
+      paddleA.x += paddleA.speed * paddleADirection;
+    }
 
     if (paddleA.x < 0) {
       paddleA.x = 0;
@@ -155,15 +160,17 @@ export default function PingPong() {
   function keyDownHandler(e: KeyboardEvent) {
     if (socket) {
       if (e.key === 'ArrowLeft') {
-        socket.emit('gamecontrol', { direction: -1 });
+        socket.emit('gamecontrolB', { direction: -1 });
         // paddleBDirection = -1;
       } else if (e.key === 'ArrowRight') {
-        socket.emit('gamecontrol', { direction: 1 });
+        socket.emit('gamecontrolB', { direction: 1 });
         // paddleBDirection = 1;
       } else if (e.key === 'a' || e.key === 'A') {
-        paddleADirection = -1;
+        socket.emit('gamecontrolA', { direction: -1 });
+        // paddleADirection = -1;
       } else if (e.key === 'd' || e.key === 'D') {
-        paddleADirection = 1;
+        // paddleADirection = 1;
+        socket.emit('gamecontrolA', { direction: 1 });
       }
     }
   }
@@ -171,7 +178,7 @@ export default function PingPong() {
   function keyUpHandler(e: KeyboardEvent) {
     if (socket) {
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        socket.emit('gamecontrol', { direction: 0 });
+        socket.emit('gamecontrolB', { direction: 0 });
         // paddleBDirection = 0;
       } else if (
         e.key === 'a' ||
@@ -179,7 +186,8 @@ export default function PingPong() {
         e.key === 'd' ||
         e.key === 'D'
       ) {
-        paddleADirection = 0;
+        socket.emit('gamecontrolA', { direction: 0 });
+        // paddleADirection = 0;
       }
     }
   }
