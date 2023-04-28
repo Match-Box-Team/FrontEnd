@@ -1,21 +1,20 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { AxiosError, AxiosResponse } from 'axios';
 import { Socket, io } from 'socket.io-client';
-import { useQuery } from 'react-query';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../../../commons/layout/Layout';
 import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
-import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
+import { IChat, IError, ISendedMessage } from '.';
 import { useGetChatRoomLog } from '../../../../api/Channel';
-import Footer from '../../../commons/footer/Footer';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import { getImageUrl } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
+import ErrorPopup from '../../../commons/error/ErrorPopup';
+import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
 
 const Base = styled.div`
   position: relative;
@@ -36,15 +35,22 @@ export default function ChatRoom() {
   const [messages, setMessages] = useState<Array<IChat>>([]);
   const userInfo = useRecoilValue(userState);
   const [channelName, setChannelName] = useState<string>('Channel');
+  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
   const {
     data: chatListData,
     isLoading,
     isError,
   } = useGetChatRoomLog(id || '');
   const handleNewChatMessage = useNewChatMessageHandler(userInfo, setMessages);
+  const navigate = useNavigate();
 
   const handleSend = (content: ISendedMessage) => {
     socketRef.current?.emit('chat', content, handleNewChatMessage);
+  };
+
+  const handleError = () => {
+    setIsErrorGet(false);
+    navigate('/chat/channel');
   };
 
   useEffect(() => {
@@ -60,14 +66,8 @@ export default function ChatRoom() {
 
     socketRef.current.emit('enterChannel', { channelId: id });
 
-    socketRef.current?.on('message', (message: IEnterReply) => {
-      // 채팅방에 글 띄우는 걸로 변경
-      console.log(message);
-    });
-
     socketRef.current.on('error', (error: IError) => {
-      // 에러모달로 변경
-      console.error(error);
+      setIsErrorGet(true);
     });
     socketRef.current.on('chat', handleNewChatMessage);
 
@@ -112,24 +112,35 @@ export default function ChatRoom() {
   return (
     <Layout
       Header={
-        <Header title={channelName} channelBurger backPath="/chat/channel" />
+        isErrorGet ? (
+          <Header title={channelName} />
+        ) : (
+          <Header title={channelName} channelBurger backPath="/chat/channel" />
+        )
       }
       Footer={<InputChat onClick={handleSend} channelId={id} />}
     >
       <Base>
         <Container>
-          <MessageList>
-            {messages.map((message: IChat) => (
-              <Message
-                key={message.chatId}
-                receiver={message.userChannel.user.nickname}
-                receiverThumbnailImage={message.userChannel.user.image}
-                content={message.message}
-                timestamp={message.time}
-              />
-            ))}
-            <li ref={scrollBottomRef} />
-          </MessageList>
+          {isErrorGet ? (
+            <ErrorPopup
+              message="[소켓 연결 에러] 채팅방에 입장할 수 없습니다 "
+              handleClick={handleError}
+            />
+          ) : (
+            <MessageList>
+              {messages.map((message: IChat) => (
+                <Message
+                  key={message.chatId}
+                  receiver={message.userChannel.user.nickname}
+                  receiverThumbnailImage={message.userChannel.user.image}
+                  content={message.message}
+                  timestamp={message.time}
+                />
+              ))}
+              <li ref={scrollBottomRef} />
+            </MessageList>
+          )}
         </Container>
       </Base>
     </Layout>
