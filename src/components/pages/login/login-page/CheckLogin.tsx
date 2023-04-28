@@ -1,27 +1,59 @@
-import React, { ReactNode, useEffect } from 'react';
-import { useRecoilValue } from 'recoil';
+import React, { ReactNode, useEffect, useRef } from 'react';
+import { RecoilRoot, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
-// import jwt from 'jsonwebtoken';
+import { Socket, io } from 'socket.io-client';
+import { isExpired, decodeToken } from 'react-jwt';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
+import { NError } from '../../chat/chatroom-page';
 
 interface Props {
   children: ReactNode;
 }
 
-// const isTokenExpired = (token: string) => {
-//   const decodedToken = jwt.decode(token);
-//   console.log(decodedToken);
-// };
-
 export default function CheckLogin({ children }: Props) {
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userState);
+  const setUserState = useSetRecoilState(userState);
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     if (userInfo.token === '') {
+      socketRef.current?.close();
       navigate('/');
+      return;
     }
-  }, [navigate, userInfo.token]);
-
+    if (isExpired(userInfo.token) === true) {
+      const resetUser = {
+        token: '',
+        userId: '',
+        nickname: '',
+        imageUrl: '',
+      };
+      setUserState(resetUser);
+      socketRef.current?.close();
+      navigate('/');
+      return;
+    }
+    if (userInfo.token !== '' && socketRef.current === null) {
+      socketRef.current = io(`${process.env.REACT_APP_BASE_BACKEND_URL}`, {
+        path: '/socket.io',
+        extraHeaders: {
+          authorization: `Bearer ${userInfo.token}`,
+        },
+      });
+      socketRef.current.emit('login');
+      socketRef.current.on('error', (error: NError) => {
+        console.log(error);
+        const resetUser = {
+          token: '',
+          userId: '',
+          nickname: '',
+          imageUrl: '',
+        };
+        setUserState(resetUser);
+        navigate('/');
+      });
+    }
+  });
   return <div>{children}</div>;
 }

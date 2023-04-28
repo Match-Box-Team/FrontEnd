@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
@@ -18,6 +18,7 @@ export default function Auth() {
   const [inputValue, setInputValue] = useState('');
   // recoil 유저 토큰 저장
   const setUserState = useSetRecoilState(userState);
+  const userInfo = useRecoilValue(userState);
   // 쿠키
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
 
@@ -25,10 +26,11 @@ export default function Auth() {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
-  // confirm 버튼 클릭 핸들러 - socket 연결 추가
+  // confirm 버튼 클릭 핸들러
   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     try {
+      // 인증 코드 검증
       const userIdInCookie = cookies.token;
       const response = await axios.post(
         `http://localhost:3000/auth/verifyCode`,
@@ -38,12 +40,14 @@ export default function Auth() {
         },
       );
       const jwtToken = response.data.token;
+      // 유저 정보 저장
       const userInfoResponse = await axios.post(
         `http://localhost:3000/account/info`,
         {
           userId: userIdInCookie,
         },
       );
+      // 유저 이미지 저장
       const userImage = await getImageUrl(userIdInCookie, jwtToken);
       const storeUser = {
         token: jwtToken,
@@ -56,11 +60,22 @@ export default function Auth() {
       setUserState(storeUser);
       navigate(`/chat/channel`);
     } catch (error) {
-      alert('인증 코드를 다시 입력해주세요');
+      alert('틀린 인증 코드입니다. 다시 로그인해주세요.');
       console.log(error);
+      removeCookie('token');
       navigate(`/`);
     }
   };
+
+  useEffect(() => {
+    if (cookies.token === undefined) {
+      if (userInfo.token === '') {
+        navigate('/');
+      } else {
+        navigate('/chat/channel');
+      }
+    }
+  }, []);
 
   // 타이머
   useEffect(() => {
@@ -85,6 +100,7 @@ export default function Auth() {
     } else {
       verifyTimeOut();
       alert('시간이 지났습니다. 다시 로그인해주세요.');
+      removeCookie('token');
       navigate(`/`);
     }
 
@@ -134,7 +150,6 @@ export const FormSubmitButton = styled.button`
   background: #313c7a;
   border-radius: 20px;
   border: none;
-  /* margin-top: 44.9rem; */
   margin-bottom: 10px;
   padding: 7px;
   cursor: pointer;
@@ -147,12 +162,10 @@ const Container = styled.div`
   justify-content: space-around;
   align-items: center;
   list-style-type: none;
-  padding: 30rem 0rem 40rem;
+  padding: 50% 0rem 0rem;
   margin: 0;
   width: 100%;
   gap: 0;
-  height: 100%;
-  /* overflow-y: auto; */
 `;
 
 const InputContainer = styled.div`
