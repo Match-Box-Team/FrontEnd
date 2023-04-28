@@ -114,8 +114,8 @@ export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
             <Text onClick={handleClickSetRoomModal}>채팅방 설정</Text>
             <Hr />
             <Text onClick={handleClickSetInviteModal}>초대하기</Text>
-            {/* <Hr />
-            <Text onClick={handleClickExit}>나가기</Text> */}
+            <Hr />
+            <Text onClick={handleClickExit}>나가기</Text>
             <Header>
               <p># 대화상대</p>
             </Header>
