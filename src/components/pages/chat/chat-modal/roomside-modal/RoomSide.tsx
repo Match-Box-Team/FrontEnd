@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 import Invite from '../invite-modal/Invite';
 import SetRoom from '../setroom-modal/SetRoom';
 import What from '../../../../../assets/icon/what.svg';
 import Plus from '../../../../../assets/icon/plus.svg';
-import { toBase64 } from '../../../../../api/ProfileImge';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
+import { UserChannel, useUserChannels } from '../../../../../api/ChatRoomInfo';
+import { useAddFriendMutation } from '../../../../../api/AddFriend';
+import { useSetAdminMutation } from '../../../../../api/SetAdmin';
 
 // 모달 prop 타입
 interface Props {
@@ -16,26 +19,59 @@ interface Props {
   handleClickModal: () => void;
 }
 
-interface Res {
-  userChannel: UserChannel[];
-}
-
-interface UserChannel {
-  isAdmin: boolean;
-  isFriend: boolean;
-  user: {
-    userId: string;
-    nickname: string;
-    image: string;
-  };
-}
-
 export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
+  const navigate = useNavigate();
+
   // 유저  정보
   const userInfo = useRecoilValue(userState);
 
   // 채널 Id
   const channelId = useRecoilValue(channelIdState);
+
+  // react-query 채팅방 멤버 정보
+  const { data: userChannels } = useUserChannels(channelId, userInfo.token);
+
+  const { mutate: addFriendMutation } = useAddFriendMutation(
+    channelId,
+    userInfo.token,
+  );
+
+  const { mutate: setAdminMutation } = useSetAdminMutation(
+    channelId,
+    userInfo.token,
+  );
+
+  const handleAddFriend = async (userChannel: UserChannel) => {
+    try {
+      if (userInfo.userId === userChannel.user.userId) {
+        alert('본인입니다');
+      }
+      if (userChannel.isFriend) {
+        alert('이미 친구인 유저입니다');
+      }
+      await addFriendMutation({
+        userId: userChannel.user.userId,
+        token: userInfo.token,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSetAdmin = async (userChannel: UserChannel) => {
+    try {
+      if (userChannel.isAdmin) {
+        alert('이미 관리자인 유저입니다');
+      }
+      await setAdminMutation({
+        channelId,
+        userId: userChannel.user.userId,
+        token: userInfo.token,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   // 채팅방 설정 모달
   const [isOpenSetRoomModal, setIsOpenSetRoomModal] = useState<boolean>(false);
@@ -49,57 +85,15 @@ export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
     setIsOpenInviteModal(!isOpenInviteModal);
   };
 
-  const [userChannels, setUserChannels] = useState<UserChannel[]>([]);
-
-  const handleAddFriend = async (userChannel: UserChannel) => {
-    try {
-      if (userChannel.isFriend) {
-        throw new Error('이미 친구인 유저입니다');
-      }
-      const response = await axios.post(
-        'http://localhost:3000/friends',
-        {
-          userId: userChannel.user.userId,
-        },
-        {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        },
-      );
-    } catch (error: any) {
-      console.log(error.me);
-    }
-  };
-
-  useEffect(() => {
-    const getUserChannels = async () => {
-      const res = await axios.get<Res>(
-        `http://127.0.0.1:3000/channels/${channelId}/friends`,
-        {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        },
-      );
-      const results = res.data.userChannel;
-      const updateResults = results.map(async item => {
-        const imageUrl = await axios.get(
-          `http://localhost:3000/account/image?userId=${item.user.userId}`,
-          {
-            responseType: 'blob',
-            headers: { Authorization: `Bearer ${userInfo.token}` },
-          },
-        );
-        const updateItem = {
-          ...item,
-          user: {
-            ...item.user,
-            image: await toBase64(imageUrl.data),
-          },
-        };
-        return updateItem;
+  const handleClickExit = () => {
+    const exit = async () => {
+      await axios.delete(`http://localhost:3000/channels/${channelId}`, {
+        headers: { Authorization: `Bearer ${userInfo.token}` },
       });
-      setUserChannels(await Promise.all(updateResults));
     };
-    getUserChannels();
-  }, []);
+    exit();
+    navigate('/chat/channel');
+  };
 
   return (
     <div>
@@ -120,6 +114,8 @@ export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
             <Text onClick={handleClickSetRoomModal}>채팅방 설정</Text>
             <Hr />
             <Text onClick={handleClickSetInviteModal}>초대하기</Text>
+            {/* <Hr />
+            <Text onClick={handleClickExit}>나가기</Text> */}
             <Header>
               <p># 대화상대</p>
             </Header>
@@ -127,8 +123,8 @@ export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
               {userChannels ? (
                 userChannels.map(userChannel => {
                   return (
-                    <UserListContainer>
-                      <UserListWrap key={userChannel.user.userId}>
+                    <UserListContainer key={userChannel.user.userId}>
+                      <UserListWrap>
                         <Wrap>
                           <UserImageWrap>
                             <img
@@ -141,7 +137,7 @@ export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
                           <p>{userChannel.user.nickname}</p>
                         </Wrap>
                         <Wrap>
-                          <IconWrap>
+                          <IconWrap onClick={() => handleSetAdmin(userChannel)}>
                             <img src={What} alt={What} />
                           </IconWrap>
                         </Wrap>
