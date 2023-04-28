@@ -217,7 +217,7 @@ export default function ProfileFooter({
           </ButtonWrap>
           <ButtonWrap>
             <Button onClick={handleBanClicked}>
-              <ButtonImage src={NotBanIcon} />
+              <ButtonImage src={BanIcon} />
             </Button>
           </ButtonWrap>
         </>
