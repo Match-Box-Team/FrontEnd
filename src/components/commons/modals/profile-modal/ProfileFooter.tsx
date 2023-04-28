@@ -50,7 +50,7 @@ export default function ProfileFooter({
     user.muteKick?.isMute,
   );
   // 차단 유무
-  const [isBan, setIsBan] = useState<boolean | undefined>(user.ban?.isBan);
+  // const [isBan, setIsBan] = useState<boolean | undefined>(user.ban?.isBan);
   // 음소거와 킥 공통 url
   const muteKickUrl = `http://localhost:3000/channels/${channelIdStateValue}/member/${user.userId}`;
 
@@ -122,7 +122,7 @@ export default function ProfileFooter({
       .patch(
         `http://localhost:3000/friends/${user.ban?.friendId}/banned`,
         {
-          isBan: !isBan,
+          isBan: true,
         },
         {
           headers: {
@@ -131,8 +131,8 @@ export default function ProfileFooter({
         },
       )
       .then(function (response) {
-        // 차단 상태 변화
-        setIsBan(!isBan);
+        // 프로필 모달 닫기
+        handleClickModal();
       })
       .catch(function (error) {
         // 예외 처리
@@ -164,11 +164,9 @@ export default function ProfileFooter({
         },
       )
       .then(function (response) {
-        // 차단 상태 변화
-        setIsBan(!isBan);
         const to = `/chat/channel/${response.data.channel.channelId}`;
+        // 리코일 추가
         navigate(to);
-        // 리코일 수정?
       })
       .catch(function (error) {
         // 예외 처리
@@ -219,7 +217,7 @@ export default function ProfileFooter({
           </ButtonWrap>
           <ButtonWrap>
             <Button onClick={handleBanClicked}>
-              <ButtonImage src={isBan ? BanIcon : NotBanIcon} />
+              <ButtonImage src={NotBanIcon} />
             </Button>
           </ButtonWrap>
         </>
