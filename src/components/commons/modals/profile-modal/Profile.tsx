@@ -3,6 +3,26 @@ import styled from 'styled-components';
 import ExitIcon from '../../../../assets/icon/profile-modal-exit.svg';
 import ProfileFooter from './ProfileFooter';
 
+export interface Member {
+  userId: string;
+  intraId: string;
+  nickname: string;
+  image: string;
+  muteKick: MuteKickProps;
+}
+
+// 채팅방 멤버 state 초기값
+export const initialMember: Member = {
+  userId: '',
+  intraId: '',
+  nickname: '',
+  image: '',
+  muteKick: {
+    isAdmin: false,
+    isMute: false,
+  },
+};
+
 interface BanProps {
   friendId: string;
   isBan: boolean;
@@ -81,10 +101,11 @@ const IntraContainer = styled.div`
 `;
 
 const ProfileContainer = styled.div`
+  height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 10rem 6.95rem 0rem;
 `;
 
 const ProfileImage = styled.div`
@@ -109,6 +130,7 @@ const UserDataContainer = styled.div`
 `;
 
 const ExitButton = styled.img`
+  margin: 10px;
   width: 3rem;
   height: 3rem;
   cursor: pointer;
@@ -124,25 +146,26 @@ const Inner = styled.div`
 `;
 
 const Container = styled.div`
-  width: 415px;
+  width: 412px;
+  max-height: 915px;
   background-color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
-  transform: translate(-50%, -100%);
+  transform: translate(-50%, 0%);
   position: fixed;
-  top: 100%;
+  top: 0%;
   left: 50%;
   grid-template-areas:
-    'nav'
     'main'
     'footer';
   border-top: none;
   border-left: 1px solid #ccc;
   border-right: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
-  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
+
+  z-index: 10000;
 `;
 
 export const HeaderWrap = styled.header`
@@ -152,11 +175,15 @@ export const HeaderWrap = styled.header`
 export const MainWrap = styled.main`
   grid-area: main;
   width: 100%;
-  height: 80%;
+  height: 90%;
 `;
 
 export const FooterWrap = styled.footer`
   grid-area: footer;
   width: 100%;
-  height: 15%;
+  height: 10%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;

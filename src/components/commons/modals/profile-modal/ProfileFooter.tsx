@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useRecoilValue } from 'recoil';
+import { BlobOptions } from 'buffer';
 import { channelIdState } from '../../../../recoil/locals/chat/atoms/atom';
 import BanIcon from '../../../../assets/icon/ban.svg';
 import NotBanIcon from '../../../../assets/icon/not-ban.svg';
@@ -189,8 +190,10 @@ export default function ProfileFooter({
     navigate(`/game/shop`);
   };
 
+  const onlyOne = !(inChat && user.muteKick?.isAdmin) && inChat;
+
   return (
-    <FooterWrapper>
+    <FooterWrapper onlyOne={onlyOne}>
       <ButtonWrap>
         <Button onClick={handleGameClicked}>
           <ButtonImage src={GameIcon} />
@@ -246,11 +249,12 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
-const FooterWrapper = styled.footer`
-  padding: 3rem 2rem 0.8rem;
-  bottom: 0rem;
-  top: 80rem;
-  border-top: 0.1rem solid #d3d3d3;
+const FooterWrapper = styled.footer<{ onlyOne: boolean }>`
+  /* padding: 3rem 2rem 0.8rem; */
+  /* bottom: 0rem; */
+  /* top: 80rem; */
+  border-top: 1px solid #d3d3d3;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: ${({ onlyOne }) => (onlyOne ? '1fr' : '1fr 1fr 1fr')};
+  width: 100%;
 `;
