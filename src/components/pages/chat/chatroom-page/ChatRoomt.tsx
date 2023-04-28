@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { Socket, io } from 'socket.io-client';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import Layout from '../../../commons/layout/Layout';
 import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
@@ -21,6 +22,7 @@ import Profile, {
 } from '../../../commons/modals/profile-modal/Profile';
 import ErrorPopup from '../../../commons/error/ErrorPopup';
 import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
+import { userState } from '../../../../recoil/locals/login/atoms/atom';
 
 const Base = styled.div`
   position: relative;

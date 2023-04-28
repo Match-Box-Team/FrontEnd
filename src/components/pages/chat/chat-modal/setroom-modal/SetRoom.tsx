@@ -12,7 +12,7 @@ import {
   FormWarp,
 } from '../createroom-modal/Createroom';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
-import Popup, { XButton } from '../../../../commons/modals/popup-modal/Popup';
+import Popup from '../../../../commons/modals/popup-modal/Popup';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 
 // 모달 prop 타입
