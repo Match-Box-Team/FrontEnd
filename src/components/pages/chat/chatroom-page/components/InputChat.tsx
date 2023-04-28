@@ -59,8 +59,9 @@ const SendButton = styled.button<{ backgroundColor: string }>`
   height: 4rem;
   border-radius: 50%;
   font-size: 1.6rem;
+  opacity: 0.9;
   &:active {
-    opacity: 0.7;
+    opacity: 0.6;
   }
 `;
 
@@ -137,7 +138,7 @@ export default function InputChat({ onClick, channelId }: Props) {
       </InputWrapper>
       <SendButtonWrapper>
         <SendButton
-          backgroundColor={defaultTheme.colors.yellow}
+          backgroundColor={defaultTheme.colors.green}
           onClick={e => handleClick(e)}
         >
           <AiOutlineArrowUp />

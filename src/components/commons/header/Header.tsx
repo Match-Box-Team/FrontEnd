@@ -73,7 +73,7 @@ const Title = styled.div`
   align-items: center;
   color: white;
   margin-right: auto;
-  padding: 0rem 1rem 0rem;
+  padding: 0rem 1rem 1rem;
 `;
 
 const HeaderBar = styled.div`

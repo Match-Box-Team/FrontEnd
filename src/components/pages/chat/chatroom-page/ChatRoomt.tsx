@@ -24,9 +24,9 @@ const Base = styled.div`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 64px;
+  margin-top: 6.4rem;
   align-items: center;
-  padding: 0 24px;
+  padding: 0 2.4rem;
 `;
 
 export default function ChatRoom() {

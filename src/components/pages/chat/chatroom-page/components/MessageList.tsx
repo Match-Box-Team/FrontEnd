@@ -12,8 +12,12 @@ const Base = styled.ul`
   margin: 0;
   padding: 0 0 0 0;
   width: 100%;
+  > li {
+    margin-top: -4rem;
+  }
+
   > li + li {
-    margin-top: 25px;
+    margin-top: 2.5rem;
   }
 `;
 
