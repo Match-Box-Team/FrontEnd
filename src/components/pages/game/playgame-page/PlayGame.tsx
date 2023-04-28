@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import Layout from '../../../commons/layout/Layout';
 import PingPong from './games/PingPong';
+import { useSocket } from './game-socket/GameSocketContext';
 
 const clickAnimation = keyframes`
   0% {
@@ -16,6 +17,13 @@ const clickAnimation = keyframes`
 `;
 
 export default function PlayGame() {
+  const socket = useSocket();
+  useEffect(() => {
+    if (socket) {
+      socket.emit('ready', { gameControl: 'controls..' });
+      console.log('playing~!!');
+    }
+  }, [socket]);
   return (
     <Layout>
       <GameFrame>
