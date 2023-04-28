@@ -58,3 +58,7 @@ export interface IError {
 export interface IEnterReply {
   message: string;
 }
+
+export interface NError {
+  NotFoundException: string;
+}

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 import { isExpired, decodeToken } from 'react-jwt';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
-import { IError } from '../../chat/chatroom-page';
+import { NError } from '../../chat/chatroom-page';
 
 interface Props {
   children: ReactNode;
@@ -42,7 +42,8 @@ export default function CheckLogin({ children }: Props) {
         },
       });
       socketRef.current.emit('login');
-      socketRef.current.on('error', (error: IError) => {
+      socketRef.current.on('error', (error: NError) => {
+        console.log(error);
         const resetUser = {
           token: '',
           userId: '',
