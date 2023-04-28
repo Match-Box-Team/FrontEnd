@@ -24,14 +24,15 @@ const Popup = styled.div`
 
 interface ErrorPopupProps {
   message: string;
+  handleClick?: () => void;
 }
 
-function ErrorPopup({ message }: ErrorPopupProps) {
+function ErrorPopup({ message, handleClick }: ErrorPopupProps) {
   const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
   return (
     <div>
       {isErrorGet && (
-        <Popup>
+        <Popup onClick={handleClick}>
           <p>{message}</p>
         </Popup>
       )}
