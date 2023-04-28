@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import styled from '@emotion/styled/macro';
-import { useTheme } from '@emotion/react';
 import { AiOutlineArrowUp } from 'react-icons/ai';
 import { BsPlusSquare } from 'react-icons/bs';
 import defaultTheme from '../../../../../styles/theme';
@@ -8,26 +7,22 @@ import { ISendedMessage } from '..';
 
 const Base = styled.div<{ borderColor: string; backgroundColor: string }>`
   width: 100%;
-  height: 48px;
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  height: 4.8rem;
   box-sizing: border-box;
-  border-top: 1px solid ${({ borderColor }) => borderColor};
+  border-top: 1rem solid ${({ borderColor }) => borderColor};
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: ${({ backgroundColor }) => backgroundColor};
-  padding: 4px;
+  padding: 0.4rem;
 `;
 
 const PlusButtonWrapper = styled.div``;
 
 const PlusButton = styled.button`
-  width: 48px;
-  height: 48px;
-  font-size: 20px;
+  width: 4.8rem;
+  height: 4.8rem;
+  font-size: 2rem;
   border: none;
   background-color: transparent;
 `;
@@ -38,19 +33,19 @@ const InputWrapper = styled.div`
 `;
 
 const Input = styled.input<{ borderColor: string; backgroundColor: string }>`
-  border: 1px solid ${({ borderColor }) => borderColor};
+  border: 0.1rem solid ${({ borderColor }) => borderColor};
   background-color: transparent;
-  border-radius: 16px;
+  border-radius: 1.6rem;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 4px 8px;
-  font-size: 16px;
+  padding: 0.4rem 0.8rem;
+  font-size: 1.6rem;
 `;
 
 const SendButtonWrapper = styled.div`
-  margin-left: 8px;
+  margin-left: 0.8rem;
   box-sizing: border-box;
 `;
 
@@ -60,10 +55,10 @@ const SendButton = styled.button<{ backgroundColor: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
+  width: 4rem;
+  height: 4rem;
   border-radius: 50%;
-  font-size: 16px;
+  font-size: 1.6rem;
   &:active {
     opacity: 0.7;
   }
@@ -82,7 +77,11 @@ export default function InputChat({ onClick, channelId }: Props) {
     setContent(e.target.value);
   };
 
-  const handleClick = () => {
+  const handleClick = (
+    e:
+      | React.MouseEvent<HTMLButtonElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (!channelId) {
       // 에러 모달로 수정
       console.error('메세지를 보낼 수 없습니다');
@@ -95,12 +94,25 @@ export default function InputChat({ onClick, channelId }: Props) {
       time: new Date(),
     };
 
-    onClick(sendedMessage);
-
-    setContent('');
+    if (inputRef.current?.value) {
+      onClick(sendedMessage);
+      setContent('');
+    }
 
     if (inputRef.current) {
       inputRef.current.value = '';
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.nativeEvent.isComposing) {
+      // isComposing 이 true 이면
+      return; // 조합 중이므로 동작을 막는다.
+    }
+
+    if (e.key === 'Enter') {
+      // [Enter] 치면 메시지 보내기
+      handleClick(e);
     }
   };
 
@@ -120,12 +132,13 @@ export default function InputChat({ onClick, channelId }: Props) {
           borderColor={defaultTheme.colors.brightGray}
           backgroundColor={defaultTheme.colors.middleGray}
           onChange={handleChange}
+          onKeyDownCapture={handleKeyDown}
         />
       </InputWrapper>
       <SendButtonWrapper>
         <SendButton
           backgroundColor={defaultTheme.colors.yellow}
-          onClick={handleClick}
+          onClick={e => handleClick(e)}
         >
           <AiOutlineArrowUp />
         </SendButton>

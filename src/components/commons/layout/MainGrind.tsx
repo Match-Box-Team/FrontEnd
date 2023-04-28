@@ -4,7 +4,7 @@ export const Container = styled.div`
   display: grid;
   background-color: white;
   margin: auto;
-  max-width: 412px; //315px 디자인 사이즈
+  max-width: 412px; //375px 디자인 사이즈
   height: 100vh;
   max-height: 915px; //812px 디자인 사이즈
   grid-template-columns: 1fr;
