@@ -86,8 +86,13 @@ export default function PingPong() {
       ball.velocityY = -ball.velocityY;
     }
 
+    if (socket) {
+      socket.on('gamecontrol', (data: any) => {
+        paddleBDirection = data.direction;
+      });
+      paddleB.x += paddleB.speed * paddleBDirection;
+    }
     paddleA.x += paddleA.speed * paddleADirection;
-    paddleB.x += paddleB.speed * paddleBDirection;
 
     if (paddleA.x < 0) {
       paddleA.x = 0;
@@ -148,27 +153,34 @@ export default function PingPong() {
   let paddleADirection = 0;
   let paddleBDirection = 0;
   function keyDownHandler(e: KeyboardEvent) {
-    if (e.key === 'ArrowLeft') {
-      paddleBDirection = -1;
-    } else if (e.key === 'ArrowRight') {
-      paddleBDirection = 1;
-    } else if (e.key === 'a' || e.key === 'A') {
-      paddleADirection = -1;
-    } else if (e.key === 'd' || e.key === 'D') {
-      paddleADirection = 1;
+    if (socket) {
+      if (e.key === 'ArrowLeft') {
+        socket.emit('gamecontrol', { direction: -1 });
+        // paddleBDirection = -1;
+      } else if (e.key === 'ArrowRight') {
+        socket.emit('gamecontrol', { direction: 1 });
+        // paddleBDirection = 1;
+      } else if (e.key === 'a' || e.key === 'A') {
+        paddleADirection = -1;
+      } else if (e.key === 'd' || e.key === 'D') {
+        paddleADirection = 1;
+      }
     }
   }
 
   function keyUpHandler(e: KeyboardEvent) {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-      paddleBDirection = 0;
-    } else if (
-      e.key === 'a' ||
-      e.key === 'A' ||
-      e.key === 'd' ||
-      e.key === 'D'
-    ) {
-      paddleADirection = 0;
+    if (socket) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        socket.emit('gamecontrol', { direction: 0 });
+        // paddleBDirection = 0;
+      } else if (
+        e.key === 'a' ||
+        e.key === 'A' ||
+        e.key === 'd' ||
+        e.key === 'D'
+      ) {
+        paddleADirection = 0;
+      }
     }
   }
 
