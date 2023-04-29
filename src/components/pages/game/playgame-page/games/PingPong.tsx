@@ -9,10 +9,8 @@ export default function PingPong() {
   useEffect(() => {
     if (socket) {
       socket.emit('ready', {
-        width: canvasRef.current!.width,
-        height: canvasRef.current!.height,
+        ready: 'ready',
       });
-      console.log(canvasRef.current!.width, canvasRef.current!.height);
       console.log('pingpong~!!');
     }
   }, []);
@@ -20,9 +18,7 @@ export default function PingPong() {
   const ball = {
     x: 0,
     y: 0,
-    radius: 8,
-    velocityX: 5,
-    velocityY: 5,
+    radius: 6,
     color: 'white',
   };
 
@@ -31,7 +27,6 @@ export default function PingPong() {
     y: 30,
     width: 100,
     height: 4,
-    speed: 4,
     color: 'yellow',
   };
 
@@ -40,7 +35,6 @@ export default function PingPong() {
     y: 0,
     width: 100,
     height: 4,
-    speed: 4,
     color: 'skyblue',
   };
 
@@ -153,16 +147,19 @@ export default function PingPong() {
   useEffect(() => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
-      canvas.width = canvas.parentElement!.clientWidth;
-      canvas.height = canvas.parentElement!.clientHeight;
+      if (socket) {
+        socket.on('mapSize', (data: any) => {
+          canvas.width = data.width;
+          canvas.height = data.height;
+          ball.x = canvas.width / 2;
+          ball.y = canvas.height / 2;
 
-      ball.x = canvas.width / 2;
-      ball.y = canvas.height / 2;
-
-      paddleA.x = canvas.width / 2 - paddleA.width / 2;
-      paddleA.y = 30;
-      paddleB.x = canvas.width / 2 - paddleB.width / 2;
-      paddleB.y = canvas.height - paddleB.height - 30;
+          paddleA.x = canvas.width / 2 - paddleA.width / 2;
+          paddleA.y = 30;
+          paddleB.x = canvas.width / 2 - paddleB.width / 2;
+          paddleB.y = canvas.height - paddleB.height - 30;
+        });
+      }
 
       document.addEventListener('keydown', keyDownHandler);
       document.addEventListener('keyup', keyUpHandler);
