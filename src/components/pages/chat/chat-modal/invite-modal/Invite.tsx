@@ -10,6 +10,7 @@ import {
 } from '../createroom-modal/Createroom';
 import Popup from '../../../../commons/modals/popup-modal/Popup';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
+import { useInviteChatRoom } from '../../../../../api/InviteChatRoom';
 
 // 모달 prop 타입
 interface Props {
@@ -33,7 +34,7 @@ const initialSearchUserResponse: SearchUserResponse = {
 
 export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
   // 채널 id atom getter
-  const channelIdStateValue = useRecoilValue(channelIdState);
+  const channelId = useRecoilValue(channelIdState);
   const userInfo = useRecoilValue(userState);
 
   // 유저 검색 form input 초기화
@@ -73,7 +74,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
     try {
       // 유저 검색 결과
       const userData = await axios.get(
-        `http://localhost:3000/channels/${channelIdStateValue}/invite?nickname=${searchUserNickname}`,
+        `http://localhost:3000/channels/${channelId}/invite?nickname=${searchUserNickname}`,
         {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         },
@@ -91,7 +92,6 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
       setSearchUserResponse(userData.data);
 
       // 선택된 유저 이미지 get
-      // 이미지를 같이 받아올 수 있는 방법을 찾지 못했음
       const imageUrl = await axios.get(
         `http://localhost:3000/account/image?userId=${userData.data.userId}`,
         {
@@ -108,24 +108,24 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
     }
   };
 
-  // 채팅방 친구 초대 post
-  const handleInviteSubmit = async (
+  // react-query 채팅방 초대
+  const { mutate: inviteChatRoom } = useInviteChatRoom(
+    channelId,
+    userInfo.token,
+  );
+
+  const handleInviteChatRoom = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    if (searchUserResponse.userId === '') {
-      alert('선택된 유저가 없습니다');
-    }
     try {
-      const response = await axios.post(
-        `http://localhost:3000/channels/${channelIdStateValue}/invite`,
-        {
-          userId: searchUserResponse.userId,
-        },
-        {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        },
-      );
+      if (searchUserResponse.userId === '') {
+        alert('선택된 유저가 없습니다');
+      }
+      await inviteChatRoom({
+        userId: searchUserResponse.userId,
+        token: userInfo.token,
+      });
       // 모달 끄기
       handleClickModal();
     } catch (error) {
@@ -135,8 +135,7 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
   };
 
   return (
-    <>
-      <OpenButton onClick={handleClickModal}>초대 모달 생성</OpenButton>;
+    <div>
       {isOpenInviteModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>초대하기</ChatModalMainText>
@@ -160,12 +159,12 @@ export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
               <strong>{searchUserResponse.nickname}</strong>
             </SelectedUserContainer>
           )}
-          <InviteUserForm onSubmit={handleInviteSubmit}>
+          <InviteUserForm onSubmit={handleInviteChatRoom}>
             <FormSubmitButton type="submit">확인하기</FormSubmitButton>
           </InviteUserForm>
         </Popup>
       )}
-    </>
+    </div>
   );
 }
 

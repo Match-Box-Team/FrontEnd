@@ -12,6 +12,7 @@ interface Props {
   back?: boolean;
   backPath?: string;
   channelBurger?: boolean;
+  handleClickSideModal?: (() => void) | undefined;
 }
 
 export default function Header({
@@ -22,6 +23,7 @@ export default function Header({
   back = true,
   backPath = '',
   channelBurger = false,
+  handleClickSideModal,
 }: Props) {
   return (
     <HeaderWrap>
@@ -56,7 +58,12 @@ export default function Header({
             </ToggleBtn>
           </Link>
         )}
-        {channelBurger ? <ButtonImage src={Hamburger} /> : null}
+        {channelBurger ? (
+          <ButtonImage
+            src={Hamburger}
+            onClick={() => handleClickSideModal?.()}
+          />
+        ) : null}
       </HeaderBar>
     </HeaderWrap>
   );

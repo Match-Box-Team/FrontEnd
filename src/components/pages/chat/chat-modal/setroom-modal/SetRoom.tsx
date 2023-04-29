@@ -12,7 +12,7 @@ import {
   FormWarp,
 } from '../createroom-modal/Createroom';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
-import Popup, { XButton } from '../../../../commons/modals/popup-modal/Popup';
+import Popup from '../../../../commons/modals/popup-modal/Popup';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 
 // 모달 prop 타입
@@ -74,8 +74,7 @@ export default function SetRoom({
   };
 
   return (
-    <>
-      <XButton onClick={handleClickModal}>채팅방 설정 모달 생성</XButton>;
+    <div>
       {isOpenSetRoomModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>채팅방 설정</ChatModalMainText>
@@ -99,6 +98,6 @@ export default function SetRoom({
           </FormDiv>
         </Popup>
       )}
-    </>
+    </div>
   );
 }

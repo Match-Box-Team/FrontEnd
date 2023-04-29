@@ -3,18 +3,26 @@ import styled from '@emotion/styled';
 import { Socket, io } from 'socket.io-client';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import Layout from '../../../commons/layout/Layout';
 import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
-import { IChat, IError, ISendedMessage } from '.';
-import { useGetChatRoomLog } from '../../../../api/Channel';
-import { userState } from '../../../../recoil/locals/login/atoms/atom';
-import { getImageUrl } from '../../../../api/ProfileImge';
+import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
+// import { getChatRoomLog } from '../../../../api/Channel';
+import Footer from '../../../commons/footer/Footer';
+import { getImageUrl, toBase64 } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
+import { useGetChatRoomLog } from '../../../../api/Channel';
+import RoomSide from '../chat-modal/roomside-modal/RoomSide';
+import Profile, {
+  Member,
+  initialMember,
+} from '../../../commons/modals/profile-modal/Profile';
 import ErrorPopup from '../../../commons/error/ErrorPopup';
 import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
+import { userState } from '../../../../recoil/locals/login/atoms/atom';
 
 const Base = styled.div`
   position: relative;
@@ -29,6 +37,12 @@ const Container = styled.div`
 `;
 
 export default function ChatRoom() {
+  const [isOpenSideModal, setIsOpenSideModal] = useState<boolean>(false);
+
+  const handleClickSideModal = () => {
+    setIsOpenSideModal(!isOpenSideModal);
+  };
+
   const socketRef = useRef<Socket | null>(null);
   const scrollBottomRef = useRef<HTMLLIElement>(null);
   const { id } = useParams<string>();
@@ -74,6 +88,8 @@ export default function ChatRoom() {
     return () => {
       socketRef.current?.off('error');
       socketRef.current?.off('chat');
+      socketRef.current?.off('message');
+      socketRef.current?.close();
     };
   }, []);
 
@@ -109,17 +125,65 @@ export default function ChatRoom() {
     scrollBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // 유저 프로필 모달
+  const [isOpenProfileModal, setIsOpenProfileModal] = useState<boolean>(false);
+  const handleClickProfileModal = async () => {
+    setIsOpenProfileModal(!isOpenProfileModal);
+  };
+
+  const [selectedUser, setSelectedUser] = useState<Member>(initialMember);
+  const [selectedChat, setSelectedChat] = useState<IChat | null>(null);
+  const handleSelectChat = async (message: IChat) => {
+    setSelectedChat(message);
+    const member: Member = {
+      userId: message.userChannel.user.userId,
+      intraId: message.userChannel.user.intraId,
+      nickname: message.userChannel.user.nickname,
+      image: '',
+      muteKick: {
+        isAdmin: message.userChannel.isAdmin,
+        isMute: message.userChannel.isMute,
+      },
+    };
+    const imageUrl = await axios.get(
+      `http://localhost:3000/account/image?userId=${member.userId}`,
+      {
+        responseType: 'blob',
+        headers: { Authorization: `Bearer ${userInfo.token}` },
+      },
+    );
+    member.image = await toBase64(imageUrl.data);
+    setSelectedUser(member);
+    setIsOpenProfileModal(true);
+  };
+
   return (
     <Layout
       Header={
         isErrorGet ? (
           <Header title={channelName} />
         ) : (
-          <Header title={channelName} channelBurger backPath="/chat/channel" />
+          <Header
+            title={channelName}
+            channelBurger
+            handleClickSideModal={handleClickSideModal}
+            backPath="/chat/channel"
+          />
         )
       }
       Footer={<InputChat onClick={handleSend} channelId={id} />}
     >
+      {isOpenProfileModal && selectedChat && (
+        <Profile
+          handleClickModal={handleClickProfileModal}
+          user={selectedUser}
+          inChat
+        />
+      )}
+      <RoomSide
+        isOpenSideModal={isOpenSideModal}
+        handleClickModal={handleClickSideModal}
+      />
       <Base>
         <Container>
           {isErrorGet ? (
@@ -136,6 +200,9 @@ export default function ChatRoom() {
                   receiverThumbnailImage={message.userChannel.user.image}
                   content={message.message}
                   timestamp={message.time}
+                  message={message}
+                  onClickCapture={handleSelectChat}
+                  onClick={handleClickProfileModal}
                 />
               ))}
               <li ref={scrollBottomRef} />

@@ -66,6 +66,9 @@ export function Message({
   receiver,
   timestamp,
   content,
+  message,
+  onClickCapture,
+  onClick,
 }: IProfile) {
   const formatTimestamp = (time: string) => {
     const date = new Date(time);
@@ -111,8 +114,12 @@ export function Message({
   };
 
   return (
-    <Base>
-      <Image src={receiverThumbnailImage} alt={`${receiver}의 썸네일`} />
+    <Base onClickCapture={() => onClickCapture(message)}>
+      <Image
+        src={receiverThumbnailImage}
+        alt={`${receiver}의 썸네일`}
+        onClick={onClick}
+      />
       <Content>
         <Profile>
           <UserName>{receiver}</UserName>

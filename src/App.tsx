@@ -4,7 +4,7 @@ import { RecoilRoot } from 'recoil';
 import Router from './Router';
 import GlobalStyle from './styles/GlobalStyle';
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 function App() {
   return (
