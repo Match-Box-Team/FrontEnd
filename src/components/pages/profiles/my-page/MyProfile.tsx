@@ -10,6 +10,7 @@ import EditMy from '../profile-modal/editmy-modal/EditMy';
 import PingPongIcon from '../../../../assets/icon/pingpong.svg';
 import SelectArrow from '../../../../assets/icon/SelectArrow.svg';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
+import ReadyGame from '../../game/game-modal/readygame-modal/ReadyGame';
 
 interface User {
   userId: string;
@@ -83,6 +84,16 @@ export default function MyProfile() {
       return '0승 0패';
     }
     return `${history.winCount}승 ${history.loseCount}패`;
+  };
+
+  const [showReadyGameModal, setShowReadyGameModal] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowReadyGameModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowReadyGameModal(false);
   };
 
   useEffect(() => {
@@ -172,9 +183,10 @@ export default function MyProfile() {
           <GameButton onClick={() => navigate('/game/record')}>
             전적 보기
           </GameButton>
-          <GameButton>게임하기</GameButton>
+          <GameButton onClick={handleButtonClick}>게임하기</GameButton>
         </GameContainer>
       </MyPageDiv>
+      {showReadyGameModal && <ReadyGame onClick={handleCloseModal} />}
     </Layout>
   );
 }
