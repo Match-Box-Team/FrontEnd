@@ -4,15 +4,17 @@ import { useSocket } from '../game-socket/GameSocketContext';
 
 export default function PingPong() {
   const socket = useSocket();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (socket) {
-      socket.emit('ready', { gameControl: 'controls..' });
+      socket.emit('ready', {
+        width: canvasRef.current!.width,
+        height: canvasRef.current!.height,
+      });
       console.log('pingpong~!!');
     }
-  }, [socket]);
-
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  }, []);
 
   const ball = {
     x: 0,
@@ -58,6 +60,14 @@ export default function PingPong() {
   }
 
   function update() {
+    // if (socket)
+    // {
+    //   socket.on('ballPos', (data: any) => {
+    //     // Update ball.x and ball.y with the value received from the server
+    //     ball.x = data.x;
+    //     ball.y = data.y;
+    //   }
+    // }
     ball.x += ball.velocityX;
     ball.y += ball.velocityY;
 
@@ -88,17 +98,17 @@ export default function PingPong() {
       });
     }
 
-    if (paddleA.x < 0) {
-      paddleA.x = 0;
-    } else if (paddleA.x + paddleA.width > canvasRef.current!.width) {
-      paddleA.x = canvasRef.current!.width - paddleA.width;
-    }
+    // if (paddleA.x < 0) {
+    //   paddleA.x = 0;
+    // } else if (paddleA.x + paddleA.width > canvasRef.current!.width) {
+    //   paddleA.x = canvasRef.current!.width - paddleA.width;
+    // }
 
-    if (paddleB.x < 0) {
-      paddleB.x = 0;
-    } else if (paddleB.x + paddleB.width > canvasRef.current!.width) {
-      paddleB.x = canvasRef.current!.width - paddleB.width;
-    }
+    // if (paddleB.x < 0) {
+    //   paddleB.x = 0;
+    // } else if (paddleB.x + paddleB.width > canvasRef.current!.width) {
+    //   paddleB.x = canvasRef.current!.width - paddleB.width;
+    // }
 
     if (
       (ball.y - ball.radius < paddleA.y + paddleA.height &&
