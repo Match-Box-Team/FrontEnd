@@ -8,6 +8,10 @@ import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import { NError } from '../../chat/chatroom-page';
 import AcceptGameModal from '../../game/game-modal/accept-game-modal/AcceptModal';
 import { getImageUrl } from '../../../../api/ProfileImge';
+import AcceptWaiting from '../../game/game-modal/accept-waiting-modal/AcceptWaiting';
+
+const fakeUserId1 = '3e05aadf-8c34-48c9-89fa-c58d4bf720d7';
+const fakeUserId2 = 'fa9eecd4-7bdb-4d61-a0f8-898869d99ca2';
 
 interface Props {
   children: ReactNode;
@@ -73,39 +77,72 @@ export default function CheckLogin({ children }: Props) {
 
   // 게임 초대 이벤트 모니터링 -> 감지시 게임 초대 수락 모달 띄움
   useEffect(() => {
-    socketRef.current?.on('inviteGame', async (user: User) => {
-      console.log('Game Hi');
-      console.log(user);
+    // 게임 초대 받음
+    console.log(socketRef);
+    socketRef.current?.once('inviteGame', async (user: User) => {
+      console.log('게임 초대 받음');
       const imageUrl = await getImageUrl(user.userId, userInfo.token);
       setEnemyInfo({
         ...user,
         image: imageUrl,
       });
-      handleClickModal();
+      setIsOpenAcceptGameModal(true);
+    });
+
+    // 초대 수락 받음
+    socketRef.current?.once('inviteResolve', () => {
+      console.log('초대 수락됨');
+      setIsOpenAcceptWaitingModal(false);
+      navigate('/profile/friend/:id');
+    });
+
+    // 초대 거부 당함
+    socketRef.current?.once('inviteReject', () => {
+      console.log('초대 거부됨');
+      setIsOpenAcceptWaitingModal(false);
+    });
+
+    socketRef.current?.once('gameError', (message: { message: string }) => {
+      console.log(message.message);
+      setIsOpenAcceptGameModal(false);
+      setIsOpenAcceptWaitingModal(false);
     });
 
     return () => {
-      socketRef.current?.off('game');
+      socketRef.current?.off('inviteGame');
+      socketRef.current?.off('inviteResolve');
+      socketRef.current?.off('inviteReject');
+      socketRef.current?.off('gameError');
     };
-  }, []);
+  });
 
   // 게임 초대 수락 모달
   const [isOpenAcceptGameModal, setIsOpenAcceptGameModal] =
     useState<boolean>(false);
-  const handleClickModal = () => {
+  const handleClickAcceptModal = () => {
     setIsOpenAcceptGameModal(!isOpenAcceptGameModal);
   };
 
-  // 게임 신청 버튼
+  // 초대 수락 대기 모달
+  const [isOpenAcceptWaitingModal, setIsOpenAcceptWaitingModal] =
+    useState<boolean>(false);
+  const handleClickWaitingModal = () => {
+    setIsOpenAcceptWaitingModal(!isOpenAcceptWaitingModal);
+    // 대기 모달을 껐다 => 초대 취소
+    // fake1, fake2 중 누구한테 초대를 걸었냐에 따라 달라져야함.
+    // 저는 fake1이 fake2에게 거는 쪽으로 계속 테스트했습니다.
+    // socketRef.current?.emit('inviteCancel', { userId: fakeUserId1 });
+    socketRef.current?.emit('inviteCancel', { userId: fakeUserId2 });
+  };
+
+  // 가짜 게임 신청
   const handleClickSocket = (isFake1: boolean) => {
-    console.log('소켓');
-    const fakeUserId1 = '3e05aadf-8c34-48c9-89fa-c58d4bf720d7';
-    const fakeUserId2 = 'fa9eecd4-7bdb-4d61-a0f8-898869d99ca2';
     if (isFake1) {
       socketRef.current?.emit('inviteGame', { userId: fakeUserId1 });
     } else {
       socketRef.current?.emit('inviteGame', { userId: fakeUserId2 });
     }
+    setIsOpenAcceptWaitingModal(true);
   };
 
   return (
@@ -114,13 +151,17 @@ export default function CheckLogin({ children }: Props) {
         가짜1에게 게임 신청
       </Test1Button>
       <Test2Button type="submit" onClick={() => handleClickSocket(false)}>
-        가짜2에게게임 신청
+        가짜2에게 게임 신청
       </Test2Button>
       {isOpenAcceptGameModal && enemyInfo && (
         <AcceptGameModal
           enemyInfo={enemyInfo}
-          handleClickModal={handleClickModal}
+          handleClickModal={handleClickAcceptModal}
+          socketRef={socketRef}
         />
+      )}
+      {isOpenAcceptWaitingModal && (
+        <AcceptWaiting handleClickModal={handleClickWaitingModal} />
       )}
       {children}
     </div>
@@ -136,5 +177,12 @@ const Test1Button = styled.button`
 const Test2Button = styled.button`
   position: absolute;
   left: 50%;
+  font-size: 20px;
+`;
+
+const Test3Button = styled.button`
+  position: absolute;
+  left: 20%;
+  top: 5%;
   font-size: 20px;
 `;
