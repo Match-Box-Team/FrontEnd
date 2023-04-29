@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
@@ -72,6 +72,8 @@ export default function MyProfile() {
     setSelectedGame(event.target.value);
   };
 
+  const selectRef = useRef<HTMLSelectElement>(null);
+
   const getUserGameHistoryText = (gameName: string) => {
     const selectedUserGame = userGames?.filter(
       userGame => userGame.game.name === gameName,
@@ -133,31 +135,37 @@ export default function MyProfile() {
         </UserInfoContainer>
         {/* 게임 선택 */}
         <SelectGameContainer>
-          <PingPongImageWrap>
-            <img src={PingPongIcon} alt={PingPongIcon} />
-          </PingPongImageWrap>
-          <SelectContainer>
-            <SelectWrapper>
-              <Select
-                name="game"
-                onClick={() => {
-                  setSelectedOpen(!selectedOpen);
-                }}
-                onChange={handleGameChange}
-              >
-                <option value="핑퐁핑퐁">핑퐁핑퐁</option>
-                <option value="테트리스">테트리스</option>
-                <option value="퍼즐팡팡">퍼즐팡팡</option>
-                <option value="좀비좀비">좀비좀비</option>
-              </Select>
-              <ArrowIcon
-                onClick={() => setSelectedOpen(!selectedOpen)}
-                isOpen={selectedOpen}
-              >
-                <img src={SelectArrow} alt={SelectArrow} />
-              </ArrowIcon>
-            </SelectWrapper>
-          </SelectContainer>
+          <SelectGameWrap>
+            <PingPongImageWrap>
+              <img src={PingPongIcon} alt={PingPongIcon} />
+            </PingPongImageWrap>
+            <SelectContainer>
+              <SelectWrapper>
+                <Select
+                  ref={selectRef}
+                  name="game"
+                  onClick={() => {
+                    setSelectedOpen(!selectedOpen);
+                  }}
+                  onChange={handleGameChange}
+                >
+                  <option value="핑퐁핑퐁">핑퐁핑퐁</option>
+                  <option value="테트리스">테트리스</option>
+                  <option value="퍼즐팡팡">퍼즐팡팡</option>
+                  <option value="좀비좀비">좀비좀비</option>
+                </Select>
+                <ArrowIcon
+                  onClick={() => {
+                    setSelectedOpen(!selectedOpen);
+                    selectRef.current?.click();
+                  }}
+                  isOpen={selectedOpen}
+                >
+                  <img src={SelectArrow} alt={SelectArrow} />
+                </ArrowIcon>
+              </SelectWrapper>
+            </SelectContainer>
+          </SelectGameWrap>
         </SelectGameContainer>
         <GameContainer>
           <HistoryText>{getUserGameHistoryText(selectedGame)}</HistoryText>
@@ -173,21 +181,31 @@ export default function MyProfile() {
 
 // 전체 div
 const MyPageDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 100%;
+  height: 100%;
+  /* max-height: 800px; */
+
+  display: grid;
+  grid-template-rows: 18fr 18fr 20fr 44fr;
+  place-items: center;
+  grid-template-areas:
+    'profile'
+    'info'
+    'select'
+    'game';
 `;
 
 /*
  ** 유저 프로필
  */
 const UserProfileContainer = styled.div`
-  padding: 3rem 0px;
+  grid-area: profile;
+  width: 100%;
+  padding: 20px 0;
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 100%;
+  justify-content: center;
   border-bottom: 1px solid #d2d2d2;
 `;
 
@@ -206,7 +224,7 @@ const UserImageWrap = styled.div`
 `;
 
 const UserCardWrap = styled.div`
-  margin: 0px;
+  margin: 0;
   margin-left: 2rem;
   height: 100%;
   display: flex;
@@ -251,10 +269,13 @@ const EditProfileButton = styled.button`
  ** 유저 정보
  */
 const UserInfoContainer = styled.div`
-  padding: 2rem 0px;
-  width: 85%;
+  grid-area: info;
+  padding: 5px 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
 const UserInfoWrap = styled.div`
@@ -267,7 +288,7 @@ const UserInfoKey = styled.div`
   display: flex;
   align-items: center;
   > p {
-    margin: 15px 0px;
+    margin: 20px 0px;
     font-size: 1.8rem;
     color: #2d3648;
   }
@@ -286,11 +307,20 @@ const UserInfoValue = styled.div`
  ** 게임 선택
  */
 const SelectGameContainer = styled.div`
+  grid-area: select;
   background-color: #313c7a;
   border-radius: 20px;
   width: 85%;
-  padding: 2rem;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 0;
+`;
+
+const SelectGameWrap = styled.div`
   display: grid;
+  height: 70%;
   grid-template-columns: 1fr 2fr;
 `;
 
@@ -305,7 +335,8 @@ const PingPongImageWrap = styled.div`
 `;
 
 const SelectContainer = styled.div`
-  width: 19rem;
+  margin-left: 0.5rem;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -322,13 +353,14 @@ const SelectWrapper = styled.div`
 const Select = styled.select`
   width: 100%;
   font-family: 'NanumGothic';
-  font-size: 2.5rem;
+  font-size: 2.4rem;
   font-weight: bold;
   color: #555555;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
-  padding: 14px 10px;
+  padding: 14px 0;
   text-align: center;
+  cursor: pointer;
 
   appearance: none;
 
@@ -346,12 +378,13 @@ const Select = styled.select`
 
 const ArrowIcon = styled.div<{ isOpen: boolean }>`
   position: absolute;
-  right: 1.2rem;
+  right: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   transform: translateY(0%)
     ${props => (props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)')};
+  pointer-events: none;
 
   > img {
     width: 3.2rem;
@@ -363,11 +396,13 @@ const ArrowIcon = styled.div<{ isOpen: boolean }>`
  ** 게임
  */
 const GameContainer = styled.div`
-  margin-top: 2.5rem;
+  grid-area: game;
+  background-color: #313c7a;
+  border-radius: 20px;
   background: #e1e3ee;
   border-radius: 10px;
   width: 85%;
-  padding: 1rem;
+  padding: 10px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -376,18 +411,18 @@ const GameContainer = styled.div`
 
 const HistoryText = styled.p`
   margin-top: 20px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   font-family: 'SEBANG Gothic';
-  font-size: 4rem;
+  font-size: 3.5rem;
 `;
 
 const GameButton = styled.button`
   font-family: 'SEBANG Gothic';
-  font-size: 4rem;
+  font-size: 3.5rem;
   margin-top: 10px;
   margin-bottom: 10px;
   padding: 1rem;
-  width: 20rem;
+  width: 60%;
   color: white;
   background: #6d77af;
   border-radius: 10px;

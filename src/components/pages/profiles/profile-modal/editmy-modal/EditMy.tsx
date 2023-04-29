@@ -77,8 +77,10 @@ export default function EditMy({
   const handleEditSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
+      let updateImageUrl;
       // 이미지 업데이트
       if (selectedFile) {
+        updateImageUrl = await fileToBase64(selectedFile);
         const form = new FormData();
         form.append('image', selectedFile!);
         const user = await axios.patch(
@@ -88,9 +90,6 @@ export default function EditMy({
             headers: { Authorization: `Bearer ${userInfo.token}` },
           },
         );
-        const updateImageUrl = await fileToBase64(selectedFile);
-        const newUserInfo = { ...userInfo, imageUrl: updateImageUrl };
-        setUserInfo(newUserInfo);
       }
       // 닉네임 업데이트
       if (nickname) {
@@ -103,9 +102,13 @@ export default function EditMy({
             headers: { Authorization: `Bearer ${userInfo.token}` },
           },
         );
-        const newUserInfo = { ...userInfo, nickname };
-        setUserInfo(newUserInfo);
       }
+      const newUserInfo = {
+        ...userInfo,
+        imageUrl: updateImageUrl || userInfo.imageUrl,
+        nickname: nickname || userInfo.nickname,
+      };
+      setUserInfo(newUserInfo);
       // 모달 끄기
       handleClickModal();
     } catch (error) {

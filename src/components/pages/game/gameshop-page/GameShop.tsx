@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
@@ -12,14 +11,7 @@ import PuzzleIcon from '../../../../assets/icon/puzzle.svg';
 import ZombieIcon from '../../../../assets/icon/zombie.svg';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import BuyGame from '../game-modal/buygame-modal/BuyGame';
-
-interface Game {
-  gameId: string;
-  name: string;
-  price: number;
-  isPlayable: boolean;
-  isBuy: boolean;
-}
+import { useGames } from '../../../../api/GetGames';
 
 interface BuyButtonProps {
   isBuy: boolean;
@@ -35,7 +27,7 @@ export default function GameShop() {
   // 페이지 이동
   const navigate = useNavigate();
 
-  // 유저  정보
+  // 유저 정보
   const userInfo = useRecoilValue(userState);
 
   // 모달 관리
@@ -47,24 +39,14 @@ export default function GameShop() {
     setIsOpenBuyGameModal(!isOpenBuyGameModal);
   };
 
-  // 게임 정보들
-  const [games, setGames] = useState<Game[] | null>(null);
+  // react-query 게임 정보
+  const { data: games } = useGames(userInfo.token);
 
   // 선택된 게임 Id
   const [selectedGameId, setSelectedGameId] = useState<string>('');
   const handleGameSelect = (gameId: string) => {
     setSelectedGameId(gameId);
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await axios.get(`http://localhost:3000/games`, {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      });
-      setGames(data.data);
-    };
-    fetchData();
-  }, []);
 
   return (
     <Layout
@@ -87,13 +69,20 @@ export default function GameShop() {
                 <SelectGameContainer
                   key={game.gameId}
                   isSelected={selectedGameId === game.gameId}
-                  onClick={() => handleGameSelect(game.gameId)}
+                  onClickCapture={() => handleGameSelect(game.gameId)}
                 >
                   <GameImageWrap>
                     <img src={gameIcons[index]} alt={gameIcons[index]} />
                     <strong>{game.name}</strong>
                     <p>{`${game.price.toLocaleString('en-US')}₩`}</p>
-                    <BuyButton isBuy={game.isBuy} onClick={handleClickModal}>
+                    <BuyButton
+                      isBuy={game.isBuy}
+                      onClick={() => {
+                        if (!game.isBuy) {
+                          handleClickModal();
+                        }
+                      }}
+                    >
                       BUY
                     </BuyButton>
                   </GameImageWrap>
@@ -115,10 +104,11 @@ const GameShopDiv = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
+  height: 100%;
 `;
 
 const ManualTextWrap = styled.div`
-  margin: 25px 0px;
+  margin: 20px 0;
   > p {
     color: #ad46c7;
     text-align: center;
@@ -136,10 +126,10 @@ const SelectGameDiv = styled.div`
 `;
 
 const SelectGameGridDiv = styled.div`
+  padding: 20px 0;
   display: grid;
   grid-template-rows: 1fr 1fr;
   grid-template-columns: 1fr 1fr;
-  padding: 10px;
 `;
 
 const SelectGameContainer = styled.div<SelectGameContainerProps>`
@@ -147,7 +137,7 @@ const SelectGameContainer = styled.div<SelectGameContainerProps>`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 20px 2rem;
+  margin: 12px 18px;
   border: 5px solid transparent;
   border: ${({ isSelected }) =>
     isSelected ? '5px solid #31D37C;' : '5px solid transparent;'};
@@ -185,6 +175,7 @@ const BuyButton = styled.button<BuyButtonProps>`
   border-radius: 7.5px;
   border: none;
   width: 6rem;
+  cursor: pointer;
 `;
 
 const GameWatchingButton = styled.button`
@@ -194,4 +185,5 @@ const GameWatchingButton = styled.button`
   border: 1px solid black;
   font-size: 2rem;
   padding: 1rem;
+  cursor: pointer;
 `;
