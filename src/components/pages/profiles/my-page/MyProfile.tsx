@@ -328,7 +328,7 @@ const SelectGameContainer = styled.div`
 
 const SelectGameWrap = styled.div`
   display: grid;
-  height: 70%;
+  height: 100%;
   grid-template-columns: 1fr 2fr;
 `;
 
