@@ -108,6 +108,7 @@ const GameShopDiv = styled.div`
 `;
 
 const ManualTextWrap = styled.div`
+  margin: 20px 0;
   > p {
     color: #ad46c7;
     text-align: center;
@@ -125,6 +126,7 @@ const SelectGameDiv = styled.div`
 `;
 
 const SelectGameGridDiv = styled.div`
+  padding: 20px 0;
   display: grid;
   grid-template-rows: 1fr 1fr;
   grid-template-columns: 1fr 1fr;
