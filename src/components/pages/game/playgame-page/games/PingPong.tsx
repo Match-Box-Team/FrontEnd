@@ -60,30 +60,34 @@ export default function PingPong() {
   }
 
   function update() {
-    // if (socket)
-    // {
-    //   socket.on('ballPos', (data: any) => {
-    //     // Update ball.x and ball.y with the value received from the server
-    //     ball.x = data.x;
-    //     ball.y = data.y;
-    //   }
+    if (socket) {
+      socket.on('ballcontrol', (data: any) => {
+        // Update ball.x and ball.y with the value received from the server
+        ball.x = data.ball.x;
+        ball.y = data.ball.y;
+        ball.color = data.ball.color;
+        ball.radius = data.ball.radius;
+        // console.log(ball.x, ball.y);
+      });
+    }
+    // console.log(ball.x, ball.y);
+    // console.log(ball.x);
+    // ball.x += ball.velocityX;
+    // ball.y += ball.velocityY;
+
+    // if (
+    //   ball.x + ball.radius > canvasRef.current!.width ||
+    //   ball.x - ball.radius < 0
+    // ) {
+    //   ball.velocityX = -ball.velocityX;
     // }
-    ball.x += ball.velocityX;
-    ball.y += ball.velocityY;
 
-    if (
-      ball.x + ball.radius > canvasRef.current!.width ||
-      ball.x - ball.radius < 0
-    ) {
-      ball.velocityX = -ball.velocityX;
-    }
-
-    if (
-      ball.y + ball.radius > canvasRef.current!.height ||
-      ball.y - ball.radius < 0
-    ) {
-      ball.velocityY = -ball.velocityY;
-    }
+    // if (
+    //   ball.y + ball.radius > canvasRef.current!.height ||
+    //   ball.y - ball.radius < 0
+    // ) {
+    //   ball.velocityY = -ball.velocityY;
+    // }
 
     if (socket) {
       socket.on('gamecontrolB', (data: any) => {
@@ -110,18 +114,18 @@ export default function PingPong() {
     //   paddleB.x = canvasRef.current!.width - paddleB.width;
     // }
 
-    if (
-      (ball.y - ball.radius < paddleA.y + paddleA.height &&
-        ball.y + ball.radius > paddleA.y &&
-        ball.x - ball.radius < paddleA.x + paddleA.width &&
-        ball.x + ball.radius > paddleA.x) ||
-      (ball.y - ball.radius < paddleB.y + paddleB.height &&
-        ball.y + ball.radius > paddleB.y &&
-        ball.x - ball.radius < paddleB.x + paddleB.width &&
-        ball.x + ball.radius > paddleB.x)
-    ) {
-      ball.velocityY = -ball.velocityY;
-    }
+    // if (
+    //   (ball.y - ball.radius < paddleA.y + paddleA.height &&
+    //     ball.y + ball.radius > paddleA.y &&
+    //     ball.x - ball.radius < paddleA.x + paddleA.width &&
+    //     ball.x + ball.radius > paddleA.x) ||
+    //   (ball.y - ball.radius < paddleB.y + paddleB.height &&
+    //     ball.y + ball.radius > paddleB.y &&
+    //     ball.x - ball.radius < paddleB.x + paddleB.width &&
+    //     ball.x + ball.radius > paddleB.x)
+    // ) {
+    //   ball.velocityY = -ball.velocityY;
+    // }
   }
 
   function draw() {
