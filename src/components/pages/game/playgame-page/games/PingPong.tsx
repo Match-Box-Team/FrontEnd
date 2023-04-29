@@ -12,6 +12,7 @@ export default function PingPong() {
         width: canvasRef.current!.width,
         height: canvasRef.current!.height,
       });
+      console.log(canvasRef.current!.width, canvasRef.current!.height);
       console.log('pingpong~!!');
     }
   }, []);
@@ -19,7 +20,7 @@ export default function PingPong() {
   const ball = {
     x: 0,
     y: 0,
-    radius: 10,
+    radius: 8,
     velocityX: 5,
     velocityY: 5,
     color: 'white',
@@ -29,7 +30,7 @@ export default function PingPong() {
     x: 0,
     y: 30,
     width: 100,
-    height: 10,
+    height: 4,
     speed: 4,
     color: 'yellow',
   };
@@ -38,7 +39,7 @@ export default function PingPong() {
     x: 0,
     y: 0,
     width: 100,
-    height: 10,
+    height: 4,
     speed: 4,
     color: 'skyblue',
   };
@@ -62,70 +63,24 @@ export default function PingPong() {
   function update() {
     if (socket) {
       socket.on('ballcontrol', (data: any) => {
-        // Update ball.x and ball.y with the value received from the server
         ball.x = data.ball.x;
         ball.y = data.ball.y;
         ball.color = data.ball.color;
         ball.radius = data.ball.radius;
-        // console.log(ball.x, ball.y);
       });
     }
-    // console.log(ball.x, ball.y);
-    // console.log(ball.x);
-    // ball.x += ball.velocityX;
-    // ball.y += ball.velocityY;
-
-    // if (
-    //   ball.x + ball.radius > canvasRef.current!.width ||
-    //   ball.x - ball.radius < 0
-    // ) {
-    //   ball.velocityX = -ball.velocityX;
-    // }
-
-    // if (
-    //   ball.y + ball.radius > canvasRef.current!.height ||
-    //   ball.y - ball.radius < 0
-    // ) {
-    //   ball.velocityY = -ball.velocityY;
-    // }
 
     if (socket) {
-      socket.on('gamecontrolB', (data: any) => {
-        // Update paddleB.x with the value received from the server
+      socket.on('controlB', (data: any) => {
         paddleB.x = data.position;
       });
     }
     if (socket) {
-      socket.on('gamecontrolA', (data: any) => {
+      socket.on('controlA', (data: any) => {
         // Update paddleA.x with the value received from the server
         paddleA.x = data.position;
       });
     }
-
-    // if (paddleA.x < 0) {
-    //   paddleA.x = 0;
-    // } else if (paddleA.x + paddleA.width > canvasRef.current!.width) {
-    //   paddleA.x = canvasRef.current!.width - paddleA.width;
-    // }
-
-    // if (paddleB.x < 0) {
-    //   paddleB.x = 0;
-    // } else if (paddleB.x + paddleB.width > canvasRef.current!.width) {
-    //   paddleB.x = canvasRef.current!.width - paddleB.width;
-    // }
-
-    // if (
-    //   (ball.y - ball.radius < paddleA.y + paddleA.height &&
-    //     ball.y + ball.radius > paddleA.y &&
-    //     ball.x - ball.radius < paddleA.x + paddleA.width &&
-    //     ball.x + ball.radius > paddleA.x) ||
-    //   (ball.y - ball.radius < paddleB.y + paddleB.height &&
-    //     ball.y + ball.radius > paddleB.y &&
-    //     ball.x - ball.radius < paddleB.x + paddleB.width &&
-    //     ball.x + ball.radius > paddleB.x)
-    // ) {
-    //   ball.velocityY = -ball.velocityY;
-    // }
   }
 
   function draw() {
@@ -143,9 +98,6 @@ export default function PingPong() {
     }
   }
 
-  const paddleADirection = 0;
-  const paddleBDirection = 0;
-  // 각 키에 대한 상태를 추적하는 객체를 생성합니다.
   const keyState: any = {
     ArrowLeft: false,
     ArrowRight: false,
