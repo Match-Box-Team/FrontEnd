@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
@@ -72,6 +72,8 @@ export default function MyProfile() {
     setSelectedGame(event.target.value);
   };
 
+  const selectRef = useRef<HTMLSelectElement>(null);
+
   const getUserGameHistoryText = (gameName: string) => {
     const selectedUserGame = userGames?.filter(
       userGame => userGame.game.name === gameName,
@@ -139,6 +141,7 @@ export default function MyProfile() {
           <SelectContainer>
             <SelectWrapper>
               <Select
+                ref={selectRef}
                 name="game"
                 onClick={() => {
                   setSelectedOpen(!selectedOpen);
@@ -151,7 +154,10 @@ export default function MyProfile() {
                 <option value="좀비좀비">좀비좀비</option>
               </Select>
               <ArrowIcon
-                onClick={() => setSelectedOpen(!selectedOpen)}
+                onClick={() => {
+                  setSelectedOpen(!selectedOpen);
+                  selectRef.current?.click();
+                }}
                 isOpen={selectedOpen}
               >
                 <img src={SelectArrow} alt={SelectArrow} />
@@ -329,6 +335,7 @@ const Select = styled.select`
   border-radius: 4px;
   padding: 14px 10px;
   text-align: center;
+  cursor: pointer;
 
   appearance: none;
 
@@ -352,6 +359,7 @@ const ArrowIcon = styled.div<{ isOpen: boolean }>`
   justify-content: center;
   transform: translateY(0%)
     ${props => (props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)')};
+  pointer-events: none;
 
   > img {
     width: 3.2rem;
