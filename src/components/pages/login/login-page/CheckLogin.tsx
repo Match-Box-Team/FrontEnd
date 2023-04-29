@@ -73,10 +73,9 @@ export default function CheckLogin({ children }: Props) {
 
   // 게임 초대 이벤트 모니터링 -> 감지시 게임 초대 수락 모달 띄움
   useEffect(() => {
-    socketRef.current?.on('game', async (user: User) => {
+    socketRef.current?.on('inviteGame', async (user: User) => {
       console.log('Game Hi');
       console.log(user);
-      console.log(user.userId);
       const imageUrl = await getImageUrl(user.userId, userInfo.token);
       setEnemyInfo({
         ...user,
@@ -98,16 +97,25 @@ export default function CheckLogin({ children }: Props) {
   };
 
   // 게임 신청 버튼
-  const handleClickSocket = () => {
+  const handleClickSocket = (isFake1: boolean) => {
     console.log('소켓');
-    socketRef.current?.emit('game', { userId: userInfo.userId });
+    const fakeUserId1 = '3e05aadf-8c34-48c9-89fa-c58d4bf720d7';
+    const fakeUserId2 = 'fa9eecd4-7bdb-4d61-a0f8-898869d99ca2';
+    if (isFake1) {
+      socketRef.current?.emit('inviteGame', { userId: fakeUserId1 });
+    } else {
+      socketRef.current?.emit('inviteGame', { userId: fakeUserId2 });
+    }
   };
 
   return (
     <div>
-      <TestButton type="submit" onClick={handleClickSocket}>
-        게임 신청
-      </TestButton>
+      <Test1Button type="submit" onClick={() => handleClickSocket(true)}>
+        가짜1에게 게임 신청
+      </Test1Button>
+      <Test2Button type="submit" onClick={() => handleClickSocket(false)}>
+        가짜2에게게임 신청
+      </Test2Button>
       {isOpenAcceptGameModal && enemyInfo && (
         <AcceptGameModal
           enemyInfo={enemyInfo}
@@ -119,7 +127,13 @@ export default function CheckLogin({ children }: Props) {
   );
 }
 
-const TestButton = styled.button`
+const Test1Button = styled.button`
+  position: absolute;
+  left: 20%;
+  font-size: 20px;
+`;
+
+const Test2Button = styled.button`
   position: absolute;
   left: 50%;
   font-size: 20px;
