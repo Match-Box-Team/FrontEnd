@@ -186,7 +186,7 @@ const MyPageDiv = styled.div`
   /* max-height: 800px; */
 
   display: grid;
-  grid-template-rows: 15fr 15fr 20fr 50fr;
+  grid-template-rows: 18fr 18fr 20fr 44fr;
   place-items: center;
   grid-template-areas:
     'profile'
@@ -201,7 +201,7 @@ const MyPageDiv = styled.div`
 const UserProfileContainer = styled.div`
   grid-area: profile;
   width: 100%;
-  padding: 15px 0;
+  padding: 20px 0;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -288,7 +288,7 @@ const UserInfoKey = styled.div`
   display: flex;
   align-items: center;
   > p {
-    margin: 10px 0px;
+    margin: 20px 0px;
     font-size: 1.8rem;
     color: #2d3648;
   }
@@ -311,13 +311,16 @@ const SelectGameContainer = styled.div`
   background-color: #313c7a;
   border-radius: 20px;
   width: 85%;
+  height: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: 15px 0;
 `;
 
 const SelectGameWrap = styled.div`
   display: grid;
+  height: 70%;
   grid-template-columns: 1fr 2fr;
 `;
 
