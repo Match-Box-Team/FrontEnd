@@ -2,19 +2,8 @@ import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSocket } from '../game-socket/GameSocketContext';
 
-interface GameState {
-  ball: { x: number; y: number };
-  paddleA: { x: number; y: number };
-  paddleB: { x: number; y: number };
-}
-
 export default function PingPong() {
   const socket = useSocket();
-  const [gameState, setGameState] = useState<GameState>({
-    ball: { x: 0, y: 0 },
-    paddleA: { x: 0, y: 0 },
-    paddleB: { x: 0, y: 0 },
-  });
 
   useEffect(() => {
     if (socket) {
@@ -88,15 +77,15 @@ export default function PingPong() {
 
     if (socket) {
       socket.on('gamecontrolB', (data: any) => {
-        paddleBDirection = data.direction;
+        // Update paddleB.x with the value received from the server
+        paddleB.x = data.position;
       });
-      paddleB.x += paddleB.speed * paddleBDirection;
     }
     if (socket) {
       socket.on('gamecontrolA', (data: any) => {
-        paddleADirection = data.direction;
+        // Update paddleA.x with the value received from the server
+        paddleA.x = data.position;
       });
-      paddleA.x += paddleA.speed * paddleADirection;
     }
 
     if (paddleA.x < 0) {
@@ -123,21 +112,6 @@ export default function PingPong() {
     ) {
       ball.velocityY = -ball.velocityY;
     }
-
-    gameState.ball.x = ball.x;
-    gameState.ball.y = ball.y;
-    gameState.paddleA.x = paddleA.x;
-    gameState.paddleA.y = paddleA.y;
-    gameState.paddleB.x = paddleB.x;
-    gameState.paddleB.y = paddleB.y;
-
-    if (socket) {
-      socket.emit('gamestate', {
-        ball: { x: ball.x, y: ball.y },
-        paddleA: { x: paddleA.x, y: paddleA.y },
-        paddleB: { x: paddleB.x, y: paddleB.y },
-      });
-    }
   }
 
   function draw() {
@@ -155,39 +129,57 @@ export default function PingPong() {
     }
   }
 
-  let paddleADirection = 0;
-  let paddleBDirection = 0;
+  const paddleADirection = 0;
+  const paddleBDirection = 0;
+  // 각 키에 대한 상태를 추적하는 객체를 생성합니다.
+  const keyState: any = {
+    ArrowLeft: false,
+    ArrowRight: false,
+    a: false,
+    A: false,
+    d: false,
+    D: false,
+  };
+  const intervalIds: any = {
+    ArrowLeft: null,
+    ArrowRight: null,
+    a: null,
+    A: null,
+    d: null,
+    D: null,
+  };
+
   function keyDownHandler(e: KeyboardEvent) {
-    if (socket) {
-      if (e.key === 'ArrowLeft') {
-        socket.emit('gamecontrolB', { direction: -1 });
-        // paddleBDirection = -1;
-      } else if (e.key === 'ArrowRight') {
-        socket.emit('gamecontrolB', { direction: 1 });
-        // paddleBDirection = 1;
-      } else if (e.key === 'a' || e.key === 'A') {
-        socket.emit('gamecontrolA', { direction: -1 });
-        // paddleADirection = -1;
-      } else if (e.key === 'd' || e.key === 'D') {
-        // paddleADirection = 1;
-        socket.emit('gamecontrolA', { direction: 1 });
+    const key = e.key.toLowerCase(); // Convert the key value to lowercase
+    if (socket && !keyState[key]) {
+      keyState[key] = true; // 키가 눌린 상태로 설정합니다.
+      if (key === 'arrowleft' || key === 'arrowright') {
+        clearInterval(intervalIds[key]);
+        intervalIds[key] = setInterval(() => {
+          socket.emit('gamecontrolB', {
+            direction: key === 'arrowleft' ? -1 : 1,
+          });
+        }, 5);
+      } else if (key === 'a' || key === 'd') {
+        clearInterval(intervalIds[key]);
+        intervalIds[key] = setInterval(() => {
+          socket.emit('gamecontrolA', {
+            direction: key === 'a' ? -1 : 1,
+          });
+        }, 5);
       }
     }
   }
 
   function keyUpHandler(e: KeyboardEvent) {
-    if (socket) {
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    const key = e.key.toLowerCase(); // Convert the key value to lowercase
+    if (socket && keyState[key]) {
+      keyState[key] = false; // 키가 떼진 상태로 설정합니다.
+      clearInterval(intervalIds[key]);
+      if (key === 'arrowleft' || key === 'arrowright') {
         socket.emit('gamecontrolB', { direction: 0 });
-        // paddleBDirection = 0;
-      } else if (
-        e.key === 'a' ||
-        e.key === 'A' ||
-        e.key === 'd' ||
-        e.key === 'D'
-      ) {
+      } else if (key === 'a' || key === 'd') {
         socket.emit('gamecontrolA', { direction: 0 });
-        // paddleADirection = 0;
       }
     }
   }
