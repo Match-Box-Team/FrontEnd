@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import axios from 'axios';
 import styled from 'styled-components';
+import { useQueryClient } from 'react-query';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import Popup from '../../../commons/modals/popup-modal/Popup';
@@ -34,6 +35,8 @@ export default function AddFriend({
   isAddFriendModal,
   handleClickModal,
 }: Props) {
+  // 리액트 쿼리
+  const queryClient = useQueryClient();
   const userInfo = useRecoilValue(userState);
 
   // 유저 검색 form input 초기화
@@ -126,6 +129,9 @@ export default function AddFriend({
       );
       // 모달 끄기
       handleClickModal();
+
+      // 친구 목록 쿼리 무효화 및 재요청
+      queryClient.invalidateQueries('friends');
     } catch (error) {
       stateReset();
       console.log(error);

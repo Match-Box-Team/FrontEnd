@@ -5,6 +5,10 @@ import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 import FriendDetailList from './FriendDetailList';
 import { useGetFriendList } from '../../../../../api/Friends';
 import { getImageUrl } from '../../../../../api/ProfileImge';
+import { IBuddy, IFriendDetail, IFriends } from '..';
+import Profile, {
+  UserProps,
+} from '../../../../commons/modals/profile-modal/Profile';
 
 const Base = styled.div`
   display: flex;
@@ -38,42 +42,48 @@ const Friend = styled.ul`
   }
 `;
 
-interface IBuddy {
-  nickname: string;
-  intraId: string;
-  status: string;
-  image: string;
-}
-
-interface IFriends {
-  friendId: string;
-  buddyId: string;
-  buddy: IBuddy;
-}
-
-interface IFriend {
-  friends: IFriends[];
-}
 export default function FriendDetail() {
   const userInfo = useRecoilValue(userState);
   const { data: friendListsData, isLoading, isError } = useGetFriendList();
-  const [buddies, setBuddies] = useState<Array<IBuddy>>([]);
+  const [buddies, setBuddies] = useState<Array<IFriendDetail>>([]);
   const [friendCount, setFriendCount] = useState<number>(0);
+  const [isOpenProfileModal, setIsOpenProfileModal] = useState<boolean>(false);
+  const handleClickProfileModal = async () => {
+    setIsOpenProfileModal(!isOpenProfileModal);
+  };
+  const [selectedFriend, setSelectedFriend] = useState<UserProps | null>();
+  const [selectedFriendList, setSelectedFriendList] = useState<IBuddy | null>();
 
-  /*
-// inChat false
-// muteKick null
-// ban banProps에 맞게
- */
+  const handleSelectFrined = async (friend: IFriendDetail) => {
+    setSelectedFriendList(friend);
+    const friends: UserProps = {
+      userId: friend.buddyId,
+      intraId: friend.intraId,
+      nickname: friend.nickname,
+      image: friend.image,
+      ban: {
+        isBan: friend.isBan,
+        friendId: friend.friendId,
+      },
+    };
+
+    setSelectedFriend(friends);
+    setIsOpenProfileModal(true);
+  };
 
   useEffect(() => {
     if (friendListsData && friendListsData.friends) {
       const updatedFriendLists = async () => {
-        const newFriendLists = await Promise.all(
+        const newFriendLists: IFriendDetail[] = await Promise.all(
           friendListsData.friends.map(async (data: IFriends) => {
             const imageUrl = await getImageUrl(data.buddyId, userInfo.token);
             return {
-              ...data.buddy,
+              nickname: data.buddy.nickname,
+              intraId: data.buddy.intraId,
+              status: data.buddy.status,
+              buddyId: data.buddyId,
+              friendId: data.friendId,
+              isBan: data.isBan,
               image: imageUrl,
             };
           }),
@@ -87,15 +97,24 @@ export default function FriendDetail() {
 
   return (
     <Base>
+      {isOpenProfileModal && selectedFriend && (
+        <Profile
+          handleClickModal={handleClickProfileModal}
+          user={selectedFriend}
+          inChat={false}
+        />
+      )}
       <FriendCount>Friends {friendCount}</FriendCount>
       <FriendWrapper>
         <Friend>
-          {buddies.map((data: IBuddy) => (
+          {buddies.map((data: IFriendDetail) => (
             <FriendDetailList
-              key={data.intraId}
+              key={data.buddyId}
               imageUrl={data.image}
               nickName={data.nickname}
               status={data.status}
+              buddy={data}
+              onClickCapture={handleSelectFrined}
             />
           ))}
         </Friend>
