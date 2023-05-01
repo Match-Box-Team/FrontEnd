@@ -1,6 +1,7 @@
 import React, { MouseEventHandler, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from 'react-query';
 import axios from 'axios';
 import { useRecoilValue } from 'recoil';
 import { BlobOptions } from 'buffer';
@@ -41,6 +42,8 @@ export default function ProfileFooter({
   user,
   inChat,
 }: Props) {
+  // 리액트 쿼리
+  const queryClient = useQueryClient();
   // 페이지 이동
   const navigate = useNavigate();
   // 리코일 - 채널 id atom getter
@@ -134,6 +137,9 @@ export default function ProfileFooter({
       .then(function (response) {
         // 프로필 모달 닫기
         handleClickModal();
+
+        // 친구 목록 쿼리 무효화 및 재요청
+        queryClient.invalidateQueries('friends');
       })
       .catch(function (error) {
         // 예외 처리
