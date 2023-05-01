@@ -20,19 +20,28 @@ export default function AcceptGameModal({
   const navigate = useNavigate();
 
   useEffect(() => {
+    // 초대 보낸 유저가 초대를 취소함
     socketRef?.current?.once('inviteCancel', () => {
       console.log('상대가 초대를 취소함');
       handleClickModal();
     });
+
+    // 게임 준비방으로 이동
+    socketRef?.current?.once('goGameReadyPage', () => {
+      console.log('방장 아닌 유저가 게임 페이지로 이동');
+      handleClickModal();
+    });
+
     return () => {
       socketRef?.current?.off('inviteCancel');
+      socketRef?.current?.off('goGameReadyPage');
     };
   });
 
   const handleAccept = () => {
     console.log('게임 초대 수락');
     socketRef?.current?.emit('inviteResolve', { userId: enemyInfo.userId });
-    navigate('/profile/friend/:id');
+    // navigate('/profile/friend/:id');
     handleClickModal();
   };
 

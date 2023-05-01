@@ -77,7 +77,7 @@ export default function CheckLogin({ children }: Props) {
 
   // 게임 초대 이벤트 모니터링 -> 감지시 게임 초대 수락 모달 띄움
   useEffect(() => {
-    // 게임 초대 받음
+    // 게임 초대를 받음
     console.log(socketRef);
     socketRef.current?.once('inviteGame', async (user: User) => {
       console.log('게임 초대 받음');
@@ -89,19 +89,6 @@ export default function CheckLogin({ children }: Props) {
       setIsOpenAcceptGameModal(true);
     });
 
-    // 초대 수락 받음
-    socketRef.current?.once('inviteResolve', () => {
-      console.log('초대 수락됨');
-      setIsOpenAcceptWaitingModal(false);
-      navigate('/profile/friend/:id');
-    });
-
-    // 초대 거부 당함
-    socketRef.current?.once('inviteReject', () => {
-      console.log('초대 거부됨');
-      setIsOpenAcceptWaitingModal(false);
-    });
-
     socketRef.current?.once('gameError', (message: { message: string }) => {
       console.log(message.message);
       setIsOpenAcceptGameModal(false);
@@ -110,8 +97,6 @@ export default function CheckLogin({ children }: Props) {
 
     return () => {
       socketRef.current?.off('inviteGame');
-      socketRef.current?.off('inviteResolve');
-      socketRef.current?.off('inviteReject');
       socketRef.current?.off('gameError');
     };
   });
@@ -126,6 +111,9 @@ export default function CheckLogin({ children }: Props) {
   // 초대 수락 대기 모달
   const [isOpenAcceptWaitingModal, setIsOpenAcceptWaitingModal] =
     useState<boolean>(false);
+  const onCloseWaitingModal = () => {
+    setIsOpenAcceptWaitingModal(false);
+  };
   const handleClickWaitingModal = () => {
     setIsOpenAcceptWaitingModal(!isOpenAcceptWaitingModal);
     // 대기 모달을 껐다 => 초대 취소
@@ -161,7 +149,10 @@ export default function CheckLogin({ children }: Props) {
         />
       )}
       {isOpenAcceptWaitingModal && (
-        <AcceptWaiting handleClickModal={handleClickWaitingModal} />
+        <AcceptWaiting
+          handleClickModal={onCloseWaitingModal}
+          socketRef={socketRef}
+        />
       )}
       {children}
     </div>
@@ -171,6 +162,7 @@ export default function CheckLogin({ children }: Props) {
 const Test1Button = styled.button`
   position: absolute;
   left: 20%;
+  top: 5%;
   font-size: 20px;
 `;
 
