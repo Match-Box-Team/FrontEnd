@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 import defaultTheme from '../../../../../styles/theme';
@@ -15,6 +16,7 @@ const ProfileImage = styled.img`
   height: 5rem;
   border-radius: 50%;
   margin-right: 1rem;
+  cursor: pointer;
 `;
 
 const NickName = styled.span`
@@ -28,10 +30,12 @@ export default function MyProfile() {
 
   return (
     <Base>
-      <ProfileImage
-        src={userInfo.imageUrl}
-        alt={`${userInfo.nickname}의 이미지`}
-      />
+      <Link to={`/profile/my/${userInfo.userId}`}>
+        <ProfileImage
+          src={userInfo.imageUrl}
+          alt={`${userInfo.nickname}의 이미지`}
+        />
+      </Link>
       <NickName>{userInfo.nickname}</NickName>
     </Base>
   );
