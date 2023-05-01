@@ -3,7 +3,6 @@ import Login from './components/pages/login/login-page/Login';
 import Auth from './components/pages/login/auth-page/Auth';
 import Channel from './components/pages/chat/channel-page/Channel';
 import MyMsg from './components/pages/chat/mymsg-page/MyMsg';
-import AddFriend from './components/pages/friend/addfriend-page/AddFriend';
 import FriendList from './components/pages/friend/friendlist-page/FriendList';
 import BannedList from './components/pages/friend/bannedlist-page/BannedList';
 import GameRecord from './components/pages/game/gamerecord-page/GameRecord';
@@ -44,14 +43,6 @@ function Router() {
           element={
             <CheckLogin>
               <MyMsg />
-            </CheckLogin>
-          }
-        />
-        <Route
-          path="/friend/add"
-          element={
-            <CheckLogin>
-              <AddFriend />
             </CheckLogin>
           }
         />

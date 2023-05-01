@@ -1,12 +1,36 @@
 import { Socket } from 'socket.io-client';
 import styled from 'styled-components';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { NoXPopup } from '../../../../commons/modals/popup-modal/Popup';
 
 interface Props {
   handleClickModal: () => void;
+  socketRef: React.RefObject<Socket> | null;
 }
 
-export default function AcceptWaiting({ handleClickModal }: Props) {
+export default function AcceptWaiting({ handleClickModal, socketRef }: Props) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 초대 보낸 사람이 게임 초대 수락해서 게임 페이지로 이동함
+    socketRef?.current?.once('goGameReadyPage', () => {
+      console.log('방장인 유저가 게임 페이지로 이동');
+      handleClickModal();
+    });
+
+    // 초대 보낸 사람이 게임 초대 거절 당함
+    socketRef?.current?.once('inviteReject', () => {
+      console.log('초대 거부됨');
+      handleClickModal();
+    });
+
+    return () => {
+      socketRef?.current?.off('goGameReadyPage');
+      socketRef?.current?.off('inviteReject');
+    };
+  });
+
   return (
     <NoXPopup onClose={handleClickModal}>
       <MainText>초대 수락 대기 중...</MainText>
