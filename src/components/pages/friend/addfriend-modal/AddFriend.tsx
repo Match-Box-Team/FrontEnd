@@ -75,14 +75,14 @@ export default function AddFriend({
         headers: { Authorization: `Bearer ${userInfo.token}` },
       };
       // 유저 검색 결과
-      console.log(searchUserNickname);
+
       const userData = await axios.get(
         `${process.env.REACT_APP_BASE_BACKEND_URL}/friends/search?nickname=${searchUserNickname}`,
         config,
       );
       // 유저 검색 input 초기화
       setSearchUserNickname('');
-      console.log(userData);
+
       // 이미 추가된 유저일 시 예외 처리
       if (userData.data.isFriend === true) {
         alert('이미 추가되거나 차단된 유저입니다');
