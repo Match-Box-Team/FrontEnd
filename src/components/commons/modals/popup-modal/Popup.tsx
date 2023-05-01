@@ -49,6 +49,7 @@ export const ModalContainer = styled.div`
   border-left: 1px solid #ccc;
   border-right: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
+  border-radius: 10px;
   box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
 
   position: absolute;

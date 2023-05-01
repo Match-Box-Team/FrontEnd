@@ -195,7 +195,6 @@ export default function MyProfile() {
 const MyPageDiv = styled.div`
   width: 100%;
   height: 100%;
-  /* max-height: 800px; */
 
   display: grid;
   grid-template-rows: 18fr 18fr 20fr 44fr;
@@ -222,7 +221,6 @@ const UserProfileContainer = styled.div`
 `;
 
 const UserImageWrap = styled.div`
-  margin-left: 2rem;
   width: 8rem;
   height: 8rem;
   border-radius: 50%;
@@ -236,8 +234,7 @@ const UserImageWrap = styled.div`
 `;
 
 const UserCardWrap = styled.div`
-  margin: 0;
-  margin-left: 2rem;
+  margin: 0 2rem;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -246,7 +243,6 @@ const UserCardWrap = styled.div`
 
 const UserNameText = styled.p`
   margin: 10px 0px;
-  width: 13rem;
   text-align: start;
   align-self: flex-start;
   font-family: 'NanumGothic';
@@ -332,7 +328,7 @@ const SelectGameContainer = styled.div`
 
 const SelectGameWrap = styled.div`
   display: grid;
-  height: 70%;
+  height: 100%;
   grid-template-columns: 1fr 2fr;
 `;
 
