@@ -42,12 +42,6 @@ const Friend = styled.ul`
   }
 `;
 
-/*
-// inChat false
-// muteKick null
-// ban banProps에 맞게
- */
-
 export default function FriendDetail() {
   const userInfo = useRecoilValue(userState);
   const { data: friendListsData, isLoading, isError } = useGetFriendList();

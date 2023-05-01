@@ -20,6 +20,7 @@ const ProfileImage = styled.img`
   height: 4rem;
   border-radius: 50%;
   margin-right: 1rem;
+  cursor: pointer;
 `;
 
 const NickName = styled.span`
