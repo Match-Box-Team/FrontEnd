@@ -6,6 +6,7 @@ const Base = styled.div`
   justify-content: start;
   align-items: center;
   margin-top: 2.4rem;
+  cursor: pointer;
 `;
 
 const FriendAddWrapper = styled.img`

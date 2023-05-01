@@ -191,7 +191,7 @@ export default function ProfileFooter({
   const handleGameClicked = () => {
     // 프로필 모달 닫기
     handleClickModal();
-    navigate(`/game/shop`);
+    navigate(`/profile/friend/${user.userId}`);
   };
 
   const onlyOne = !(inChat && user.muteKick?.isAdmin) && inChat;
