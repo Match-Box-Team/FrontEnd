@@ -129,7 +129,7 @@ export default function CheckLogin({ children }: Props) {
   const handleClickWaitingModal = () => {
     setIsOpenAcceptWaitingModal(!isOpenAcceptWaitingModal);
     // 대기 모달을 껐다 => 초대 취소
-    // fake1, fake2 중 누구한테 초대를 걸었냐에 따라 달라져야함.
+    // fake1, fake2 중 누구한테 초대를 걸꺼냐에 따라 달라져야함.
     // 저는 fake1이 fake2에게 거는 쪽으로 계속 테스트했습니다.
     // socketRef.current?.emit('inviteCancel', { userId: fakeUserId1 });
     socketRef.current?.emit('inviteCancel', { userId: fakeUserId2 });
