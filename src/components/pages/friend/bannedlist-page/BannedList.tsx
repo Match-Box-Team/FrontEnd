@@ -87,14 +87,6 @@ export default function BannedList() {
     fetchData();
   });
 
-  const getImage = (buddyId: string) => {
-    const fetchData = async () => {
-      const imageUrl = await getImageUrl(buddyId, userInfo.token);
-      return imageUrl;
-    };
-    return fetchData();
-  };
-
   return (
     <Layout
       Header={<Header title="Banned" friendToggle toggleMove={false} />}
@@ -114,6 +106,7 @@ export default function BannedList() {
                     alt="검색된 유저 이미지"
                   />
                 </ProfileImage>
+                <UserStatus status={bannedFriend.buddy.status} />
               </ProfileContiner>
               <FriendContainer>
                 <FriendNickname>{bannedFriend.buddy.nickname}</FriendNickname>
@@ -174,7 +167,9 @@ const List = styled.div`
 
 const ProfileContiner = styled.div`
   display: flex;
-  justify-content: left;
+  justify-content: flex-start;
+  align-items: center;
+  align-items: end;
 `;
 
 const ProfileImage = styled.div`
@@ -187,6 +182,23 @@ const ProfileImage = styled.div`
     height: 100%;
     object-fit: cover;
   }
+`;
+
+const UserStatus = styled.div<{ status: string }>`
+  position: relative;
+  background-color: ${({ status }) =>
+    status === 'online'
+      ? '#1EB640'
+      : status === 'game'
+      ? '#DA0D00'
+      : status === 'offline'
+      ? '#D9D9D9'
+      : 'inherit'};
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  left: -1rem;
 `;
 
 const FriendContainer = styled.div`
