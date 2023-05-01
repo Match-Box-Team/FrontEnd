@@ -1,15 +1,24 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useSocket } from '../game-socket/GameSocketContext';
 
 export default function PingPong() {
+  const socket = useSocket();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (socket) {
+      socket.emit('ready', {
+        ready: 'ready',
+      });
+      console.log('pingpong~!!');
+    }
+  }, []);
 
   const ball = {
     x: 0,
     y: 0,
-    radius: 10,
-    velocityX: 5,
-    velocityY: 5,
+    radius: 6,
     color: 'white',
   };
 
@@ -17,8 +26,7 @@ export default function PingPong() {
     x: 0,
     y: 30,
     width: 100,
-    height: 10,
-    speed: 4,
+    height: 4,
     color: 'yellow',
   };
 
@@ -26,8 +34,7 @@ export default function PingPong() {
     x: 0,
     y: 0,
     width: 100,
-    height: 10,
-    speed: 4,
+    height: 4,
     color: 'skyblue',
   };
 
@@ -48,49 +55,25 @@ export default function PingPong() {
   }
 
   function update() {
-    ball.x += ball.velocityX;
-    ball.y += ball.velocityY;
-
-    if (
-      ball.x + ball.radius > canvasRef.current!.width ||
-      ball.x - ball.radius < 0
-    ) {
-      ball.velocityX = -ball.velocityX;
+    if (socket) {
+      socket.on('ballcontrol', (data: any) => {
+        ball.x = data.ball.x;
+        ball.y = data.ball.y;
+        ball.color = data.ball.color;
+        ball.radius = data.ball.radius;
+      });
     }
 
-    if (
-      ball.y + ball.radius > canvasRef.current!.height ||
-      ball.y - ball.radius < 0
-    ) {
-      ball.velocityY = -ball.velocityY;
+    if (socket) {
+      socket.on('controlB', (data: any) => {
+        paddleB.x = data.position;
+      });
     }
-
-    paddleA.x += paddleA.speed * paddleADirection;
-    paddleB.x += paddleB.speed * paddleBDirection;
-
-    if (paddleA.x < 0) {
-      paddleA.x = 0;
-    } else if (paddleA.x + paddleA.width > canvasRef.current!.width) {
-      paddleA.x = canvasRef.current!.width - paddleA.width;
-    }
-
-    if (paddleB.x < 0) {
-      paddleB.x = 0;
-    } else if (paddleB.x + paddleB.width > canvasRef.current!.width) {
-      paddleB.x = canvasRef.current!.width - paddleB.width;
-    }
-
-    if (
-      (ball.y - ball.radius < paddleA.y + paddleA.height &&
-        ball.y + ball.radius > paddleA.y &&
-        ball.x - ball.radius < paddleA.x + paddleA.width &&
-        ball.x + ball.radius > paddleA.x) ||
-      (ball.y - ball.radius < paddleB.y + paddleB.height &&
-        ball.y + ball.radius > paddleB.y &&
-        ball.x - ball.radius < paddleB.x + paddleB.width &&
-        ball.x + ball.radius > paddleB.x)
-    ) {
-      ball.velocityY = -ball.velocityY;
+    if (socket) {
+      socket.on('controlA', (data: any) => {
+        // Update paddleA.x with the value received from the server
+        paddleA.x = data.position;
+      });
     }
   }
 
@@ -109,46 +92,74 @@ export default function PingPong() {
     }
   }
 
-  let paddleADirection = 0;
-  let paddleBDirection = 0;
+  const keyState: any = {
+    ArrowLeft: false,
+    ArrowRight: false,
+    a: false,
+    A: false,
+    d: false,
+    D: false,
+  };
+  const intervalIds: any = {
+    ArrowLeft: null,
+    ArrowRight: null,
+    a: null,
+    A: null,
+    d: null,
+    D: null,
+  };
+
   function keyDownHandler(e: KeyboardEvent) {
-    if (e.key === 'ArrowLeft') {
-      paddleBDirection = -1;
-    } else if (e.key === 'ArrowRight') {
-      paddleBDirection = 1;
-    } else if (e.key === 'a' || e.key === 'A') {
-      paddleADirection = -1;
-    } else if (e.key === 'd' || e.key === 'D') {
-      paddleADirection = 1;
+    const key = e.key.toLowerCase(); // Convert the key value to lowercase
+    if (socket && !keyState[key]) {
+      keyState[key] = true; // 키가 눌린 상태로 설정합니다.
+      if (key === 'arrowleft' || key === 'arrowright') {
+        clearInterval(intervalIds[key]);
+        intervalIds[key] = setInterval(() => {
+          socket.emit('gamecontrolB', {
+            direction: key === 'arrowleft' ? -1 : 1,
+          });
+        }, 5);
+      } else if (key === 'a' || key === 'd') {
+        clearInterval(intervalIds[key]);
+        intervalIds[key] = setInterval(() => {
+          socket.emit('gamecontrolA', {
+            direction: key === 'a' ? -1 : 1,
+          });
+        }, 5);
+      }
     }
   }
 
   function keyUpHandler(e: KeyboardEvent) {
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-      paddleBDirection = 0;
-    } else if (
-      e.key === 'a' ||
-      e.key === 'A' ||
-      e.key === 'd' ||
-      e.key === 'D'
-    ) {
-      paddleADirection = 0;
+    const key = e.key.toLowerCase(); // Convert the key value to lowercase
+    if (socket && keyState[key]) {
+      keyState[key] = false; // 키가 떼진 상태로 설정합니다.
+      clearInterval(intervalIds[key]);
+      if (key === 'arrowleft' || key === 'arrowright') {
+        socket.emit('gamecontrolB', { direction: 0 });
+      } else if (key === 'a' || key === 'd') {
+        socket.emit('gamecontrolA', { direction: 0 });
+      }
     }
   }
 
   useEffect(() => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
-      canvas.width = canvas.parentElement!.clientWidth;
-      canvas.height = canvas.parentElement!.clientHeight;
+      if (socket) {
+        socket.on('mapSize', (data: any) => {
+          canvas.width = data.width;
+          canvas.height = data.height;
+          ball.x = canvas.width / 2;
+          ball.y = canvas.height / 2;
 
-      ball.x = canvas.width / 2;
-      ball.y = canvas.height / 2;
-
-      paddleA.x = canvas.width / 2 - paddleA.width / 2;
-      paddleA.y = 30; // 수정된 부분
-      paddleB.x = canvas.width / 2 - paddleB.width / 2;
-      paddleB.y = canvas.height - paddleB.height - 30;
+          paddleA.x = canvas.width / 2 - paddleA.width / 2;
+          paddleA.y = 30;
+          paddleB.x = canvas.width / 2 - paddleB.width / 2;
+          paddleB.y = canvas.height - paddleB.height - 30;
+        });
+      }
 
       document.addEventListener('keydown', keyDownHandler);
       document.addEventListener('keyup', keyUpHandler);

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useRecoilValue } from 'recoil';
+import { BlobOptions } from 'buffer';
 import { channelIdState } from '../../../../recoil/locals/chat/atoms/atom';
 import BanIcon from '../../../../assets/icon/ban.svg';
 import NotBanIcon from '../../../../assets/icon/not-ban.svg';
@@ -50,7 +51,7 @@ export default function ProfileFooter({
     user.muteKick?.isMute,
   );
   // 차단 유무
-  const [isBan, setIsBan] = useState<boolean | undefined>(user.ban?.isBan);
+  // const [isBan, setIsBan] = useState<boolean | undefined>(user.ban?.isBan);
   // 음소거와 킥 공통 url
   const muteKickUrl = `http://localhost:3000/channels/${channelIdStateValue}/member/${user.userId}`;
 
@@ -122,7 +123,7 @@ export default function ProfileFooter({
       .patch(
         `http://localhost:3000/friends/${user.ban?.friendId}/banned`,
         {
-          isBan: !isBan,
+          isBan: true,
         },
         {
           headers: {
@@ -131,8 +132,8 @@ export default function ProfileFooter({
         },
       )
       .then(function (response) {
-        // 차단 상태 변화
-        setIsBan(!isBan);
+        // 프로필 모달 닫기
+        handleClickModal();
       })
       .catch(function (error) {
         // 예외 처리
@@ -164,11 +165,9 @@ export default function ProfileFooter({
         },
       )
       .then(function (response) {
-        // 차단 상태 변화
-        setIsBan(!isBan);
         const to = `/chat/channel/${response.data.channel.channelId}`;
+        // 리코일 추가
         navigate(to);
-        // 리코일 수정?
       })
       .catch(function (error) {
         // 예외 처리
@@ -189,8 +188,10 @@ export default function ProfileFooter({
     navigate(`/game/shop`);
   };
 
+  const onlyOne = !(inChat && user.muteKick?.isAdmin) && inChat;
+
   return (
-    <FooterWrapper>
+    <FooterWrapper onlyOne={onlyOne}>
       <ButtonWrap>
         <Button onClick={handleGameClicked}>
           <ButtonImage src={GameIcon} />
@@ -219,7 +220,7 @@ export default function ProfileFooter({
           </ButtonWrap>
           <ButtonWrap>
             <Button onClick={handleBanClicked}>
-              <ButtonImage src={isBan ? BanIcon : NotBanIcon} />
+              <ButtonImage src={BanIcon} />
             </Button>
           </ButtonWrap>
         </>
@@ -246,11 +247,12 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
-const FooterWrapper = styled.footer`
-  padding: 3rem 2rem 0.8rem;
-  bottom: 0rem;
-  top: 80rem;
-  border-top: 0.1rem solid #d3d3d3;
+const FooterWrapper = styled.footer<{ onlyOne: boolean }>`
+  /* padding: 3rem 2rem 0.8rem; */
+  /* bottom: 0rem; */
+  /* top: 80rem; */
+  border-top: 1px solid #d3d3d3;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: ${({ onlyOne }) => (onlyOne ? '1fr' : '1fr 1fr 1fr')};
+  width: 100%;
 `;

@@ -1,9 +1,8 @@
-import React from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 import { useRecoilValue } from 'recoil';
 import { NoXPopup } from '../../../../commons/modals/popup-modal/Popup';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
+import { useBuyGameMutation } from '../../../../../api/BuyGame';
 
 interface Props {
   isOpenBuyGameModal: boolean;
@@ -23,21 +22,18 @@ export default function BuyGame({
   // 유저  정보
   const userInfo = useRecoilValue(userState);
 
-  // 게임 구매
-  const handleBuyGame = () => {
-    const buyGame = async () => {
-      const data = await axios.post(
-        `http://localhost:3000/games/${gameId}/buy`,
-        null,
-        {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        },
-      );
-    };
-    buyGame();
-    handleClickModal();
-    window.location.reload();
+  // react-query 게임 구매
+  const { mutate: buyGame } = useBuyGameMutation(userInfo.token);
+
+  const handleBuyGame = async () => {
+    try {
+      await buyGame({ gameId, token: userInfo.token });
+      handleClickModal();
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   return (
     <div>
       {isOpenBuyGameModal && (
@@ -65,7 +61,7 @@ const MainText = styled.p`
   width: 20rem;
 `;
 
-const ButtonsWrap = styled.div`
+export const ButtonsWrap = styled.div`
   display: flex;
   flex-direction: row;
   width: 18rem;
@@ -73,7 +69,7 @@ const ButtonsWrap = styled.div`
   justify-content: space-between;
 `;
 
-const BuyButton = styled.button<ButtonProps>`
+export const BuyButton = styled.button<ButtonProps>`
   font-family: 'NanumGothic';
   font-size: 1.4rem;
   font-weight: bold;
@@ -81,7 +77,7 @@ const BuyButton = styled.button<ButtonProps>`
   width: 7rem;
   color: white;
   background-color: ${({ yes }) => (yes ? '#da0d00' : '#313c7a')};
-  border-radius: 10px;
+  border-radius: 20px;
   border: none;
   margin-bottom: 20px;
   padding: 7px;

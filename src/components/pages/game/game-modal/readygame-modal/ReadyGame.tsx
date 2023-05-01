@@ -1,5 +1,10 @@
 import { Link } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
+import { Socket, io } from 'socket.io-client';
+import { useEffect, useRef } from 'react';
+import { useRecoilValue } from 'recoil';
+import { userState } from '../../../../../recoil/locals/login/atoms/atom';
+import { useSocket } from '../../playgame-page/game-socket/GameSocketContext';
 
 const clickAnimation = keyframes`
   0% {
@@ -18,6 +23,17 @@ interface ReadyGameProps {
 }
 
 export default function ReadyGame({ onClick }: ReadyGameProps) {
+  const socketRef = useRef<Socket | null>(null);
+  const userInfo = useRecoilValue(userState);
+
+  const socket = useSocket();
+  useEffect(() => {
+    if (socket) {
+      socket.emit('ready', { gameControl: 'connection..' });
+      console.log('connected~!!');
+    }
+  }, [socket]);
+
   return (
     <ModalWrapper>
       <CloseButton type="button" onClick={onClick}>
