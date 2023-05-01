@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Layout from '../../../commons/layout/Layout';
@@ -12,6 +12,7 @@ export default function Login() {
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const userInfo = useRecoilValue(userState);
   const navigate = useNavigate();
+  const setUserState = useSetRecoilState(userState);
 
   const handleLogin = async () => {
     setIsLogin(!isLogin);
@@ -35,8 +36,33 @@ export default function Login() {
     }
   }, []);
 
+  // 가짜 유저 로그인
+  const fakeLogin = async (n: number) => {
+    setIsLogin(!isLogin);
+    await axios
+      .get(`http://localhost:3000/auth/fakeLogin${n}`)
+      .then(function (res) {
+        const storeUser = {
+          token: res.data.token,
+          userId: res.data.userId,
+          nickname: res.data.nickname,
+          imageUrl: res.data.image,
+        };
+        console.log(storeUser);
+        setUserState(storeUser);
+        navigate('/chat/channel');
+      })
+      .catch(function (error) {
+        if (error.response.status === 302) {
+          console.log(error);
+        }
+      });
+  };
+
   return (
     <Layout>
+      <Fake1Button onClick={() => fakeLogin(1)}>가짜 유저1 로그인</Fake1Button>
+      <Fake2Button onClick={() => fakeLogin(2)}>가짜 유저2 로그인</Fake2Button>
       <Container>
         <LogoImage src={LogoIcon} alt={LogoIcon} />
         <LoginImage src={LoginIcon} alt={LoginIcon} onClick={handleLogin} />
@@ -68,4 +94,16 @@ const Container = styled.div`
   gap: 0;
   height: inherit;
   overflow-y: auto;
+`;
+
+const Fake1Button = styled.button`
+  position: absolute;
+  left: 40%;
+  font-size: 20px;
+`;
+
+const Fake2Button = styled.button`
+  position: absolute;
+  left: 60%;
+  font-size: 20px;
 `;

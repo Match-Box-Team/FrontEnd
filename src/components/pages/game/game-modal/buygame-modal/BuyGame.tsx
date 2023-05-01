@@ -61,7 +61,7 @@ const MainText = styled.p`
   width: 20rem;
 `;
 
-const ButtonsWrap = styled.div`
+export const ButtonsWrap = styled.div`
   display: flex;
   flex-direction: row;
   width: 18rem;
@@ -69,7 +69,7 @@ const ButtonsWrap = styled.div`
   justify-content: space-between;
 `;
 
-const BuyButton = styled.button<ButtonProps>`
+export const BuyButton = styled.button<ButtonProps>`
   font-family: 'NanumGothic';
   font-size: 1.4rem;
   font-weight: bold;
@@ -77,7 +77,7 @@ const BuyButton = styled.button<ButtonProps>`
   width: 7rem;
   color: white;
   background-color: ${({ yes }) => (yes ? '#da0d00' : '#313c7a')};
-  border-radius: 10px;
+  border-radius: 20px;
   border: none;
   margin-bottom: 20px;
   padding: 7px;
