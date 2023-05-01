@@ -99,25 +99,24 @@ export default function BannedList() {
         <ListContainer>
           {bannedFriends.map(bannedFriend => (
             <List key={bannedFriend.friendId}>
-              <ProfileContiner>
-                <ProfileImage>
-                  <img
-                    src={bannedFriend.buddy.image}
-                    alt="검색된 유저 이미지"
-                  />
-                </ProfileImage>
-                <UserStatus status={bannedFriend.buddy.status} />
-              </ProfileContiner>
-              <FriendContainer>
+              <ImageWrapper>
+                <FriendStateBase />
+                <FriendState status={bannedFriend.buddy.status} />
+                <ProfileImage
+                  src={bannedFriend.buddy.image}
+                  alt={`${bannedFriend.buddy.nickname}의 이미지`}
+                />
+              </ImageWrapper>
+              <FriendWrapper>
                 <FriendNickname>{bannedFriend.buddy.nickname}</FriendNickname>
-              </FriendContainer>
-              <ButtonWrap>
+              </FriendWrapper>
+              <ButtonWrapper>
                 <RestoreButton
                   onClick={() => handleRestoreClicked(bannedFriend.friendId)}
                 >
                   <RestoreImage src={BanRestoreIcon} />
                 </RestoreButton>
-              </ButtonWrap>
+              </ButtonWrapper>
             </List>
           ))}
         </ListContainer>
@@ -161,31 +160,35 @@ const List = styled.div`
   justify-content: space-around;
   padding: 1.9rem 0rem 0rem;
   width: 100%;
-  height: 6rem;
+  height: 6.3rem;
   background-color: #ffffff;
 `;
 
-const ProfileContiner = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  align-items: end;
+const ImageWrapper = styled.div`
+  position: relative;
+  width: 4rem;
+  height: 4rem;
 `;
 
-const ProfileImage = styled.div`
+const ProfileImage = styled.img`
+  border-radius: 50%;
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  overflow: hidden;
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  margin-right: 1rem;
 `;
 
-const UserStatus = styled.div<{ status: string }>`
-  position: relative;
+const FriendState = styled.span<{ status: string }>`
+  border-radius: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  position: absolute;
+  top: 3.05rem;
+  left: 2.95rem;
+  display: block;
+  border-radius: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
   background-color: ${({ status }) =>
     status === 'online'
       ? '#1EB640'
@@ -194,14 +197,21 @@ const UserStatus = styled.div<{ status: string }>`
       : status === 'offline'
       ? '#D9D9D9'
       : 'inherit'};
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  left: -1rem;
 `;
 
-const FriendContainer = styled.div`
+const FriendStateBase = styled.span`
+  border-radius: 50%;
+  width: 1rem;
+  height: 1rem;
+  position: absolute;
+  top: 2.9rem;
+  left: 2.8rem;
+  display: block;
+  border-radius: 50%;
+  background-color: white;
+`;
+
+const FriendWrapper = styled.div`
   display: flex;
   justify-content: left;
   width: 100%;
@@ -227,7 +237,7 @@ const RestoreButton = styled.button`
   cursor: pointer;
 `;
 
-const ButtonWrap = styled.div`
+const ButtonWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
