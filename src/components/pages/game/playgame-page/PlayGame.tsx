@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../../../commons/layout/Layout';
 import PingPong from './games/PingPong';
 import { useSocket } from './game-socket/GameSocketContext';
+import Popup from '../../../commons/modals/popup-modal/Popup';
 
 const clickAnimation = keyframes`
   0% {
@@ -20,6 +22,11 @@ export default function PlayGame() {
   const socket = useSocket();
   const [scoreA, setScoreA] = useState<number>(0);
   const [scoreB, setScoreB] = useState<number>(0);
+  const [winner, setWinner] = useState<string>('');
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [modalMessage, setModalMessage] = useState<string>('');
+
   useEffect(() => {
     if (socket) {
       socket.emit('ready', { gameControl: 'controls..' });
@@ -31,9 +38,36 @@ export default function PlayGame() {
         setScoreB(data.scores.scoreB);
       });
     }
+    if (socket) {
+      socket.on('gameover', (data: any) => {
+        if (data.winner === 'A') {
+          setWinner('A');
+          setModalMessage('승자는 A입니다');
+          setShowModal(true);
+          // navigate('/profile/my/:id', { replace: true });
+        }
+        if (data.winner === 'B') {
+          setWinner('B');
+          setModalMessage('승자는 B입니다');
+          setShowModal(true);
+          // navigate('/profile/my/:id', { replace: true });
+        }
+      });
+    }
   }, [socket]);
+
+  const handleClose = () => {
+    setShowModal(false);
+    navigate('/profile/my/:id', { replace: true });
+  };
+
   return (
     <Layout>
+      {showModal && (
+        <Popup onClose={handleClose}>
+          <WinnerMsg>위너는 {winner}!!</WinnerMsg>
+        </Popup>
+      )}
       <GameFrame>
         <GameHeader>
           <Player1 />
@@ -161,4 +195,17 @@ const GGButton = styled.button`
   &:active {
     animation: ${clickAnimation} 0.2s;
   }
+`;
+
+const WinnerMsg = styled.div`
+  width: 35rem;
+  height: 35rem;
+  background-color: #e1e3ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 900;
+  border-radius: 1.5rem;
+  color: black;
 `;
