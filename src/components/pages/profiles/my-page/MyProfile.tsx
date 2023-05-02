@@ -186,7 +186,7 @@ export default function MyProfile() {
           <GameButton onClick={handleButtonClick}>게임하기</GameButton>
         </GameContainer>
       </MyPageDiv>
-      {showReadyGameModal && <ReadyGame onClick={handleCloseModal} />}
+      {/* {showReadyGameModal && <ReadyGame onClick={handleCloseModal} />} */}
     </Layout>
   );
 }

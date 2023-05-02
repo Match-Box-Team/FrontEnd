@@ -19,7 +19,7 @@ export default function FriendProfile() {
       <button type="button" onClick={handleButtonClick}>
         Ready Game
       </button>
-      {showReadyGameModal && <ReadyGame onClick={handleCloseModal} />}
+      {/* {showReadyGameModal && <ReadyGame onClick={handleCloseModal} />} */}
     </Layout>
   );
 }
