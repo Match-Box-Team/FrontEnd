@@ -198,7 +198,9 @@ export default function ProfileFooter({
     }
   };
 
-  const onlyOne = !(inChat && user.muteKick?.isAdmin) && inChat;
+  const onlyOne =
+    !(inChat && user.userId !== userInfo.userId && user.muteKick?.isAdmin) &&
+    inChat;
 
   return (
     <FooterWrapper onlyOne={onlyOne}>
