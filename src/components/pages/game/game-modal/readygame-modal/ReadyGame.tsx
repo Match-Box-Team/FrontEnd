@@ -1,10 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
-import { Socket, io } from 'socket.io-client';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 import { useSocket } from '../../playgame-page/game-socket/GameSocketContext';
+import { GameWatch } from '../../../../../api/GameWatch';
+import { UserGameInfo } from '../../ready-game-page/ReadyGamePage';
+import Checkbox from './Checkbox';
+import PingPongIcon from '../../../../../assets/icon/pingpong.svg';
+import { getImageUrl } from '../../../../../api/ProfileImge';
 
 const clickAnimation = keyframes`
   0% {
@@ -20,52 +24,176 @@ const clickAnimation = keyframes`
 
 interface ReadyGameProps {
   onClick: () => void;
+  gameWatch: GameWatch | undefined;
 }
 
-export default function ReadyGame({ onClick }: ReadyGameProps) {
-  const socketRef = useRef<Socket | null>(null);
-  const userInfo = useRecoilValue(userState);
+interface Enemy {
+  userId: string;
+  userGameId: string;
+  image: string;
+}
 
-  const socket = useSocket();
+export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
+  const navigate = useNavigate();
+  const socketRef = useSocket();
+
+  const userInfo = useRecoilValue(userState);
+  console.log('userInfo:', userInfo);
+  const [userGameInfo, setUserGameInfo] = useState<UserGameInfo | null>(null);
+  const [enemyInfo, setEnemyInfo] = useState<Enemy | null>(null);
+  const [selectedSpeed, setSelectedSpeed] = useState<string>('4');
+
   useEffect(() => {
-    if (socket) {
-      socket.emit('ready', { gameControl: 'connection..' });
-      console.log('connected~!!');
+    // if (socketRef) {
+    //   socketRef.emit('ready', { gameControl: 'connection..' });
+    //   console.log('connected~!!');
+    // }
+
+    socketRef?.once('startReadyGame', async (info: UserGameInfo) => {
+      setUserGameInfo(info);
+      const imageUrl = await getImageUrl(info.enemyUserId, userInfo.token);
+      setEnemyInfo({
+        userId: info.enemyUserId,
+        userGameId: info.enemyUserGameId,
+        image: imageUrl,
+      });
+      console.log('게임 준비 시작 송신');
+      console.log(info);
+      console.log('gameWatch: ', gameWatch);
+    });
+
+    socketRef?.once('cancelReadyGame', () => {
+      console.log('게임 준비 취소됨');
+      onClick();
+      navigate('/profile/my/:id');
+    });
+
+    socketRef?.once('speedUpdate', (speed: string) => {
+      console.log(`스피드 업데이트됨 -> ${speed}`);
+      setSelectedSpeed(speed);
+    });
+
+    socketRef?.once('gameStart', (speed: string) => {
+      console.log(`게임 시작 -> 스피드 ${speed}`);
+    });
+
+    return () => {
+      socketRef?.off('startReadyGame');
+      socketRef?.off('cancelReadyGame');
+      socketRef?.off('speedUpdate');
+      socketRef?.off('gameStart');
+    };
+  });
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (userGameInfo?.role !== 'host') {
+      return;
     }
-  }, [socket]);
+    const { value } = event.target;
+    setSelectedSpeed(selectedSpeed === value ? '' : value);
+    socketRef?.emit('speedUpdate', {
+      guestUserGameId: gameWatch?.userGameId2,
+      speed: value,
+    });
+    console.log(value);
+  };
+
+  const gameStart = () => {
+    if (!selectedSpeed) {
+      alert('선택된 스피드가 없습니다');
+    }
+    if (userGameInfo?.role !== 'host') {
+      return;
+    }
+    socketRef?.emit('gameStart', {
+      guestUserGameId: gameWatch?.userGameId2,
+      speed: selectedSpeed,
+    });
+  };
 
   return (
-    <ModalWrapper>
-      <CloseButton type="button" onClick={onClick}>
-        &times;
-      </CloseButton>
-      <GameReady>GAME READY</GameReady>
-      <GameInfo>
-        <GameIcon />
-        <GameName />
-      </GameInfo>
-      <GamePlayers>
-        <Player1 />
-        <Vs>VS</Vs>
-        <Player2 />
-      </GamePlayers>
-      <GameMaps>
-        <SignPost>MAP</SignPost>
-        <GameMapFlow>{/* <MapList /> */}</GameMapFlow>
-      </GameMaps>
-      <GameStart>
-        <Link to="/game/play">
-          <StartButton>START</StartButton>
-        </Link>
-      </GameStart>
-    </ModalWrapper>
+    <Div>
+      {enemyInfo && (
+        <ModalWrapper>
+          <CloseButton
+            type="button"
+            onClick={() => {
+              socketRef?.emit('cancelReadyGame', {
+                gameWatch,
+                enemyUserGameId: userGameInfo?.enemyUserGameId,
+              });
+            }}
+          >
+            &times;
+          </CloseButton>
+          <GameReady>GAME READY</GameReady>
+          <GameInfo>
+            <GameIcon>
+              <img src={PingPongIcon} alt="게임 이미지" />
+            </GameIcon>
+            <GameName>
+              <p>핑퐁핑퐁</p>
+            </GameName>
+          </GameInfo>
+          <GamePlayers>
+            <Player1>
+              <img src={userInfo.imageUrl} alt="방장 이미지" />
+            </Player1>
+            <Vs>VS</Vs>
+            <Player2>
+              <img src={enemyInfo?.image} alt="게스트 이미지" />
+            </Player2>
+          </GamePlayers>
+          <GameMaps>
+            <SignPost>SELECT</SignPost>
+            {/* <GameMapFlow><MapList /></GameMapFlow> */}
+            <GameMapFlow>
+              <p>속도를 선택하세요:</p>
+              <CheckBoxWrap>
+                <Checkbox
+                  id="speed-3"
+                  label="3"
+                  checked={selectedSpeed === '3'}
+                  onChange={handleCheckboxChange}
+                  value="3"
+                />
+                <Checkbox
+                  id="speed-4"
+                  label="4"
+                  checked={selectedSpeed === '4'}
+                  onChange={handleCheckboxChange}
+                  value="4"
+                />
+                <Checkbox
+                  id="speed-5"
+                  label="5"
+                  checked={selectedSpeed === '5'}
+                  onChange={handleCheckboxChange}
+                  value="5"
+                />
+              </CheckBoxWrap>
+            </GameMapFlow>
+          </GameMaps>
+          <GameStart>
+            {/* <Link to="/game/play"> */}
+            <StartButton onClick={gameStart}>START</StartButton>
+            {/* </Link> */}
+          </GameStart>
+        </ModalWrapper>
+      )}
+    </Div>
   );
 }
+
+const Div = styled.div`
+  width: 100%;
+  height: 100%;
+`;
 
 const ModalWrapper = styled.div`
   position: relative;
   top: 50%;
-  transform: translateY(-53%);
+  transform: translateY(-50%);
   width: 100%;
   height: 100%;
   background-color: #e1e3ee;
@@ -112,19 +240,33 @@ const GameInfo = styled.div`
 `;
 
 const GameIcon = styled.div`
-  width: 30%;
-  height: 80%;
+  /* width: 30%; */
+  /* height: 80%; */
+  width: 12rem;
+  height: 12rem;
   background-color: #313c7a;
   margin-top: 1rem;
   margin-left: 2rem;
+  overflow: hidden;
+
+  > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const GameName = styled.div`
   width: 50%;
   height: 80%;
-  background-color: #313c7a;
   margin-top: 1rem;
   margin-right: 2rem;
+
+  > p {
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+  }
 `;
 
 const GamePlayers = styled.div`
@@ -142,6 +284,14 @@ const Player1 = styled.div`
   height: 80%;
   background-color: #e1e3ee;
   margin-top: 1rem;
+  border-radius: 50%;
+  overflow: hidden;
+
+  > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const Player2 = styled.div`
@@ -149,6 +299,14 @@ const Player2 = styled.div`
   height: 80%;
   background-color: #e1e3ee;
   margin-top: 1rem;
+  border-radius: 50%;
+  overflow: hidden;
+
+  > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const Vs = styled.div`
@@ -174,7 +332,7 @@ const GameMaps = styled.div`
 `;
 
 const SignPost = styled.div`
-  width: 40%;
+  width: 45%;
   height: 25%;
   margin-left: 2rem;
   background-color: #6d77af;
@@ -192,6 +350,21 @@ const GameMapFlow = styled.div`
   width: 100%;
   height: 75%;
   background-color: #6d77af;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  > p {
+    font-size: 20px;
+    display: inline-block;
+  }
+`;
+
+const CheckBoxWrap = styled.div`
+  display: flex;
+  gap: 25px;
+  margin-bottom: 20px;
 `;
 
 const GameStart = styled.div`
