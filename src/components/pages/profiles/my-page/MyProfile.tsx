@@ -183,10 +183,16 @@ export default function MyProfile() {
           <GameButton onClick={() => navigate('/game/record')}>
             전적 보기
           </GameButton>
-          <GameButton onClick={handleButtonClick}>게임하기</GameButton>
+          <GameButton
+            onClick={() => {
+              console.log('게임 랜덤 매칭');
+              handleButtonClick();
+            }}
+          >
+            게임하기
+          </GameButton>
         </GameContainer>
       </MyPageDiv>
-      {showReadyGameModal && <ReadyGame onClick={handleCloseModal} />}
     </Layout>
   );
 }

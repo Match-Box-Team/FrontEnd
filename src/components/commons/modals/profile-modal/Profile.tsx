@@ -33,7 +33,7 @@ interface MuteKickProps {
   isMute: boolean;
 }
 
-interface UserProps {
+export interface UserProps {
   userId: string;
   intraId: string;
   nickname: string;

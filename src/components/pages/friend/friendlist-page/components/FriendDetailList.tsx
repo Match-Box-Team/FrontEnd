@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { IBuddy, IFriendDetail } from '..';
 
 const Base = styled.li`
   display: flex;
@@ -19,6 +20,7 @@ const ProfileImage = styled.img`
   height: 4rem;
   border-radius: 50%;
   margin-right: 1rem;
+  cursor: pointer;
 `;
 
 const NickName = styled.span`
@@ -66,15 +68,27 @@ interface Prop {
   imageUrl: string;
   nickName: string;
   status: string;
+  buddy: IFriendDetail;
+  onClickCapture: (buddy: IFriendDetail) => void;
 }
 
-export default function FriendDetailList({ imageUrl, nickName, status }: Prop) {
+export default function FriendDetailList({
+  imageUrl,
+  nickName,
+  status,
+  buddy,
+  onClickCapture,
+}: Prop) {
   return (
     <Base>
       <ImageWrapper>
         <FriendStateBase />
         <FriendState status={status} />
-        <ProfileImage src={imageUrl} alt={`${nickName}의 이미지`} />
+        <ProfileImage
+          src={imageUrl}
+          alt={`${nickName}의 이미지`}
+          onClick={() => onClickCapture(buddy)}
+        />
       </ImageWrapper>
       <NickName>{nickName}</NickName>
     </Base>

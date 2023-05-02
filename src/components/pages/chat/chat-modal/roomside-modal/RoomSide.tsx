@@ -17,9 +17,14 @@ import { useSetAdminMutation } from '../../../../../api/SetAdmin';
 interface Props {
   isOpenSideModal: boolean;
   handleClickModal: () => void;
+  isDm: boolean | undefined;
 }
 
-export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
+export default function RoomSide({
+  isOpenSideModal,
+  handleClickModal,
+  isDm,
+}: Props) {
   const navigate = useNavigate();
 
   // 유저  정보
@@ -111,10 +116,14 @@ export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
             <Header>
               <p># 설정</p>
             </Header>
-            <Text onClick={handleClickSetRoomModal}>채팅방 설정</Text>
-            <Hr />
-            <Text onClick={handleClickSetInviteModal}>초대하기</Text>
-            <Hr />
+            {isDm === false && (
+              <>
+                <Text onClick={handleClickSetRoomModal}>채팅방 설정</Text>
+                <Hr />
+                <Text onClick={handleClickSetInviteModal}>초대하기</Text>
+                <Hr />
+              </>
+            )}
             <Text onClick={handleClickExit}>나가기</Text>
             <Header>
               <p># 대화상대</p>
@@ -136,18 +145,24 @@ export default function RoomSide({ isOpenSideModal, handleClickModal }: Props) {
                         <Wrap>
                           <p>{userChannel.user.nickname}</p>
                         </Wrap>
-                        <Wrap>
-                          <IconWrap onClick={() => handleSetAdmin(userChannel)}>
-                            <img src={What} alt={What} />
-                          </IconWrap>
-                        </Wrap>
-                        <Wrap>
-                          <IconWrap
-                            onClick={() => handleAddFriend(userChannel)}
-                          >
-                            <img src={Plus} alt={Plus} />
-                          </IconWrap>
-                        </Wrap>
+                        {isDm === false && (
+                          <>
+                            <Wrap>
+                              <IconWrap
+                                onClick={() => handleSetAdmin(userChannel)}
+                              >
+                                <img src={What} alt={What} />
+                              </IconWrap>
+                            </Wrap>
+                            <Wrap>
+                              <IconWrap
+                                onClick={() => handleAddFriend(userChannel)}
+                              >
+                                <img src={Plus} alt={Plus} />
+                              </IconWrap>
+                            </Wrap>
+                          </>
+                        )}
                       </UserListWrap>
                     </UserListContainer>
                   );

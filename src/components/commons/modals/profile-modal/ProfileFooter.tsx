@@ -1,8 +1,9 @@
 import React, { MouseEventHandler, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from 'react-query';
 import axios from 'axios';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { BlobOptions } from 'buffer';
 import { channelIdState } from '../../../../recoil/locals/chat/atoms/atom';
 import BanIcon from '../../../../assets/icon/ban.svg';
@@ -41,17 +42,18 @@ export default function ProfileFooter({
   user,
   inChat,
 }: Props) {
+  // 리액트 쿼리
+  const queryClient = useQueryClient();
   // 페이지 이동
   const navigate = useNavigate();
   // 리코일 - 채널 id atom getter
   const channelIdStateValue = useRecoilValue(channelIdState);
+  const [channelId, setChannelId] = useRecoilState(channelIdState);
   const userInfo = useRecoilValue(userState);
   // 음소거 유무
   const [isMute, setIsMute] = useState<boolean | undefined>(
     user.muteKick?.isMute,
   );
-  // 차단 유무
-  // const [isBan, setIsBan] = useState<boolean | undefined>(user.ban?.isBan);
   // 음소거와 킥 공통 url
   const muteKickUrl = `http://localhost:3000/channels/${channelIdStateValue}/member/${user.userId}`;
 
@@ -134,6 +136,9 @@ export default function ProfileFooter({
       .then(function (response) {
         // 프로필 모달 닫기
         handleClickModal();
+
+        // 친구 목록 쿼리 무효화 및 재요청
+        queryClient.invalidateQueries('friends');
       })
       .catch(function (error) {
         // 예외 처리
@@ -165,6 +170,7 @@ export default function ProfileFooter({
         },
       )
       .then(function (response) {
+        setChannelId(response.data.channel.channelId);
         const to = `/chat/channel/${response.data.channel.channelId}`;
         // 리코일 추가
         navigate(to);
@@ -181,14 +187,20 @@ export default function ProfileFooter({
     handleClickModal();
   };
 
-  // 게임 샵으로 이동
+  // 상대방 상세 프로필 페이지로 이동
   const handleGameClicked = () => {
     // 프로필 모달 닫기
     handleClickModal();
-    navigate(`/game/shop`);
+    if (user.userId !== userInfo.userId) {
+      navigate(`/profile/friend/${user.userId}`);
+    } else {
+      navigate(`/profile/my/:id`);
+    }
   };
 
-  const onlyOne = !(inChat && user.muteKick?.isAdmin) && inChat;
+  const onlyOne =
+    !(inChat && user.userId !== userInfo.userId && user.muteKick?.isAdmin) &&
+    inChat;
 
   return (
     <FooterWrapper onlyOne={onlyOne}>
@@ -197,7 +209,7 @@ export default function ProfileFooter({
           <ButtonImage src={GameIcon} />
         </Button>
       </ButtonWrap>{' '}
-      {inChat && user.muteKick?.isAdmin && (
+      {inChat && user.userId !== userInfo.userId && user.muteKick?.isAdmin && (
         <>
           <ButtonWrap>
             <Button onClick={handleMuteClicked}>

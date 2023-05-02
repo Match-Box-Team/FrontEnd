@@ -1,23 +1,7 @@
 import { useQuery } from 'react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import { useAxiosWithToken } from '.';
-
-interface IBuddy {
-  nickname: string;
-  intraId: string;
-  status: string;
-  image: string;
-}
-
-interface IFriends {
-  friendId: string;
-  buddyId: string;
-  buddy: IBuddy;
-}
-
-interface IFriend {
-  friends: IFriends[];
-}
+import { IFriend } from '../components/pages/friend/friendlist-page';
 
 export const useGetFriendList = () => {
   const axiosInstance = useAxiosWithToken();
