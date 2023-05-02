@@ -65,7 +65,6 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
     socketRef?.once('cancelReadyGame', () => {
       console.log('게임 준비 취소됨');
       onClick();
-      navigate('/game/shop');
       navigate('/profile/my/:id');
     });
 
