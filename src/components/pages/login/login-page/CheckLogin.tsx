@@ -10,8 +10,8 @@ import AcceptGameModal from '../../game/game-modal/accept-game-modal/AcceptModal
 import { getImageUrl } from '../../../../api/ProfileImge';
 import AcceptWaiting from '../../game/game-modal/accept-waiting-modal/AcceptWaiting';
 
-const fakeUserId1 = '3e05aadf-8c34-48c9-89fa-c58d4bf720d7';
-const fakeUserId2 = 'fa9eecd4-7bdb-4d61-a0f8-898869d99ca2';
+const fakeUserId1 = '3cd28dbc-538c-4baa-988e-c559651b079d';
+const fakeUserId2 = 'ac64dbd9-7fac-4a7e-86b3-d4fc9e1052d5';
 
 interface Props {
   children: ReactNode;
@@ -135,12 +135,12 @@ export default function CheckLogin({ children }: Props) {
 
   return (
     <div>
-      <Test1Button type="submit" onClick={() => handleClickSocket(true)}>
+      {/* <Test1Button type="submit" onClick={() => handleClickSocket(true)}>
         가짜1에게 게임 신청
       </Test1Button>
       <Test2Button type="submit" onClick={() => handleClickSocket(false)}>
         가짜2에게 게임 신청
-      </Test2Button>
+      </Test2Button> */}
       {isOpenAcceptGameModal && enemyInfo && (
         <AcceptGameModal
           enemyInfo={enemyInfo}

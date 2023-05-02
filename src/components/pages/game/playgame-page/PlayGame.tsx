@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import Layout from '../../../commons/layout/Layout';
 import PingPong from './games/PingPong';
@@ -18,10 +18,18 @@ const clickAnimation = keyframes`
 
 export default function PlayGame() {
   const socket = useSocket();
+  const [scoreA, setScoreA] = useState<number>(0);
+  const [scoreB, setScoreB] = useState<number>(0);
   useEffect(() => {
     if (socket) {
       socket.emit('ready', { gameControl: 'controls..' });
       console.log('playing~!!');
+    }
+    if (socket) {
+      socket.on('scores', (data: any) => {
+        setScoreA(data.scores.scoreA);
+        setScoreB(data.scores.scoreB);
+      });
     }
   }, [socket]);
   return (
@@ -33,9 +41,9 @@ export default function PlayGame() {
           <Player2 />
         </GameHeader>
         <Score>
-          <Player1Score />
+          <Player2Score>{scoreB}</Player2Score>
           <h1>SCORE</h1>
-          <Player2Score />
+          <Player1Score>{scoreA}</Player1Score>
         </Score>
         <GameBoard>
           <PingPong />
@@ -74,12 +82,14 @@ const Player1 = styled.div`
   width: 20%;
   height: 80%;
   background-color: #e1e3ee;
+  color: black;
 `;
 
 const Player2 = styled.div`
   width: 20%;
   height: 80%;
   background-color: #e1e3ee;
+  color: black;
 `;
 
 const GameInfo = styled.div`
@@ -107,6 +117,7 @@ const Player1Score = styled.div`
   height: 80%;
   background-color: #e1e3ee;
   border: black solid 0.4rem;
+  color: blue;
 `;
 
 const Player2Score = styled.div`
@@ -114,6 +125,7 @@ const Player2Score = styled.div`
   height: 80%;
   background-color: #e1e3ee;
   border: black solid 0.4rem;
+  color: red;
 `;
 
 const GameBoard = styled.div`
