@@ -10,8 +10,8 @@ import AcceptGameModal from '../../game/game-modal/accept-game-modal/AcceptModal
 import { getImageUrl } from '../../../../api/ProfileImge';
 import AcceptWaiting from '../../game/game-modal/accept-waiting-modal/AcceptWaiting';
 
-const fakeUserId1 = '3e05aadf-8c34-48c9-89fa-c58d4bf720d7';
-const fakeUserId2 = 'fa9eecd4-7bdb-4d61-a0f8-898869d99ca2';
+export const fakeUserId1 = '513a6272-c55e-4f99-8d10-879fc2bf5b3e';
+export const fakeUserId2 = '175b000e-c3a9-43a0-8c0e-120d079b3dd2';
 
 interface Props {
   children: ReactNode;
@@ -114,14 +114,6 @@ export default function CheckLogin({ children }: Props) {
   const onCloseWaitingModal = () => {
     setIsOpenAcceptWaitingModal(false);
   };
-  const handleClickWaitingModal = () => {
-    setIsOpenAcceptWaitingModal(!isOpenAcceptWaitingModal);
-    // 대기 모달을 껐다 => 초대 취소
-    // fake1, fake2 중 누구한테 초대를 걸꺼냐에 따라 달라져야함.
-    // 저는 fake1이 fake2에게 거는 쪽으로 계속 테스트했습니다.
-    // socketRef.current?.emit('inviteCancel', { userId: fakeUserId1 });
-    socketRef.current?.emit('inviteCancel', { userId: fakeUserId2 });
-  };
 
   // 가짜 게임 신청
   const handleClickSocket = (isFake1: boolean) => {
@@ -161,14 +153,15 @@ export default function CheckLogin({ children }: Props) {
 
 const Test1Button = styled.button`
   position: absolute;
-  left: 20%;
-  top: 5%;
+  left: 10%;
+  // top: 5%;
   font-size: 20px;
 `;
 
 const Test2Button = styled.button`
   position: absolute;
   left: 50%;
+  // top: 10%;
   font-size: 20px;
 `;
 
