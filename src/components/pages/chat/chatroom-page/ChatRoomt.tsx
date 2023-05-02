@@ -183,6 +183,7 @@ export default function ChatRoom() {
       <RoomSide
         isOpenSideModal={isOpenSideModal}
         handleClickModal={handleClickSideModal}
+        isDm={chatListData?.channel.isDm}
       />
       <Base>
         <Container>
