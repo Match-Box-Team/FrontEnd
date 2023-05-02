@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../../../commons/layout/Layout';
 import PingPong from './games/PingPong';
 import { useSocket } from './game-socket/GameSocketContext';
+import Popup from '../../../commons/modals/popup-modal/Popup';
 
 const clickAnimation = keyframes`
   0% {
@@ -18,14 +20,54 @@ const clickAnimation = keyframes`
 
 export default function PlayGame() {
   const socket = useSocket();
+  const [scoreA, setScoreA] = useState<number>(0);
+  const [scoreB, setScoreB] = useState<number>(0);
+  const [winner, setWinner] = useState<string>('');
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [modalMessage, setModalMessage] = useState<string>('');
+
   useEffect(() => {
     if (socket) {
       socket.emit('ready', { gameControl: 'controls..' });
       console.log('playing~!!');
     }
+    if (socket) {
+      socket.on('scores', (data: any) => {
+        setScoreA(data.scores.scoreA);
+        setScoreB(data.scores.scoreB);
+      });
+    }
+    if (socket) {
+      socket.on('gameover', (data: any) => {
+        if (data.winner === 'A') {
+          setWinner('A');
+          setModalMessage('승자는 A입니다');
+          setShowModal(true);
+          // navigate('/profile/my/:id', { replace: true });
+        }
+        if (data.winner === 'B') {
+          setWinner('B');
+          setModalMessage('승자는 B입니다');
+          setShowModal(true);
+          // navigate('/profile/my/:id', { replace: true });
+        }
+      });
+    }
   }, [socket]);
+
+  const handleClose = () => {
+    setShowModal(false);
+    navigate('/profile/my/:id', { replace: true });
+  };
+
   return (
     <Layout>
+      {showModal && (
+        <Popup onClose={handleClose}>
+          <WinnerMsg>위너는 {winner}!!</WinnerMsg>
+        </Popup>
+      )}
       <GameFrame>
         <GameHeader>
           <Player1 />
@@ -33,9 +75,9 @@ export default function PlayGame() {
           <Player2 />
         </GameHeader>
         <Score>
-          <Player1Score />
+          <Player2Score>{scoreB}</Player2Score>
           <h1>SCORE</h1>
-          <Player2Score />
+          <Player1Score>{scoreA}</Player1Score>
         </Score>
         <GameBoard>
           <PingPong />
@@ -74,12 +116,14 @@ const Player1 = styled.div`
   width: 20%;
   height: 80%;
   background-color: #e1e3ee;
+  color: black;
 `;
 
 const Player2 = styled.div`
   width: 20%;
   height: 80%;
   background-color: #e1e3ee;
+  color: black;
 `;
 
 const GameInfo = styled.div`
@@ -107,6 +151,7 @@ const Player1Score = styled.div`
   height: 80%;
   background-color: #e1e3ee;
   border: black solid 0.4rem;
+  color: blue;
 `;
 
 const Player2Score = styled.div`
@@ -114,6 +159,7 @@ const Player2Score = styled.div`
   height: 80%;
   background-color: #e1e3ee;
   border: black solid 0.4rem;
+  color: red;
 `;
 
 const GameBoard = styled.div`
@@ -149,4 +195,17 @@ const GGButton = styled.button`
   &:active {
     animation: ${clickAnimation} 0.2s;
   }
+`;
+
+const WinnerMsg = styled.div`
+  width: 35rem;
+  height: 35rem;
+  background-color: #e1e3ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 900;
+  border-radius: 1.5rem;
+  color: black;
 `;
