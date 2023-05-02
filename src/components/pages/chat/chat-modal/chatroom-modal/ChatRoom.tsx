@@ -63,7 +63,6 @@ export default function ChatRoom() {
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     event.preventDefault();
-    console.log(member);
     const imageUrl = await axios.get(
       `http://localhost:3000/account/image?userId=${member.userId}`,
       {
@@ -71,7 +70,6 @@ export default function ChatRoom() {
         headers: { Authorization: `Bearer ${process.env.REACT_APP_TOKEN}` },
       },
     );
-    console.log(imageUrl);
     member.image = URL.createObjectURL(imageUrl.data);
     setSelectedUser(member);
     setIsOpenProfileModal(true);
