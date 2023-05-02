@@ -11,6 +11,7 @@ import PingPongIcon from '../../../../assets/icon/pingpong.svg';
 import SelectArrow from '../../../../assets/icon/SelectArrow.svg';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import ReadyGame from '../../game/game-modal/readygame-modal/ReadyGame';
+import { useSocket } from '../../login/login-page/LoginSocketContext';
 
 interface User {
   userId: string;
@@ -74,6 +75,7 @@ export default function MyProfile() {
   };
 
   const selectRef = useRef<HTMLSelectElement>(null);
+  const socketRef = useSocket();
 
   const getUserGameHistoryText = (gameName: string) => {
     const selectedUserGame = userGames?.filter(
@@ -187,6 +189,7 @@ export default function MyProfile() {
             onClick={() => {
               console.log('게임 랜덤 매칭');
               handleButtonClick();
+              socketRef?.emit('randomMatch');
             }}
           >
             게임하기
