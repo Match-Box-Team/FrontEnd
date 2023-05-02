@@ -6,6 +6,7 @@ const Base = styled.div`
   justify-content: start;
   align-items: center;
   margin-top: 2.4rem;
+  cursor: pointer;
 `;
 
 const FriendAddWrapper = styled.img`
@@ -19,9 +20,13 @@ const Title = styled.span`
   opacity: 0.7;
 `;
 
-export default function AddFriends() {
+interface IAddFriend {
+  handleClickModal: () => void;
+}
+
+export default function AddFriends({ handleClickModal }: IAddFriend) {
   return (
-    <Base>
+    <Base onClick={handleClickModal}>
       <FriendAddWrapper src={friendPagEAddbutton} alt="친구추가" />
       <Title>Add friend</Title>
     </Base>
