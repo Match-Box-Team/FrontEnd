@@ -78,7 +78,6 @@ export default function CheckLogin({ children }: Props) {
   // 게임 초대 이벤트 모니터링 -> 감지시 게임 초대 수락 모달 띄움
   useEffect(() => {
     // 게임 초대를 받음
-    console.log(socketRef);
     socketRef.current?.once('inviteGame', async (user: User) => {
       console.log('게임 초대 받음');
       const imageUrl = await getImageUrl(user.userId, userInfo.token);
@@ -90,7 +89,6 @@ export default function CheckLogin({ children }: Props) {
     });
 
     socketRef.current?.once('gameError', (message: { message: string }) => {
-      console.log(message.message);
       setIsOpenAcceptGameModal(false);
       setIsOpenAcceptWaitingModal(false);
     });
