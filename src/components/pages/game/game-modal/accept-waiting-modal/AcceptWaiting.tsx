@@ -1,27 +1,26 @@
-import { Socket } from 'socket.io-client';
 import styled from 'styled-components';
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NoXPopup } from '../../../../commons/modals/popup-modal/Popup';
-import { fakeUserId2 } from '../../../login/login-page/CheckLogin';
+import { useSocket } from '../../../login/login-page/LoginSocketContext';
 
 interface Props {
   handleClickModal: () => void;
-  socketRef: React.RefObject<Socket> | null;
 }
 
-export default function AcceptWaiting({ handleClickModal, socketRef }: Props) {
+export default function AcceptWaiting({ handleClickModal }: Props) {
   const navigate = useNavigate();
+  const socketRef = useSocket();
 
   useEffect(() => {
     // 초대 보낸 사람이 게임 초대 거절 당함
-    socketRef?.current?.once('inviteReject', () => {
+    socketRef?.once('inviteReject', () => {
       console.log('초대 거부됨');
       handleClickModal();
     });
 
     // 초대 보낸 사람이 게임 초대 수락해서 게임 페이지로 이동함
-    socketRef?.current?.once(
+    socketRef?.once(
       'goGameReadyPage',
       (gameWatchId: { gameWatchId: string }) => {
         console.log('방장인 유저가 게임 페이지로 이동');
@@ -31,8 +30,8 @@ export default function AcceptWaiting({ handleClickModal, socketRef }: Props) {
     );
 
     return () => {
-      socketRef?.current?.off('goGameReadyPage');
-      socketRef?.current?.off('inviteReject');
+      socketRef?.off('goGameReadyPage');
+      socketRef?.off('inviteReject');
     };
   });
 
@@ -40,7 +39,6 @@ export default function AcceptWaiting({ handleClickModal, socketRef }: Props) {
     <NoXPopup
       onClose={() => {
         handleClickModal();
-        socketRef?.current?.emit('inviteCancel', { userId: fakeUserId2 });
       }}
     >
       <MainText>초대 수락 대기 중...</MainText>
