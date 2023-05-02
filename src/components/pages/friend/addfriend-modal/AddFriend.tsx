@@ -10,6 +10,7 @@ import {
   ChatModalMainText as AddModalMainText,
   FormSubmitButton,
 } from '../../chat/chat-modal/createroom-modal/Createroom';
+import { getImageUrl } from '../../../../api/ProfileImge';
 
 // 모달 prop 타입
 interface Props {
@@ -93,15 +94,9 @@ export default function AddFriend({
       }
       setSearchUserResponse(userData.data);
 
-      const imageUrl = await axios.get(
-        `${process.env.REACT_APP_BASE_BACKEND_URL}/account/image?userId=${userData.data.userId}`,
-        {
-          responseType: 'blob',
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        },
-      );
       // 유저 이미지 저장
-      setUserImageUrl(URL.createObjectURL(imageUrl.data));
+      const imageUrl = await getImageUrl(userData.data.userId, userInfo.token);
+      setUserImageUrl(imageUrl);
     } catch (error) {
       stateReset();
       alert('존재하지 않는 유저이거나, 본인의 닉네임입니다');
