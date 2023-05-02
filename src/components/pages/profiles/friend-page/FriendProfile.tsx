@@ -190,7 +190,6 @@ export default function FriendProfile() {
             전적 보기
           </GameButton>
           <GameButton
-            type="submit"
             onClick={() => {
               console.log('유저 게임 초대');
               setIsOpenAcceptWaitingModal(true);
