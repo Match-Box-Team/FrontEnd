@@ -102,7 +102,7 @@ export default function CreateRoom({
                   required
                 />
                 <RoomTypeContainer>
-                  <RoomTypeText>공개/비공개</RoomTypeText>
+                  <RoomTypeText>비공개/공개</RoomTypeText>
                   <PublicToggleButton
                     isPublic={isPublic}
                     onClick={handleClick}
