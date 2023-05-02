@@ -44,10 +44,10 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
   const [selectedSpeed, setSelectedSpeed] = useState<string>('4');
 
   useEffect(() => {
-    // if (socketRef) {
-    //   socketRef.emit('ready', { gameControl: 'connection..' });
-    //   console.log('connected~!!');
-    // }
+    if (socketRef) {
+      socketRef.emit('ready', { gameControl: 'connection..' });
+      console.log('connected~!!');
+    }
 
     socketRef?.once('startReadyGame', async (info: UserGameInfo) => {
       setUserGameInfo(info);
@@ -175,9 +175,9 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
             </GameMapFlow>
           </GameMaps>
           <GameStart>
-            {/* <Link to="/game/play"> */}
-            <StartButton onClick={gameStart}>START</StartButton>
-            {/* </Link> */}
+            <Link to="/game/play">
+              <StartButton onClick={gameStart}>START</StartButton>
+            </Link>
           </GameStart>
         </ModalWrapper>
       )}

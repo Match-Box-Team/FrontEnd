@@ -5,6 +5,7 @@ import { useSocket } from '../game-socket/GameSocketContext';
 export default function PingPong() {
   const socket = useSocket();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isHost, setIsHost] = useState<boolean>(false);
 
   useEffect(() => {
     if (socket) {
@@ -12,6 +13,13 @@ export default function PingPong() {
         ready: 'ready',
       });
       console.log('pingpong~!!');
+
+      if (socket) {
+        socket.on('ishost', (data: any) => {
+          console.log('ishost : ', data.isHost);
+          setIsHost(data.isHost);
+        });
+      }
     }
   }, []);
 
