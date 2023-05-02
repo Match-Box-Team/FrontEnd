@@ -191,7 +191,11 @@ export default function ProfileFooter({
   const handleGameClicked = () => {
     // 프로필 모달 닫기
     handleClickModal();
-    navigate(`/profile/friend/${user.userId}`);
+    if (user.userId !== userInfo.userId) {
+      navigate(`/profile/friend/${user.userId}`);
+    } else {
+      navigate(`/profile/my/:id`);
+    }
   };
 
   const onlyOne = !(inChat && user.muteKick?.isAdmin) && inChat;
@@ -203,7 +207,7 @@ export default function ProfileFooter({
           <ButtonImage src={GameIcon} />
         </Button>
       </ButtonWrap>{' '}
-      {inChat && user.muteKick?.isAdmin && (
+      {inChat && user.userId !== userInfo.userId && user.muteKick?.isAdmin && (
         <>
           <ButtonWrap>
             <Button onClick={handleMuteClicked}>
