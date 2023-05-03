@@ -38,9 +38,15 @@ interface Props {
   handleClickModal: () => void;
   user: UserProps;
   inChat: boolean;
+  isAdmin?: boolean;
 }
 
-export default function Profile({ handleClickModal, user, inChat }: Props) {
+export default function Profile({
+  handleClickModal,
+  user,
+  inChat,
+  isAdmin,
+}: Props) {
   return (
     user && (
       <Container>
@@ -62,6 +68,7 @@ export default function Profile({ handleClickModal, user, inChat }: Props) {
               handleClickModal={handleClickModal}
               user={user}
               inChat={inChat}
+              isAdmin={isAdmin}
             />
           </FooterWrap>
         </Inner>

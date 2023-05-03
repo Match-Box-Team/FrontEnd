@@ -56,7 +56,6 @@ export default function CheckLogin({ children }: Props) {
       });
       socketRef.current.emit('login');
       socketRef.current.on('error', (error: NError) => {
-        console.log(error);
         const resetUser = {
           token: '',
           userId: '',

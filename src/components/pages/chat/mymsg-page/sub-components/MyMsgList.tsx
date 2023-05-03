@@ -61,7 +61,6 @@ export default function MyMsgList() {
           'http://127.0.0.1:3000/channels/my',
           config,
         );
-        // console.log(response.data);
 
         const roomListPromises: Promise<RoomList[]>[] =
           response.data.channel.map(async (channel: ChannelData) => {
@@ -87,7 +86,6 @@ export default function MyMsgList() {
         );
         setImageUrl(tmpUrl);
         setChannels(response.data.channel);
-        // console.log(response.data.channel[0].userChannel.channel.channelId);
       } catch (error) {
         setIsErrorGet(true);
       }
@@ -156,9 +154,7 @@ export default function MyMsgList() {
                         room.chat.computedChatCount === 0 ? 'white' : 'red',
                     }}
                   >
-                    <Unread>
-                      {room.chat.computedChatCount - 1 /* 더미 메시지 - 1 */}
-                    </Unread>
+                    <Unread>{room.chat.computedChatCount}</Unread>
                   </UnreadMsgCount>
                 </RoomInfo>
               </RoomMain>
