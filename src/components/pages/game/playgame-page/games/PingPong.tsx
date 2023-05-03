@@ -117,24 +117,20 @@ export default function PingPong() {
 
   function keyDownHandler(e: KeyboardEvent) {
     const key = e.key.toLowerCase(); // Convert the key value to lowercase
+    let controller = '';
     if (socket && !keyState[key]) {
       keyState[key] = true; // 키가 눌린 상태로 설정합니다.
-      if (
-        isHost.current === true &&
-        (key === 'arrowleft' || key === 'arrowright')
-      ) {
+      if (key === 'arrowleft' || key === 'arrowright') {
+        if (isHost.current === true) {
+          controller = 'gamecontrolB';
+        }
+        if (isHost.current === false) {
+          controller = 'gamecontrolA';
+        }
         clearInterval(intervalIds[key]);
         intervalIds[key] = setInterval(() => {
-          socket.emit('gamecontrolB', {
+          socket.emit(controller, {
             direction: key === 'arrowleft' ? -1 : 1,
-          });
-        }, 5);
-      }
-      if (isHost.current === false && (key === 'a' || key === 'd')) {
-        clearInterval(intervalIds[key]);
-        intervalIds[key] = setInterval(() => {
-          socket.emit('gamecontrolA', {
-            direction: key === 'a' ? -1 : 1,
           });
         }, 5);
       }
@@ -143,17 +139,18 @@ export default function PingPong() {
 
   function keyUpHandler(e: KeyboardEvent) {
     const key = e.key.toLowerCase(); // Convert the key value to lowercase
+    let controller = '';
     if (socket && keyState[key]) {
       keyState[key] = false; // 키가 떼진 상태로 설정합니다.
       clearInterval(intervalIds[key]);
-      if (
-        isHost.current === true &&
-        (key === 'arrowleft' || key === 'arrowright')
-      ) {
-        socket.emit('gamecontrolB', { direction: 0 });
-      }
-      if (isHost.current === false && (key === 'a' || key === 'd')) {
-        socket.emit('gamecontrolA', { direction: 0 });
+      if (key === 'arrowleft' || key === 'arrowright') {
+        if (isHost.current === true) {
+          controller = 'gamecontrolB';
+        }
+        if (isHost.current === false) {
+          controller = 'gamecontrolA';
+        }
+        socket.emit(controller, { direction: 0 });
       }
     }
   }
