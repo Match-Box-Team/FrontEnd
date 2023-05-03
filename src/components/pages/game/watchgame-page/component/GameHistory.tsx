@@ -66,6 +66,7 @@ interface Prop {
   user2: string;
   user2Image: string;
   currentViewer: number;
+  selectedGame: string;
 }
 
 export default function GameHistory({
@@ -75,11 +76,14 @@ export default function GameHistory({
   user2,
   user2Image,
   currentViewer,
+  selectedGame,
 }: Prop) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/game/play/${matchId}`);
+    if (selectedGame === '핑퐁핑퐁') {
+      navigate(`/game/play/${matchId}`);
+    }
   };
 
   return (

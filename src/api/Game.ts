@@ -20,7 +20,7 @@ export const useGetGameWatchList = (
     retry: 0, // 바로 실패로 처리하려면 시도 횟수를 0으로 설정
   };
 
-  return useQuery<IGameWatch, AxiosError>('GameWatchList', queryOptions);
+  return useQuery<IGameWatch, AxiosError>(['gameWatch', gameId], queryOptions);
 };
 
 export const useGetGameList = () => {

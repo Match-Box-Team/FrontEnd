@@ -141,6 +141,7 @@ export default function GamePage({ title }: Prop) {
                   user1Image={data.user1Image}
                   user2Image={data.user2Image}
                   currentViewer={data.currentViewer}
+                  selectedGame={selectedGame}
                 />
               );
             })}
