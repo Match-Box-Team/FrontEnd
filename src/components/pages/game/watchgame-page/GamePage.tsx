@@ -117,7 +117,7 @@ export default function GamePage({ title }: Prop) {
 
   return (
     <Layout
-      Header={<Header title={title} friendToggle toggleMove />}
+      Header={<Header title={title} backPath="/game/shop" />}
       Footer={<Footer tab="Game" />}
     >
       <Container>
