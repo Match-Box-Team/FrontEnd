@@ -8,12 +8,12 @@ import BannedList from './components/pages/friend/bannedlist-page/BannedList';
 import GameRecord from './components/pages/game/gamerecord-page/GameRecord';
 import GameShop from './components/pages/game/gameshop-page/GameShop';
 import PlayGame from './components/pages/game/playgame-page/PlayGame';
-import WatchGame from './components/pages/game/watchgame-page/WatchGame';
 import FriendProfile from './components/pages/profiles/friend-page/FriendProfile';
 import MyProfile from './components/pages/profiles/my-page/MyProfile';
 import ChatRoom from './components/pages/chat/chatroom-page/ChatRoomt';
 import CheckLogin from './components/pages/login/login-page/CheckLogin';
 import GameSocketProvider from './components/pages/game/playgame-page/game-socket/GameSocketProvider';
+import GamePage from './components/pages/game/watchgame-page/GamePage';
 
 function Router() {
   return (
@@ -63,7 +63,7 @@ function Router() {
           }
         />
         <Route
-          path="/game/record"
+          path="/game/record/:userId"
           element={
             <CheckLogin>
               <GameRecord />
@@ -71,7 +71,7 @@ function Router() {
           }
         />
         <Route
-          path="/game/shop"
+          path="/game/shop/"
           element={
             <CheckLogin>
               <GameShop />
@@ -89,10 +89,10 @@ function Router() {
           }
         />
         <Route
-          path="/game/watch"
+          path="/game/watch/:gameId"
           element={
             <CheckLogin>
-              <WatchGame />
+              <GamePage title="Game Watch" />
             </CheckLogin>
           }
         />
