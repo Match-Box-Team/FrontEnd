@@ -78,7 +78,7 @@ export default function GameShop() {
                     <BuyButton
                       isBuy={game.isBuy}
                       onClick={() => {
-                        if (!game.isBuy) {
+                        if (game.isPlayable) {
                           handleClickModal();
                         }
                       }}

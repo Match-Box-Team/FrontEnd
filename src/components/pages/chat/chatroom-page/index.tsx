@@ -25,6 +25,7 @@ export interface IChat {
 interface IChannel {
   channelId: string;
   channelName: string;
+  isDm: boolean;
 }
 
 export interface IChatLog {

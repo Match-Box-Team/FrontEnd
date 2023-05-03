@@ -14,6 +14,7 @@ import ChatRoom from './components/pages/chat/chatroom-page/ChatRoomt';
 import CheckLogin from './components/pages/login/login-page/CheckLogin';
 import GameSocketProvider from './components/pages/game/playgame-page/game-socket/GameSocketProvider';
 import GamePage from './components/pages/game/watchgame-page/GamePage';
+import ReadyGamePage from './components/pages/game/ready-game-page/ReadyGamePage';
 
 function Router() {
   return (
@@ -79,6 +80,17 @@ function Router() {
           }
         />
         <Route
+          path="/game/:gameWatchId/ready"
+          element={
+            <CheckLogin>
+              <GameSocketProvider>
+                <ReadyGamePage />
+              </GameSocketProvider>
+            </CheckLogin>
+          }
+        />
+        <Route
+          // path="/game/:gameWatchId/play"
           path="/game/play"
           element={
             <CheckLogin>
@@ -92,7 +104,9 @@ function Router() {
           path="/game/watch/:gameId"
           element={
             <CheckLogin>
-              <GamePage title="Game Watch" />
+              <GameSocketProvider>
+                <GamePage title="Game Watch" />
+              </GameSocketProvider>
             </CheckLogin>
           }
         />
@@ -100,9 +114,7 @@ function Router() {
           path="/profile/friend/:id"
           element={
             <CheckLogin>
-              <GameSocketProvider>
-                <FriendProfile />
-              </GameSocketProvider>
+              <FriendProfile />
             </CheckLogin>
           }
         />

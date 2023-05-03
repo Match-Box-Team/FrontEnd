@@ -4,13 +4,14 @@ import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
 import axios from 'axios';
 import Layout from '../../../commons/layout/Layout';
-import ReadyGame from '../../game/game-modal/readygame-modal/ReadyGame';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import Header from '../../../commons/header/Header';
 import Footer from '../../../commons/footer/Footer';
 import PingPongIcon from '../../../../assets/icon/pingpong.svg';
 import SelectArrow from '../../../../assets/icon/SelectArrow.svg';
 import { getImageUrl } from '../../../../api/ProfileImge';
+import { useSocket } from '../../login/login-page/LoginSocketContext';
+import AcceptWaiting from '../../game/game-modal/accept-waiting-modal/AcceptWaiting';
 
 interface User {
   image: string;
@@ -56,6 +57,7 @@ export default function FriendProfile() {
   };
 
   const selectRef = useRef<HTMLSelectElement>(null);
+  const socketRef = useSocket();
 
   const getUserGameHistoryText = (gameName: string) => {
     const selectedUserGame = userGames?.filter(
@@ -66,16 +68,6 @@ export default function FriendProfile() {
       return '0승 0패';
     }
     return `${history.winCounts}승 ${history.loseCounts}패`;
-  };
-
-  const [showReadyGameModal, setShowReadyGameModal] = useState(false);
-
-  const handleButtonClick = () => {
-    setShowReadyGameModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowReadyGameModal(false);
   };
 
   // 유저 정보
@@ -129,11 +121,21 @@ export default function FriendProfile() {
     fetchData();
   }, []);
 
+  // 초대 수락 대기 모달
+  const [isOpenAcceptWaitingModal, setIsOpenAcceptWaitingModal] =
+    useState<boolean>(false);
+  const onCloseWaitingModal = () => {
+    setIsOpenAcceptWaitingModal(false);
+  };
+
   return (
     <Layout
       Header={<Header title="Friend's Game" />}
       Footer={<Footer tab="" />}
     >
+      {isOpenAcceptWaitingModal && (
+        <AcceptWaiting handleClickModal={onCloseWaitingModal} />
+      )}
       <MyPageDiv>
         {/* 유저 프로필 */}
         <UserProfileContainer>
@@ -187,10 +189,17 @@ export default function FriendProfile() {
           <GameButton onClick={() => navigate('/game/record')}>
             전적 보기
           </GameButton>
-          <GameButton onClick={handleButtonClick}>게임하기</GameButton>
+          <GameButton
+            onClick={() => {
+              console.log('유저 게임 초대');
+              setIsOpenAcceptWaitingModal(true);
+              socketRef?.emit('inviteGame', { userId: buddyId });
+            }}
+          >
+            게임하기
+          </GameButton>
         </GameContainer>
       </MyPageDiv>
-      {showReadyGameModal && <ReadyGame onClick={handleCloseModal} />}
     </Layout>
   );
 }
