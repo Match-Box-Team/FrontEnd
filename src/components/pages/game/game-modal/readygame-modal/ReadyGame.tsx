@@ -73,8 +73,12 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
       setSelectedSpeed(speed);
     });
 
-    socketRef?.once('gameStart', (speed: string) => {
-      console.log(`게임 시작 -> 스피드 ${speed}`);
+    // socketRef?.once('gameStart', (speed: string) => {
+    //   console.log(`게임 시작 -> 스피드 ${speed}`);
+    // });
+
+    socketRef?.once('gameStart', () => {
+      navigate('/game/play');
     });
 
     return () => {
@@ -102,13 +106,13 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
     if (!selectedSpeed) {
       alert('선택된 스피드가 없습니다');
     }
-    if (userGameInfo?.role !== 'host') {
-      return;
+    if (userGameInfo?.role === 'host') {
+      socketRef?.emit('gameStart', {
+        guestUserGameId: gameWatch?.userGameId2,
+        speed: selectedSpeed,
+      });
+      navigate('/game/play');
     }
-    socketRef?.emit('gameStart', {
-      guestUserGameId: gameWatch?.userGameId2,
-      speed: selectedSpeed,
-    });
   };
 
   return (
@@ -175,9 +179,7 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
             </GameMapFlow>
           </GameMaps>
           <GameStart>
-            <Link to="/game/play">
-              <StartButton onClick={gameStart}>START</StartButton>
-            </Link>
+            <StartButton onClick={gameStart}>START</StartButton>
           </GameStart>
         </ModalWrapper>
       )}
