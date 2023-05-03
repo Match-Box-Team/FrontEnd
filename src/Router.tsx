@@ -122,7 +122,9 @@ function Router() {
           path="/profile/my/:id"
           element={
             <CheckLogin>
-              <MyProfile />
+              <GameSocketProvider>
+                <MyProfile />
+              </GameSocketProvider>
             </CheckLogin>
           }
         />
