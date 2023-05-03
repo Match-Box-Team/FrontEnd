@@ -44,10 +44,10 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
   const [selectedSpeed, setSelectedSpeed] = useState<string>('4');
 
   useEffect(() => {
-    // if (socketRef) {
-    //   socketRef.emit('ready', { gameControl: 'connection..' });
-    //   console.log('connected~!!');
-    // }
+    if (socketRef) {
+      socketRef.emit('ready', { gameControl: 'connection..' });
+      console.log('connected~!!');
+    }
 
     socketRef?.once('startReadyGame', async (info: UserGameInfo) => {
       setUserGameInfo(info);
@@ -73,8 +73,12 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
       setSelectedSpeed(speed);
     });
 
-    socketRef?.once('gameStart', (speed: string) => {
-      console.log(`게임 시작 -> 스피드 ${speed}`);
+    // socketRef?.once('gameStart', (speed: string) => {
+    //   console.log(`게임 시작 -> 스피드 ${speed}`);
+    // });
+
+    socketRef?.once('gameStart', () => {
+      navigate('/game/play');
     });
 
     return () => {
@@ -102,13 +106,13 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
     if (!selectedSpeed) {
       alert('선택된 스피드가 없습니다');
     }
-    if (userGameInfo?.role !== 'host') {
-      return;
+    if (userGameInfo?.role === 'host') {
+      socketRef?.emit('gameStart', {
+        guestUserGameId: gameWatch?.userGameId2,
+        speed: selectedSpeed,
+      });
+      navigate('/game/play');
     }
-    socketRef?.emit('gameStart', {
-      guestUserGameId: gameWatch?.userGameId2,
-      speed: selectedSpeed,
-    });
   };
 
   return (
@@ -175,9 +179,7 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
             </GameMapFlow>
           </GameMaps>
           <GameStart>
-            {/* <Link to="/game/play"> */}
             <StartButton onClick={gameStart}>START</StartButton>
-            {/* </Link> */}
           </GameStart>
         </ModalWrapper>
       )}
