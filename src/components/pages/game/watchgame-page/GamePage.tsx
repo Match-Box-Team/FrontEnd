@@ -135,6 +135,7 @@ export default function GamePage({ title }: Prop) {
               return (
                 <GameHistory
                   key={data.matchId}
+                  matchId={data.matchId}
                   user1={data.user1}
                   user2={data.user2}
                   user1Image={data.user1Image}

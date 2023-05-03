@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import defaultTheme from '../../../../../styles/theme';
 
 const Base = styled.li`
@@ -59,6 +60,7 @@ const Result = styled.span<{ Win: string }>`
 `;
 
 interface Prop {
+  matchId: string;
   user1: string;
   user1Image: string;
   user2: string;
@@ -67,14 +69,21 @@ interface Prop {
 }
 
 export default function GameHistory({
+  matchId,
   user1,
   user1Image,
   user2,
   user2Image,
   currentViewer,
 }: Prop) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/game/play/${matchId}`);
+  };
+
   return (
-    <Base>
+    <Base onClick={() => handleClick()}>
       <ProfileWrapper>
         <ProfileImage src={user1Image} alt={`${user1}의 이미지`} />
         <NickName>{user1}</NickName>
