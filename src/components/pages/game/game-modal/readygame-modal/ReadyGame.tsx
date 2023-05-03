@@ -44,10 +44,10 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
   const [selectedSpeed, setSelectedSpeed] = useState<string>('4');
 
   useEffect(() => {
-    // if (socketRef) {
-    //   socketRef.emit('ready', { gameControl: 'connection..' });
-    //   console.log('connected~!!');
-    // }
+    if (socketRef) {
+      socketRef.emit('ready', { gameControl: 'connection..' });
+      console.log('connected~!!');
+    }
 
     socketRef?.once('startReadyGame', async (info: UserGameInfo) => {
       setUserGameInfo(info);
@@ -105,6 +105,7 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
     if (userGameInfo?.role !== 'host') {
       return;
     }
+
     socketRef?.emit('gameStart', {
       guestUserGameId: gameWatch?.userGameId2,
       speed: selectedSpeed,
@@ -177,6 +178,7 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
           <GameStart>
             {/* <Link to="/game/play"> */}
             <StartButton onClick={gameStart}>START</StartButton>
+            {/* <StartButton>START</StartButton> */}
             {/* </Link> */}
           </GameStart>
         </ModalWrapper>
