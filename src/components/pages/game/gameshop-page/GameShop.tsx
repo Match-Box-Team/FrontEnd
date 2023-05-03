@@ -78,7 +78,7 @@ export default function GameShop() {
                     <BuyButton
                       isBuy={game.isBuy}
                       onClick={() => {
-                        if (!game.isBuy) {
+                        if (game.isPlayable) {
                           handleClickModal();
                         }
                       }}
@@ -90,7 +90,9 @@ export default function GameShop() {
               );
             })}
           </SelectGameGridDiv>
-          <GameWatchingButton onClick={() => navigate('/game/watch')}>
+          <GameWatchingButton
+            onClick={() => navigate(`/game/watch/${selectedGameId}`)}
+          >
             관전하기
           </GameWatchingButton>
         </SelectGameDiv>

@@ -27,10 +27,14 @@ export default function AcceptGameModal({
     });
 
     // 게임 준비방으로 이동
-    socketRef?.current?.once('goGameReadyPage', () => {
-      console.log('방장 아닌 유저가 게임 페이지로 이동');
-      handleClickModal();
-    });
+    socketRef?.current?.once(
+      'goGameReadyPage',
+      (gameWatchId: { gameWatchId: string }) => {
+        console.log('방장 아닌 유저가 게임 페이지로 이동');
+        navigate(`/game/${gameWatchId.gameWatchId}/ready`);
+        handleClickModal();
+      },
+    );
 
     return () => {
       socketRef?.current?.off('inviteCancel');
@@ -41,8 +45,6 @@ export default function AcceptGameModal({
   const handleAccept = () => {
     console.log('게임 초대 수락');
     socketRef?.current?.emit('inviteResolve', { userId: enemyInfo.userId });
-    // navigate('/profile/friend/:id');
-    handleClickModal();
   };
 
   const handleReject = () => {

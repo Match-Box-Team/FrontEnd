@@ -11,6 +11,8 @@ import PingPongIcon from '../../../../assets/icon/pingpong.svg';
 import SelectArrow from '../../../../assets/icon/SelectArrow.svg';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import ReadyGame from '../../game/game-modal/readygame-modal/ReadyGame';
+import Matching from '../../game/game-modal/matching-modal/Matching';
+import { useSocket } from '../../game/playgame-page/game-socket/GameSocketContext';
 
 interface User {
   userId: string;
@@ -68,18 +70,19 @@ export default function MyProfile() {
   const [selectedOpen, setSelectedOpen] = useState<boolean>(false);
 
   // 선택된 게임 -> 초기 게임 핑퐁핑퐁(0)
-  const [selectedGame, setSelectedGame] = useState<string>('핑퐁핑퐁');
+  const [selectedGameId, setSelectedGameId] = useState<string>('');
   const handleGameChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedGame(event.target.value);
+    setSelectedGameId(event.target.value);
   };
 
   const selectRef = useRef<HTMLSelectElement>(null);
+  const socketRef = useSocket();
 
-  const getUserGameHistoryText = (gameName: string) => {
-    const selectedUserGame = userGames?.filter(
-      userGame => userGame.game.name === gameName,
+  const getUserGameHistoryText = (gameId: string) => {
+    const selectedUserGameId = userGames?.filter(
+      userGame => userGame.game.gameId === gameId,
     );
-    const history = selectedUserGame?.at(0)?.gameHistory;
+    const history = selectedUserGameId?.at(0)?.gameHistory;
     if (!history) {
       return '0승 0패';
     }
@@ -87,13 +90,8 @@ export default function MyProfile() {
   };
 
   const [showReadyGameModal, setShowReadyGameModal] = useState(false);
-
-  const handleButtonClick = () => {
-    setShowReadyGameModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowReadyGameModal(false);
+  const handleClickReadyGameModal = () => {
+    setShowReadyGameModal(!showReadyGameModal);
   };
 
   useEffect(() => {
@@ -113,6 +111,9 @@ export default function MyProfile() {
         isOpenEditProfileModal={isOpenEditProfileModal}
         handleClickModal={handleClickModal}
       />
+      {showReadyGameModal && (
+        <Matching handleClickModal={handleClickReadyGameModal} />
+      )}
       <MyPageDiv>
         {/* 유저 프로필 */}
         <UserProfileContainer>
@@ -160,10 +161,14 @@ export default function MyProfile() {
                   }}
                   onChange={handleGameChange}
                 >
-                  <option value="핑퐁핑퐁">핑퐁핑퐁</option>
-                  <option value="테트리스">테트리스</option>
-                  <option value="퍼즐팡팡">퍼즐팡팡</option>
-                  <option value="좀비좀비">좀비좀비</option>
+                  {userGames?.map(userGame => (
+                    <option
+                      key={userGame.game.gameId}
+                      value={userGame.game.gameId}
+                    >
+                      {userGame.game.name}
+                    </option>
+                  ))}
                 </Select>
                 <ArrowIcon
                   onClick={() => {
@@ -179,14 +184,24 @@ export default function MyProfile() {
           </SelectGameWrap>
         </SelectGameContainer>
         <GameContainer>
-          <HistoryText>{getUserGameHistoryText(selectedGame)}</HistoryText>
+          <HistoryText>{getUserGameHistoryText(selectedGameId)}</HistoryText>
           <GameButton onClick={() => navigate('/game/record')}>
             전적 보기
           </GameButton>
-          <GameButton onClick={handleButtonClick}>게임하기</GameButton>
+          <GameButton
+            onClick={() => {
+              if (!selectedGameId) {
+                return;
+              }
+              alert('게임을 선택해주세요');
+              socketRef?.emit('randomMatch', { gameId: selectedGameId });
+              handleClickReadyGameModal();
+            }}
+          >
+            게임하기
+          </GameButton>
         </GameContainer>
       </MyPageDiv>
-      {showReadyGameModal && <ReadyGame onClick={handleCloseModal} />}
     </Layout>
   );
 }

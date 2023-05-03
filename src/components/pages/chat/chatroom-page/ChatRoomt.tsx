@@ -9,14 +9,8 @@ import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
-import { IChat, IChatLog, IEnterReply, IError, ISendedMessage } from '.';
-// import { getChatRoomLog } from '../../../../api/Channel';
-import Footer from '../../../commons/footer/Footer';
-import {
-  getDefaultImageUrl,
-  getImageUrl,
-  toBase64,
-} from '../../../../api/ProfileImge';
+import { IChat, IError, ISendedMessage } from '.';
+import { getDefaultImageUrl, getImageUrl } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
 import { useGetChatRoomLog } from '../../../../api/Channel';
 import RoomSide from '../chat-modal/roomside-modal/RoomSide';
