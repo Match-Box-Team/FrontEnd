@@ -13,3 +13,14 @@ export const useGetChatRoomLog = (channelId: string) => {
     return response.data;
   });
 };
+
+export const useGetIsAdmin = (channelId: string) => {
+  const axiosInstance = useAxiosWithToken();
+
+  return useQuery(['getIsAdmin', channelId], async () => {
+    const response: AxiosResponse<boolean> = await axiosInstance.get(
+      `/channels/${channelId}/isAdmin`,
+    );
+    return response.data;
+  });
+};

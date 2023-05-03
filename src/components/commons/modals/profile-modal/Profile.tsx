@@ -8,7 +8,7 @@ export interface Member {
   intraId: string;
   nickname: string;
   image: string;
-  muteKick: MuteKickProps;
+  isMute: boolean;
 }
 
 // 채팅방 멤버 state 초기값
@@ -17,10 +17,7 @@ export const initialMember: Member = {
   intraId: '',
   nickname: '',
   image: '',
-  muteKick: {
-    isAdmin: false,
-    isMute: false,
-  },
+  isMute: false,
 };
 
 interface BanProps {
@@ -28,17 +25,12 @@ interface BanProps {
   isBan: boolean;
 }
 
-interface MuteKickProps {
-  isAdmin: boolean;
-  isMute: boolean;
-}
-
 export interface UserProps {
   userId: string;
   intraId: string;
   nickname: string;
   image: string;
-  muteKick?: MuteKickProps;
+  isMute?: boolean;
   ban?: BanProps;
 }
 
@@ -181,7 +173,7 @@ export const MainWrap = styled.main`
 export const FooterWrap = styled.footer`
   grid-area: footer;
   width: 100%;
-  height: 10%;
+  /* height: 10%; */
 
   display: flex;
   justify-content: center;
