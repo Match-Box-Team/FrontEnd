@@ -10,7 +10,7 @@ import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
 import { IChat, IError, ISendedMessage } from '.';
-import { getImageUrl, toBase64 } from '../../../../api/ProfileImge';
+import { getDefaultImageUrl, getImageUrl } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
 import { useGetChatRoomLog } from '../../../../api/Channel';
 import RoomSide from '../chat-modal/roomside-modal/RoomSide';
@@ -62,7 +62,7 @@ export default function ChatRoom() {
 
   const handleError = () => {
     setIsErrorGet(false);
-    navigate('/chat/channel');
+    navigate('/chat/mymsg');
   };
 
   useEffect(() => {
@@ -97,10 +97,17 @@ export default function ChatRoom() {
       const updateMessages = async () => {
         const updatedMessages = await Promise.all(
           chatListData.chat.map(async message => {
-            const imageUrl = await getImageUrl(
-              message.userChannel.user.userId,
-              userInfo.token,
-            );
+            let imageUrl;
+            if (message.userChannel.user.userId === '') {
+              // 디폴트 사진으로 바꿈.
+              imageUrl = await getDefaultImageUrl(userInfo.token);
+            } else {
+              imageUrl = await getImageUrl(
+                message.userChannel.user.userId,
+                userInfo.token,
+              );
+            }
+
             return {
               ...message,
               userChannel: {
@@ -138,19 +145,13 @@ export default function ChatRoom() {
       intraId: message.userChannel.user.intraId,
       nickname: message.userChannel.user.nickname,
       image: '',
-      muteKick: {
-        isAdmin: message.userChannel.isAdmin,
-        isMute: message.userChannel.isMute,
-      },
+      isMute: message.userChannel.isMute,
     };
-    const imageUrl = await axios.get(
-      `http://localhost:3000/account/image?userId=${member.userId}`,
-      {
-        responseType: 'blob',
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      },
-    );
-    member.image = await toBase64(imageUrl.data);
+    if (message.userChannel.user.userId !== '') {
+      member.image = await getImageUrl(member.userId, userInfo.token);
+    } else {
+      member.image = await getDefaultImageUrl(userInfo.token);
+    }
     setSelectedUser(member);
     setIsOpenProfileModal(true);
   };
@@ -159,13 +160,13 @@ export default function ChatRoom() {
     <Layout
       Header={
         isErrorGet ? (
-          <Header title={channelName} />
+          <Header title={channelName} backPath="/chat/mymsg" />
         ) : (
           <Header
             title={channelName}
             channelBurger
             handleClickSideModal={handleClickSideModal}
-            backPath="/chat/channel"
+            backPath="/chat/mymsg"
           />
         )
       }

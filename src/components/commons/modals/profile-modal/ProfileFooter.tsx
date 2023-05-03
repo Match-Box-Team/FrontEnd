@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
@@ -14,20 +14,16 @@ import KickIcon from '../../../../assets/icon/kick.svg';
 import MuteIcon from '../../../../assets/icon/mute.svg';
 import UnmuteIcon from '../../../../assets/icon/unmute.svg';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
+import { useGetIsAdmin } from '../../../../api/Channel';
 
 interface BanProps {
   friendId: string;
   isBan: boolean;
 }
 
-interface MuteKickProps {
-  isAdmin: boolean;
-  isMute: boolean;
-}
-
 interface UserProps {
   userId: string;
-  muteKick?: MuteKickProps;
+  isMute?: boolean;
   ban?: BanProps;
 }
 
@@ -51,11 +47,14 @@ export default function ProfileFooter({
   const [channelId, setChannelId] = useRecoilState(channelIdState);
   const userInfo = useRecoilValue(userState);
   // 음소거 유무
-  const [isMute, setIsMute] = useState<boolean | undefined>(
-    user.muteKick?.isMute,
-  );
+  const [isMute, setIsMute] = useState<boolean | undefined>(false);
   // 음소거와 킥 공통 url
   const muteKickUrl = `http://localhost:3000/channels/${channelIdStateValue}/member/${user.userId}`;
+  const { data: isAdmin } = useGetIsAdmin(channelId || '');
+
+  useEffect(() => {
+    setIsMute(user.isMute);
+  });
 
   // 음소거 설정 버튼 클릭
   const handleMuteClicked = async (
@@ -199,42 +198,45 @@ export default function ProfileFooter({
   };
 
   const onlyOne =
-    !(inChat && user.userId !== userInfo.userId && user.muteKick?.isAdmin) &&
-    inChat;
-
+    (inChat && (user.userId === userInfo.userId || !isAdmin)) ||
+    (!inChat && user.userId === userInfo.userId);
   return (
     <FooterWrapper onlyOne={onlyOne}>
-      <ButtonWrap>
-        <Button onClick={handleGameClicked}>
-          <ButtonImage src={GameIcon} />
-        </Button>
-      </ButtonWrap>{' '}
-      {inChat && user.userId !== userInfo.userId && user.muteKick?.isAdmin && (
+      {user.userId !== '' && (
         <>
           <ButtonWrap>
-            <Button onClick={handleMuteClicked}>
-              <ButtonImage src={isMute ? MuteIcon : UnmuteIcon} />
+            <Button onClick={handleGameClicked}>
+              <ButtonImage src={GameIcon} />
             </Button>
-          </ButtonWrap>
-          <ButtonWrap>
-            <Button onClick={handleKickClicked}>
-              <ButtonImage src={KickIcon} />
-            </Button>
-          </ButtonWrap>
-        </>
-      )}
-      {!inChat && (
-        <>
-          <ButtonWrap>
-            <Button onClick={handleDmClicked}>
-              <ButtonImage src={DmIcon} />
-            </Button>
-          </ButtonWrap>
-          <ButtonWrap>
-            <Button onClick={handleBanClicked}>
-              <ButtonImage src={BanIcon} />
-            </Button>
-          </ButtonWrap>
+          </ButtonWrap>{' '}
+          {inChat && user.userId !== userInfo.userId && isAdmin && (
+            <>
+              <ButtonWrap>
+                <Button onClick={handleMuteClicked}>
+                  <ButtonImage src={isMute ? MuteIcon : UnmuteIcon} />
+                </Button>
+              </ButtonWrap>
+              <ButtonWrap>
+                <Button onClick={handleKickClicked}>
+                  <ButtonImage src={KickIcon} />
+                </Button>
+              </ButtonWrap>
+            </>
+          )}
+          {!inChat && user.userId !== userInfo.userId && (
+            <>
+              <ButtonWrap>
+                <Button onClick={handleDmClicked}>
+                  <ButtonImage src={DmIcon} />
+                </Button>
+              </ButtonWrap>
+              <ButtonWrap>
+                <Button onClick={handleBanClicked}>
+                  <ButtonImage src={BanIcon} />
+                </Button>
+              </ButtonWrap>
+            </>
+          )}
         </>
       )}
     </FooterWrapper>
