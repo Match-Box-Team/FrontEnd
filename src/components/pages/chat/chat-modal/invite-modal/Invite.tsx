@@ -3,7 +3,6 @@ import { useRecoilValue } from 'recoil';
 import axios from 'axios';
 import styled from 'styled-components';
 import { AiOutlineSearch } from 'react-icons/ai';
-import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import {
   ChatModalMainText,
   FormSubmitButton,
@@ -16,6 +15,7 @@ import { useInviteChatRoom } from '../../../../../api/InviteChatRoom';
 interface Props {
   isOpenInviteModal: boolean;
   handleClickModal: () => void;
+  channelId: string;
 }
 
 // 유저 검색 response 타입
@@ -32,9 +32,11 @@ const initialSearchUserResponse: SearchUserResponse = {
   image: '',
 };
 
-export default function Invite({ isOpenInviteModal, handleClickModal }: Props) {
-  // 채널 id atom getter
-  const channelId = useRecoilValue(channelIdState);
+export default function Invite({
+  isOpenInviteModal,
+  handleClickModal,
+  channelId,
+}: Props) {
   const userInfo = useRecoilValue(userState);
 
   // 유저 검색 form input 초기화

@@ -25,6 +25,11 @@ interface BanProps {
   isBan: boolean;
 }
 
+interface ChannelProps {
+  channelId?: string;
+  isAdmin?: boolean;
+}
+
 export interface UserProps {
   userId: string;
   intraId: string;
@@ -38,14 +43,14 @@ interface Props {
   handleClickModal: () => void;
   user: UserProps;
   inChat: boolean;
-  isAdmin?: boolean;
+  channelInfo?: ChannelProps;
 }
 
 export default function Profile({
   handleClickModal,
   user,
   inChat,
-  isAdmin,
+  channelInfo,
 }: Props) {
   return (
     user && (
@@ -68,7 +73,10 @@ export default function Profile({
               handleClickModal={handleClickModal}
               user={user}
               inChat={inChat}
-              isAdmin={isAdmin}
+              channelInfo={{
+                channelId: channelInfo?.channelId,
+                isAdmin: channelInfo?.isAdmin,
+              }}
             />
           </FooterWrap>
         </Inner>
