@@ -44,12 +44,12 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
   const [selectedSpeed, setSelectedSpeed] = useState<string>('4');
 
   useEffect(() => {
-    if (socketRef) {
-      socketRef.emit(`ready`, {
-        gameControl: 'connection..',
-      });
-      console.log('connected~!!');
-    }
+    // if (socketRef) {
+    //   socketRef.emit(`ready`, {
+    //     gameControl: 'connection..',
+    //   });
+    //   console.log('connected~!!');
+    // }
 
     socketRef?.once('startReadyGame', async (info: UserGameInfo) => {
       setUserGameInfo(info);
@@ -77,6 +77,10 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
 
     socketRef?.once('gameStart', () => {
       console.log('test : ', gameWatch?.gameWatchId);
+      // socketRef.emit(`ready`, {
+      //   gameControl: 'connection..',
+      //   gameWatchId: gameWatch?.gameWatchId,
+      // });
       navigate(`/game/${gameWatch?.gameWatchId}/play`);
     });
 
@@ -110,7 +114,6 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
         guestUserGameId: gameWatch?.userGameId2,
         speed: selectedSpeed,
       });
-      navigate(`/game/${gameWatch?.gameWatchId}/play`);
     }
   };
 

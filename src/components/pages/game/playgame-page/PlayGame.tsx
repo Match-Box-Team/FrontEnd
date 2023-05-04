@@ -27,34 +27,43 @@ export default function PlayGame() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string>('');
 
+  const { pathname } = window.location;
+  const gameWatchId = pathname.split('/')[2];
+
   useEffect(() => {
-    if (socket) {
-      socket.emit('ready', { gameControl: 'controls..' });
-      console.log('playing~!!');
-    }
-    if (socket) {
-      socket.on('scores', (data: any) => {
-        setScoreA(data.scores.scoreA);
-        setScoreB(data.scores.scoreB);
-      });
-    }
-    if (socket) {
-      socket.on('gameover', (data: any) => {
-        if (data.winner === 'A') {
-          setWinner('A');
-          setModalMessage('승자는 A입니다');
-          setShowModal(true);
-          // navigate('/profile/my/:id', { replace: true });
-        }
-        if (data.winner === 'B') {
-          setWinner('B');
-          setModalMessage('승자는 B입니다');
-          setShowModal(true);
-          // navigate('/profile/my/:id', { replace: true });
-        }
-      });
-    }
-  }, [socket]);
+    // if (socket) {
+    //   socket.emit('ready', {
+    //     gameControl: 'controls..',
+    //     gameWatchId,
+    //   });
+    //   console.log('playing~!!');
+    // }
+    socket?.on('scores', (data: any) => {
+      setScoreA(data.scores.scoreA);
+      setScoreB(data.scores.scoreB);
+    });
+
+    socket?.once('gameover', (data: any) => {
+      if (data.winner === 'A') {
+        setWinner('A');
+        setModalMessage('승자는 A입니다');
+        setShowModal(true);
+        // navigate('/profile/my/:id', { replace: true });
+      }
+      if (data.winner === 'B') {
+        setWinner('B');
+        setModalMessage('승자는 B입니다');
+        setShowModal(true);
+        // navigate('/profile/my/:id', { replace: true });
+      }
+    });
+
+    return () => {
+      socket?.off('gameover');
+      socket?.off('scores');
+    };
+  });
+  // }, [socket]);
 
   const handleClose = () => {
     setShowModal(false);
