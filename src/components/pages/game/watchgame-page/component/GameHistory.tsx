@@ -60,13 +60,15 @@ const Result = styled.span<{ Full: string }>`
 `;
 
 interface Prop {
-  matchId: string;
+  matchId?: string;
   user1: string;
   user1Image: string;
   user2: string;
   user2Image: string;
-  currentViewer: number;
-  selectedGame: string;
+  currentViewer?: number;
+  selectedGame?: string;
+  winnerScore?: number;
+  loserScore?: number;
 }
 
 export default function GameHistory({
@@ -77,11 +79,13 @@ export default function GameHistory({
   user2Image,
   currentViewer,
   selectedGame,
+  winnerScore,
+  loserScore,
 }: Prop) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (selectedGame === '핑퐁핑퐁' && currentViewer < 10) {
+    if (selectedGame === '핑퐁핑퐁' && currentViewer && currentViewer < 10) {
       navigate(`/game/play/${matchId}`);
     }
   };
@@ -94,9 +98,18 @@ export default function GameHistory({
       </ProfileWrapper>
       <ContentWrapper>
         <Versus>VS</Versus>
-        <Result Full={currentViewer >= 10 ? 'true' : 'false'}>
-          {currentViewer}/10
-        </Result>
+        {currentViewer && (
+          <Result
+            Full={currentViewer && currentViewer >= 10 ? 'true' : 'false'}
+          >
+            {currentViewer}/10
+          </Result>
+        )}
+        {winnerScore && (
+          <Result Full="false">
+            {winnerScore}/{loserScore}
+          </Result>
+        )}
       </ContentWrapper>
       <ProfileWrapper>
         <ProfileImage src={user2Image} alt={`${user2}의 이미지`} />

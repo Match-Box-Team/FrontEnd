@@ -5,7 +5,8 @@ import { IGameInfo, IGameWatch } from '../components/pages/game/watchgame-page';
 
 export const useGetGameWatchList = (
   gameId: string | undefined,
-  onError: () => void,
+  onError: (error: AxiosError) => void,
+  isEnabled: boolean,
 ) => {
   const axiosInstance = useAxiosWithToken();
 
@@ -16,8 +17,9 @@ export const useGetGameWatchList = (
       );
       return response.data;
     },
-    onError: () => onError(),
+    onError: error => onError(error),
     retry: 0, // 바로 실패로 처리하려면 시도 횟수를 0으로 설정
+    enabled: isEnabled, // 여기에 enabled 속성을 추가합니다.
   };
 
   return useQuery<IGameWatch, AxiosError>(['gameWatch', gameId], queryOptions);

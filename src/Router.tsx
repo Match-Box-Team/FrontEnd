@@ -64,10 +64,10 @@ function Router() {
           }
         />
         <Route
-          path="/game/record/:userId"
+          path="/game/record/:userId/history"
           element={
             <CheckLogin>
-              <GameRecord />
+              <GamePage title="Game Record" />
             </CheckLogin>
           }
         />
