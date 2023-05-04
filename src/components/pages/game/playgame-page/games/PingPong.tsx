@@ -8,20 +8,31 @@ export default function PingPong() {
   const isHost = useRef<boolean>(false);
   const isWatcher = useRef<boolean>(false);
 
+  const { pathname } = window.location;
+  const gameWatchId = pathname.split('/')[2];
+
   useEffect(() => {
     if (socket) {
-      socket.emit('ready', {
-        ready: 'ready',
+      // socket.emit('ready', {
+      //   ready: 'ready',
+      // });
+      socket.emit(`ready`, {
+        gameControl: 'connection..',
+        gameWatchId,
       });
       console.log('pingpong~!!');
 
       if (socket) {
-        socket.on('ishost', (data: any) => {
+        socket.once('ishost', (data: any) => {
           isHost.current = data.isHost;
           isWatcher.current = data.isWatcher;
         });
       }
     }
+
+    return () => {
+      socket?.off('ishost');
+    };
   }, []);
 
   const ball = {
@@ -161,7 +172,7 @@ export default function PingPong() {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
       if (socket) {
-        socket.on('mapSize', (data: any) => {
+        socket.once('mapSize', (data: any) => {
           canvas.width = data.width;
           canvas.height = data.height;
           ball.x = canvas.width / 2;
@@ -188,6 +199,7 @@ export default function PingPong() {
     return () => {
       document.removeEventListener('keydown', keyDownHandler);
       document.removeEventListener('keyup', keyUpHandler);
+      socket?.off('mapSize');
     };
   }, []);
 
