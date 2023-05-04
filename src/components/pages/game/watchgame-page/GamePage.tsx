@@ -132,12 +132,10 @@ export default function GamePage({ title }: Prop) {
   };
 
   /* UseEffect */
-  // 게임와치 페이지인지 게임 전적 페이지 상태인지 구분(페이지별 리액트 쿼리 선택적으로 호출)
-
+  // 에러모달 설정과 새로고침 시 URL의 선택한 Select Game 유지
   useEffect(() => {
     setIsErrorGet(false);
 
-    // 새로고침 시 URL의 선택한 Select Game 유지
     if (title === 'Game Watch' && gameId) {
       const getKeyByValue = (map: Map<string, string>, value: string) => {
         const entryFound = Array.from(map.entries()).find(
