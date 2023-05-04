@@ -5,7 +5,6 @@ import Channel from './components/pages/chat/channel-page/Channel';
 import MyMsg from './components/pages/chat/mymsg-page/MyMsg';
 import FriendList from './components/pages/friend/friendlist-page/FriendList';
 import BannedList from './components/pages/friend/bannedlist-page/BannedList';
-import GameRecord from './components/pages/game/gamerecord-page/GameRecord';
 import GameShop from './components/pages/game/gameshop-page/GameShop';
 import PlayGame from './components/pages/game/playgame-page/PlayGame';
 import FriendProfile from './components/pages/profiles/friend-page/FriendProfile';
