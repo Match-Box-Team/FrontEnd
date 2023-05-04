@@ -5,6 +5,8 @@ import { useSocket } from '../game-socket/GameSocketContext';
 export default function PingPong() {
   const socket = useSocket();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isHost = useRef<boolean>(false);
+  const isWatcher = useRef<boolean>(false);
 
   useEffect(() => {
     if (socket) {
@@ -12,6 +14,13 @@ export default function PingPong() {
         ready: 'ready',
       });
       console.log('pingpong~!!');
+
+      if (socket) {
+        socket.on('ishost', (data: any) => {
+          isHost.current = data.isHost;
+          isWatcher.current = data.isWatcher;
+        });
+      }
     }
   }, []);
 
@@ -71,7 +80,6 @@ export default function PingPong() {
     }
     if (socket) {
       socket.on('controlA', (data: any) => {
-        // Update paddleA.x with the value received from the server
         paddleA.x = data.position;
       });
     }
@@ -84,8 +92,8 @@ export default function PingPong() {
       if (ctx) {
         ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         drawBall(ctx);
-        drawPaddle(ctx, paddleA);
         drawPaddle(ctx, paddleB);
+        drawPaddle(ctx, paddleA);
       }
 
       update();
@@ -111,20 +119,20 @@ export default function PingPong() {
 
   function keyDownHandler(e: KeyboardEvent) {
     const key = e.key.toLowerCase(); // Convert the key value to lowercase
+    let controller = '';
     if (socket && !keyState[key]) {
       keyState[key] = true; // 키가 눌린 상태로 설정합니다.
       if (key === 'arrowleft' || key === 'arrowright') {
+        if (isHost.current === true && isWatcher.current === false) {
+          controller = 'gamecontrolB';
+        }
+        if (isHost.current === false && isWatcher.current === false) {
+          controller = 'gamecontrolA';
+        }
         clearInterval(intervalIds[key]);
         intervalIds[key] = setInterval(() => {
-          socket.emit('gamecontrolB', {
+          socket.emit(controller, {
             direction: key === 'arrowleft' ? -1 : 1,
-          });
-        }, 5);
-      } else if (key === 'a' || key === 'd') {
-        clearInterval(intervalIds[key]);
-        intervalIds[key] = setInterval(() => {
-          socket.emit('gamecontrolA', {
-            direction: key === 'a' ? -1 : 1,
           });
         }, 5);
       }
@@ -133,13 +141,18 @@ export default function PingPong() {
 
   function keyUpHandler(e: KeyboardEvent) {
     const key = e.key.toLowerCase(); // Convert the key value to lowercase
+    let controller = '';
     if (socket && keyState[key]) {
       keyState[key] = false; // 키가 떼진 상태로 설정합니다.
       clearInterval(intervalIds[key]);
       if (key === 'arrowleft' || key === 'arrowright') {
-        socket.emit('gamecontrolB', { direction: 0 });
-      } else if (key === 'a' || key === 'd') {
-        socket.emit('gamecontrolA', { direction: 0 });
+        if (isHost.current === true && isWatcher.current === false) {
+          controller = 'gamecontrolB';
+        }
+        if (isHost.current === false && isWatcher.current === false) {
+          controller = 'gamecontrolA';
+        }
+        socket.emit(controller, { direction: 0 });
       }
     }
   }

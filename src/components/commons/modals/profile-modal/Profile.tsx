@@ -8,7 +8,7 @@ export interface Member {
   intraId: string;
   nickname: string;
   image: string;
-  muteKick: MuteKickProps;
+  isMute: boolean;
 }
 
 // 채팅방 멤버 state 초기값
@@ -17,10 +17,7 @@ export const initialMember: Member = {
   intraId: '',
   nickname: '',
   image: '',
-  muteKick: {
-    isAdmin: false,
-    isMute: false,
-  },
+  isMute: false,
 };
 
 interface BanProps {
@@ -28,9 +25,9 @@ interface BanProps {
   isBan: boolean;
 }
 
-interface MuteKickProps {
-  isAdmin: boolean;
-  isMute: boolean;
+interface ChannelProps {
+  channelId?: string;
+  isAdmin?: boolean;
 }
 
 export interface UserProps {
@@ -38,7 +35,7 @@ export interface UserProps {
   intraId: string;
   nickname: string;
   image: string;
-  muteKick?: MuteKickProps;
+  isMute?: boolean;
   ban?: BanProps;
 }
 
@@ -46,9 +43,15 @@ interface Props {
   handleClickModal: () => void;
   user: UserProps;
   inChat: boolean;
+  channelInfo?: ChannelProps;
 }
 
-export default function Profile({ handleClickModal, user, inChat }: Props) {
+export default function Profile({
+  handleClickModal,
+  user,
+  inChat,
+  channelInfo,
+}: Props) {
   return (
     user && (
       <Container>
@@ -70,6 +73,10 @@ export default function Profile({ handleClickModal, user, inChat }: Props) {
               handleClickModal={handleClickModal}
               user={user}
               inChat={inChat}
+              channelInfo={{
+                channelId: channelInfo?.channelId,
+                isAdmin: channelInfo?.isAdmin,
+              }}
             />
           </FooterWrap>
         </Inner>
@@ -181,7 +188,7 @@ export const MainWrap = styled.main`
 export const FooterWrap = styled.footer`
   grid-area: footer;
   width: 100%;
-  height: 10%;
+  /* height: 10%; */
 
   display: flex;
   justify-content: center;

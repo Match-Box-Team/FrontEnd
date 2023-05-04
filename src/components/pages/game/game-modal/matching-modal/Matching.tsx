@@ -13,12 +13,22 @@ export default function Matching({ handleClickModal }: Props) {
   const socketRef = useSocket();
 
   useEffect(() => {
-    socketRef?.once('matchSuccess', (gameWatchId: { gameWatchId: string }) => {
-      console.log('매칭 성공');
+    socketRef?.once(
+      'randomMatchSuccess',
+      (gameWatchId: { gameWatchId: string }) => {
+        console.log('매칭 성공:', gameWatchId.gameWatchId);
+        navigate(`/game/${gameWatchId.gameWatchId}/ready`);
+        handleClickModal();
+      },
+    );
+
+    socketRef?.once('randomMatchError', (message: string) => {
+      alert(message);
     });
 
     return () => {
-      socketRef?.off('inviteReject');
+      socketRef?.off('randomMatchSuccess');
+      socketRef?.off('randomMatchError');
     };
   });
 

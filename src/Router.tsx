@@ -91,7 +91,7 @@ function Router() {
         />
         <Route
           // path="/game/:gameWatchId/play"
-          path="/game/play"
+          path="/game/:gameWatchId/play"
           element={
             <CheckLogin>
               <GameSocketProvider>

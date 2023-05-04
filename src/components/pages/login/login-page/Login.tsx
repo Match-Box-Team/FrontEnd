@@ -20,7 +20,6 @@ export default function Login() {
     await axios
       .get('http://localhost:3000/login')
       .then(function (response) {
-        console.log(response.data.url);
         window.location.replace(response.data.url);
       })
       .catch(function (error) {
@@ -63,6 +62,8 @@ export default function Login() {
     <Layout>
       <Fake1Button onClick={() => fakeLogin(1)}>가짜 유저1 로그인</Fake1Button>
       <Fake2Button onClick={() => fakeLogin(2)}>가짜 유저2 로그인</Fake2Button>
+      <Fake3Button onClick={() => fakeLogin(3)}>가짜 유저3 로그인</Fake3Button>
+      <Fake4Button onClick={() => fakeLogin(4)}>가짜 유저4 로그인</Fake4Button>
       <Container>
         <LogoImage src={LogoIcon} alt={LogoIcon} />
         <LoginImage src={LoginIcon} alt={LoginIcon} onClick={handleLogin} />
@@ -105,5 +106,19 @@ const Fake1Button = styled.button`
 const Fake2Button = styled.button`
   position: absolute;
   left: 60%;
+  font-size: 20px;
+`;
+
+const Fake3Button = styled.button`
+  position: absolute;
+  left: 40%;
+  top: 10%;
+  font-size: 20px;
+`;
+
+const Fake4Button = styled.button`
+  position: absolute;
+  left: 60%;
+  top: 10%;
   font-size: 20px;
 `;

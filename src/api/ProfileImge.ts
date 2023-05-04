@@ -29,3 +29,15 @@ export const getImageUrl = async (
   const imageUrl: string = await toBase64(response.data);
   return imageUrl;
 };
+
+export const getDefaultImageUrl = async (token: string): Promise<string> => {
+  const response: AxiosResponse<Blob> = await axios.get(
+    `http://localhost:3000/account/default`,
+    {
+      responseType: 'blob',
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  const imageUrl: string = await toBase64(response.data);
+  return imageUrl;
+};
