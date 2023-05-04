@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import axios from 'axios';
 import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
@@ -8,6 +8,7 @@ import Footer from '../../../commons/footer/Footer';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import BanRestoreIcon from '../../../../assets/icon/ban-restore.svg';
 import { getImageUrl } from '../../../../api/ProfileImge';
+import { footerState } from '../../../../recoil/locals/footer/atoms/footerAtom';
 
 interface IBannedBuddy {
   nickname: string;
@@ -22,6 +23,8 @@ interface IBannedFriends {
 }
 
 export default function BannedList() {
+  const setFooterState = useSetRecoilState(footerState);
+  const footer = useRecoilValue(footerState);
   const [bannedFriends, setBannedFriends] = useState<IBannedFriends[]>([]);
   const [restoreClick, setRestoreClicked] = useState<boolean>(false);
   const userInfo = useRecoilValue(userState);
@@ -55,6 +58,11 @@ export default function BannedList() {
   };
 
   useEffect(() => {
+    const setFooter = {
+      channels: footer.channels,
+      friends: 'ban',
+    };
+    setFooterState(setFooter);
     const fetchData = async () => {
       const config = {
         headers: { Authorization: `Bearer ${userInfo.token}` },
@@ -85,7 +93,7 @@ export default function BannedList() {
     };
 
     fetchData();
-  });
+  }, []);
 
   return (
     <Layout

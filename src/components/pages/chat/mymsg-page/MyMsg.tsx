@@ -1,16 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
 import MyMsgList from './sub-components/MyMsgList';
 import CreateRoomIcon from '../../../../assets/icon/create-room-icon.svg';
 import CreateRoom from '../chat-modal/createroom-modal/Createroom';
+import { footerState } from '../../../../recoil/locals/footer/atoms/footerAtom';
 
 export default function MyMsg() {
+  const setFooterState = useSetRecoilState(footerState);
+  const footer = useRecoilValue(footerState);
   const [isOpenCreateRoomModal, setIsOpenCreateRoomModal] =
     useState<boolean>(false);
+
+  useEffect(() => {
+    const setFooter = {
+      channels: 'my',
+      friends: footer.friends,
+    };
+    setFooterState(setFooter);
+  }, []);
 
   const handleClickModal = () => {
     setIsOpenCreateRoomModal(!isOpenCreateRoomModal);
