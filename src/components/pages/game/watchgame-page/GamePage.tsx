@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { AxiosError } from 'axios';
 import GameSelect from './component/GameSelect';
 import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
 import Footer from '../../../commons/footer/Footer';
 import GameHistory from './component/GameHistory';
 import { useGetGameList, useGetGameWatchList } from '../../../../api/Game';
-import { IGameHistory, IGameInfo, IMatch } from '.';
+import {
+  ICurrentGameHistory,
+  IGameHistroy,
+  IGameInfo,
+  IMatch,
+  IOldGameHistory,
+} from '.';
 import { getImageUrl } from '../../../../api/ProfileImge';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
+import { useGetGameHistory } from '../../../../api/Friends';
+import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
+import ErrorPopup from '../../../commons/error/ErrorPopup';
 
 const Container = styled.div`
   display: flex;
@@ -39,46 +49,116 @@ interface Prop {
 }
 
 export default function GamePage({ title }: Prop) {
+  /* 공용 상태 */
+  // 게임 와치 페이지와 게임 전적 페이지 구별하는 용도
+  const isGameWatchPage = title === 'Game Watch';
+  const { gameId, userId } = useParams<{
+    gameId: string;
+    userId: string;
+  }>();
   const userInfo = useRecoilValue(userState);
-  const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   const [gameName, setGameName] = useState<string>('');
   const [selectedGame, setSelectedGame] = useState<string>(gameName);
-  const [gameHistoryData, setGameHistoryData] = useState<IGameHistory[]>();
+  const handleError = (error: AxiosError) => {
+    if (error.response?.status === 409) {
+      // NotFound 에러에 대한 처리 (모달 띄우기)
+      setIsErrorGet(true);
+    } else {
+      // navigate('/404');
+    }
+  };
   const [gameIdMapping, setGameIdMapping] = useState<Map<string, string>>(
     new Map(),
   );
+  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
   const { data: gameInfos } = useGetGameList();
-  const handleError = () => {
-    navigate('/404');
+  const getBackPath = () => {
+    if (isGameWatchPage) {
+      return '/game/shop';
+    }
+    if (userInfo.userId === userId) {
+      return '/profile/my/:id';
+    }
+    return `/profile/friend/${userId}`;
   };
+  const backPath = getBackPath();
+
+  /* 게임 와치 페이지 상태 */
+  const [gameCurrentHistoryData, setGameCurrentHistoryData] =
+    useState<ICurrentGameHistory[]>();
   const {
     data: gameWatchData,
     isLoading,
     isError,
-  } = useGetGameWatchList(gameId, handleError);
+  } = useGetGameWatchList(gameId, handleError, isGameWatchPage);
 
-  useEffect(() => {
-    if (gameInfos) {
-      const createGameIdMapping = async () => {
-        const newGameIdMapping = new Map();
-
-        gameInfos.forEach((game: IGameInfo) => {
-          newGameIdMapping.set(game.name, game.gameId);
-        });
-
-        setGameIdMapping(newGameIdMapping);
-      };
-
-      createGameIdMapping();
+  // 다른 게임 페이지 상태로 변경: Select 박스에 전달하여 다른 value 선택 시
+  const handleGameWatchChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    setSelectedGame(event.target.value);
+    const newGameId = gameIdMapping.get(event.target.value);
+    if (newGameId) {
+      // gameId가 변경되면 해당 gameId로 페이지를 이동합니다.
+      navigate(`/game/watch/${newGameId}`);
     }
-  }, [gameInfos]);
+  };
 
+  /* 게임 전적 페이지 상태 */
+  const [gameOldHistoryData, setGameOldHistoryData] =
+    useState<IOldGameHistory[]>();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const gameNameByQurey = queryParams.get('game');
+  const { data: gameHistory } = useGetGameHistory(
+    userId,
+    gameNameByQurey,
+    handleError,
+    !isGameWatchPage,
+  );
+
+  // 다른 게임 페이지 상태로 변경: Select 박스에 전달하여 다른 value 선택 시
+  const handleGameHistoryChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    setSelectedGame(event.target.value);
+    const newGameId = gameIdMapping.get(event.target.value);
+
+    if (newGameId) {
+      // gameId가 변경되면 해당 gameId로 페이지를 이동합니다.
+      navigate(`/game/record/${userId}/history?game=${event.target.value}`);
+    }
+  };
+
+  /* UseEffect */
+  // 에러모달 설정과 새로고침 시 URL의 선택한 Select Game 유지
   useEffect(() => {
-    if (gameWatchData) {
-      setGameName(gameWatchData.gameName);
+    setIsErrorGet(false);
+
+    if (title === 'Game Watch' && gameId) {
+      const getKeyByValue = (map: Map<string, string>, value: string) => {
+        const entryFound = Array.from(map.entries()).find(
+          ([key, val]) => val === value,
+        );
+        return entryFound ? entryFound[0] : null;
+      };
+      const keyFound = getKeyByValue(gameIdMapping, gameId);
+
+      if (keyFound) {
+        setSelectedGame(keyFound);
+      }
+    } else if (gameNameByQurey) {
+      setSelectedGame(gameNameByQurey);
+    }
+  }, [selectedGame]);
+
+  // 리액트 쿼리에서 가져온 데이터들을 상태로 업데이트
+  useEffect(() => {
+    if (gameId && gameWatchData) {
+      setGameName(gameWatchData.name);
       const updateGameHistoryData = async () => {
-        const newGameHistory: IGameHistory[] = await Promise.all(
+        const newGameHistory: ICurrentGameHistory[] = await Promise.all(
           gameWatchData.matches.map(async (data: IMatch) => {
             const imageUrlOfUser1 = await getImageUrl(
               data.user1.userId,
@@ -98,26 +178,59 @@ export default function GamePage({ title }: Prop) {
             };
           }),
         );
-        setGameHistoryData(newGameHistory);
+        setGameCurrentHistoryData(newGameHistory);
+      };
+      updateGameHistoryData();
+    } else if (gameHistory) {
+      setGameName(gameHistory.gameName);
+      const updateGameHistoryData = async () => {
+        const newGameHistory: IOldGameHistory[] = await Promise.all(
+          gameHistory.gameHistory.map(async (data: IGameHistroy) => {
+            const imageUrlOfWinner = await getImageUrl(
+              data.winner.userId,
+              userInfo.token,
+            );
+            const imageUrlOfLoser = await getImageUrl(
+              data.loser.userId,
+              userInfo.token,
+            );
+            return {
+              winner: data.winner.nickname,
+              winnerImage: imageUrlOfWinner,
+              winnerScore: data.winner.score,
+              loser: data.loser.nickname,
+              loserImage: imageUrlOfLoser,
+              loserScore: data.loser.score,
+              gameHistoyId: data.id,
+            };
+          }),
+        );
+        setGameOldHistoryData(newGameHistory);
       };
       updateGameHistoryData();
     }
-  }, [gameWatchData]);
+  }, [gameWatchData, gameHistory]);
 
-  const handleGameChange = async (
-    event: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    setSelectedGame(event.target.value);
-    const newGameId = gameIdMapping.get(event.target.value);
-    if (newGameId) {
-      // gameId가 변경되면 해당 gameId로 페이지를 이동합니다.
-      navigate(`/game/watch/${newGameId}`);
+  // 게임이름과 게임ID를 맵핑하기 위해서 리액트 쿼리로 상태 업데이트하는 로직
+  useEffect(() => {
+    if (gameInfos) {
+      const createGameIdMapping = async () => {
+        const newGameIdMapping = new Map();
+
+        gameInfos.forEach((game: IGameInfo) => {
+          newGameIdMapping.set(game.name, game.gameId);
+        });
+
+        setGameIdMapping(newGameIdMapping);
+      };
+
+      createGameIdMapping();
     }
-  };
+  }, [gameInfos]);
 
   return (
     <Layout
-      Header={<Header title={title} friendToggle toggleMove />}
+      Header={<Header title={title} backPath={backPath} />}
       Footer={<Footer tab="Game" />}
     >
       <Container>
@@ -126,25 +239,46 @@ export default function GamePage({ title }: Prop) {
             gameName={gameName}
             selectedGame={selectedGame}
             setSelectedGame={setSelectedGame}
-            handleGameChange={handleGameChange}
+            handleGameChange={
+              isGameWatchPage ? handleGameWatchChange : handleGameHistoryChange
+            }
           />
         </GameSelectWrapper>
-        <GameHistorytWrapper>
-          {gameHistoryData &&
-            gameHistoryData?.map((data: IGameHistory) => {
-              return (
-                <GameHistory
-                  key={data.matchId}
-                  matchId={data.matchId}
-                  user1={data.user1}
-                  user2={data.user2}
-                  user1Image={data.user1Image}
-                  user2Image={data.user2Image}
-                  currentViewer={data.currentViewer}
-                />
-              );
-            })}
-        </GameHistorytWrapper>
+
+        {isErrorGet ? (
+          <ErrorPopup message="[게임 조회 실패] 해당하는 게임을 구매하지 않거나 조회에 실패했습니다 " />
+        ) : (
+          <GameHistorytWrapper>
+            {isGameWatchPage
+              ? gameCurrentHistoryData?.map((data: ICurrentGameHistory) => {
+                  return (
+                    <GameHistory
+                      key={data.matchId}
+                      matchId={data.matchId}
+                      user1={data.user1}
+                      user2={data.user2}
+                      user1Image={data.user1Image}
+                      user2Image={data.user2Image}
+                      currentViewer={data.currentViewer}
+                      selectedGame={selectedGame}
+                    />
+                  );
+                })
+              : gameOldHistoryData?.map((data: IOldGameHistory) => {
+                  return (
+                    <GameHistory
+                      key={data.gameHistoyId}
+                      user1={data.winner}
+                      user2={data.loser}
+                      user1Image={data.winnerImage}
+                      user2Image={data.loserImage}
+                      winnerScore={data.winnerScore}
+                      loserScore={data.loserScore}
+                    />
+                  );
+                })}
+          </GameHistorytWrapper>
+        )}
       </Container>
     </Layout>
   );

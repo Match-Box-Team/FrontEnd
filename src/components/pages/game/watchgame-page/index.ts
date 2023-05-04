@@ -4,6 +4,13 @@ interface IUser {
   image: string;
 }
 
+interface IUserFromGame {
+  userId: string;
+  nickname: string;
+  image: string;
+  score: number;
+}
+
 export interface IMatch {
   user1: IUser;
   user2: IUser;
@@ -11,13 +18,25 @@ export interface IMatch {
   gameWatchId: string;
 }
 
-export interface IGameWatch {
+export interface IGameHistroy {
+  id: string;
+  winner: IUserFromGame;
+  loser: IUserFromGame;
+}
+
+export interface IGameHistoryByAPI {
   gameId: string;
   gameName: string;
+  gameHistory: IGameHistroy[];
+}
+
+export interface IGameWatch {
+  gameId: string;
+  name: string;
   matches: IMatch[];
 }
 
-export interface IGameHistory {
+export interface ICurrentGameHistory {
   user1: string;
   user1Image: string;
   user2: string;
@@ -32,4 +51,14 @@ export interface IGameInfo {
   price: number;
   isPlayable: boolean;
   isBuy: boolean;
+}
+
+export interface IOldGameHistory {
+  winner: string;
+  winnerImage: string;
+  winnerScore: number;
+  loser: string;
+  loserImage: string;
+  loserScore: number;
+  gameHistoyId: string;
 }

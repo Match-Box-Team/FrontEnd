@@ -23,11 +23,6 @@ export default function GameSelect({
 
   const selectRef = useRef<HTMLSelectElement>(null);
 
-  // // 선택된 게임 -> 초기 게임 핑퐁핑퐁(0)
-  // const handleGameChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-  //   setSelectedGame(event.target.value);
-  // };
-
   useEffect(() => {
     setSelectedGame(gameName);
   }, [gameName]);

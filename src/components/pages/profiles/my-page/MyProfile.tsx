@@ -76,6 +76,11 @@ export default function MyProfile() {
     setSelectedGameId(event.target.value);
   };
 
+  // 게임 ID로 게임 이름을 가져오는 맵
+  const [gameIdMapping, setGameIdMapping] = useState<Map<string, string>>(
+    new Map(),
+  );
+
   const selectRef = useRef<HTMLSelectElement>(null);
   const socketRef = useSocket();
 
@@ -95,6 +100,11 @@ export default function MyProfile() {
     setShowReadyGameModal(!showReadyGameModal);
   };
 
+  const getGameNameById = (gameId: string) => {
+    const gameName = gameIdMapping.get(gameId);
+    return gameName;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await axios.get(`http://localhost:3000/account`, {
@@ -103,6 +113,18 @@ export default function MyProfile() {
       setSelectedGameId(data.data.userGame[0].game.gameId);
       setUser(data.data.user);
       setUserGames(data.data.userGame);
+
+      const createGameIdMapping = async () => {
+        const newGameIdMapping = new Map();
+
+        data.data.userGame.forEach((game: UserGame) => {
+          newGameIdMapping.set(game.game.gameId, game.game.name);
+        });
+
+        setGameIdMapping(newGameIdMapping);
+      };
+
+      createGameIdMapping();
     };
     fetchData();
   }, []);
@@ -187,7 +209,17 @@ export default function MyProfile() {
         </SelectGameContainer>
         <GameContainer>
           <HistoryText>{getUserGameHistoryText(selectedGameId)}</HistoryText>
-          <GameButton onClick={() => navigate('/game/record')}>
+          <GameButton
+            onClick={() => {
+              let gameName = getGameNameById(selectedGameId);
+              if (!selectedGameId) {
+                gameName = '핑퐁핑퐁';
+              }
+              navigate(
+                `/game/record/${userInfo.userId}/history?game=${gameName}`,
+              );
+            }}
+          >
             전적 보기
           </GameButton>
           <GameButton

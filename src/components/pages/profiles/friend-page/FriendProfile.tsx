@@ -186,7 +186,11 @@ export default function FriendProfile() {
         </SelectGameContainer>
         <GameContainer>
           <HistoryText>{getUserGameHistoryText(selectedGame)}</HistoryText>
-          <GameButton onClick={() => navigate('/game/record')}>
+          <GameButton
+            onClick={() =>
+              navigate(`/game/record/${buddyId}/history?game=${selectedGame}`)
+            }
+          >
             전적 보기
           </GameButton>
           <GameButton
