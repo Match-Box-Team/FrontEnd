@@ -36,6 +36,7 @@ interface Enemy {
 export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
   const navigate = useNavigate();
   const socketRef = useSocket();
+  const gameWatchId = gameWatch?.gameWatchId;
 
   const userInfo = useRecoilValue(userState);
   const [userGameInfo, setUserGameInfo] = useState<UserGameInfo | null>(null);
@@ -44,7 +45,9 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
 
   useEffect(() => {
     if (socketRef) {
-      socketRef.emit('ready', { gameControl: 'connection..' });
+      socketRef.emit(`ready`, {
+        gameControl: 'connection..',
+      });
       console.log('connected~!!');
     }
 
@@ -73,7 +76,8 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
     });
 
     socketRef?.once('gameStart', () => {
-      navigate('/game/play');
+      console.log('test : ', gameWatch?.gameWatchId);
+      navigate(`/game/${gameWatch?.gameWatchId}/play`);
     });
 
     return () => {
@@ -106,6 +110,7 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
         guestUserGameId: gameWatch?.userGameId2,
         speed: selectedSpeed,
       });
+      navigate(`/game/${gameWatch?.gameWatchId}/play`);
     }
   };
 

@@ -31,12 +31,14 @@ interface Props {
   handleClickModal: () => void;
   user: UserProps;
   inChat: boolean;
+  isAdmin?: boolean;
 }
 
 export default function ProfileFooter({
   handleClickModal,
   user,
   inChat,
+  isAdmin,
 }: Props) {
   // 리액트 쿼리
   const queryClient = useQueryClient();
@@ -50,10 +52,11 @@ export default function ProfileFooter({
   const [isMute, setIsMute] = useState<boolean | undefined>(false);
   // 음소거와 킥 공통 url
   const muteKickUrl = `http://localhost:3000/channels/${channelIdStateValue}/member/${user.userId}`;
-  const { data: isAdmin } = useGetIsAdmin(channelId || '');
 
   useEffect(() => {
-    setIsMute(user.isMute);
+    if (inChat === true) {
+      setIsMute(user.isMute);
+    }
   });
 
   // 음소거 설정 버튼 클릭

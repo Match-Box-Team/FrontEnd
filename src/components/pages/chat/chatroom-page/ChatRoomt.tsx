@@ -12,7 +12,7 @@ import Header from '../../../commons/header/Header';
 import { IChat, IError, ISendedMessage } from '.';
 import { getDefaultImageUrl, getImageUrl } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
-import { useGetChatRoomLog } from '../../../../api/Channel';
+import { useGetChatRoomLog, useGetIsAdmin } from '../../../../api/Channel';
 import RoomSide from '../chat-modal/roomside-modal/RoomSide';
 import Profile, {
   Member,
@@ -53,6 +53,7 @@ export default function ChatRoom() {
     isLoading,
     isError,
   } = useGetChatRoomLog(id || '');
+  const { data: isAdmin } = useGetIsAdmin(id || '');
   const handleNewChatMessage = useNewChatMessageHandler(userInfo, setMessages);
   const navigate = useNavigate();
 
@@ -177,6 +178,7 @@ export default function ChatRoom() {
           handleClickModal={handleClickProfileModal}
           user={selectedUser}
           inChat
+          isAdmin={isAdmin}
         />
       )}
       <RoomSide

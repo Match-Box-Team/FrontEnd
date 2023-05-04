@@ -20,7 +20,6 @@ export default function Login() {
     await axios
       .get('http://localhost:3000/login')
       .then(function (response) {
-        console.log(response.data.url);
         window.location.replace(response.data.url);
       })
       .catch(function (error) {
