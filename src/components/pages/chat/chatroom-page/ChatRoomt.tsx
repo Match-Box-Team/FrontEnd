@@ -3,7 +3,6 @@ import styled from '@emotion/styled';
 import { Socket, io } from 'socket.io-client';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
 import Layout from '../../../commons/layout/Layout';
 import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
@@ -178,13 +177,19 @@ export default function ChatRoom() {
           handleClickModal={handleClickProfileModal}
           user={selectedUser}
           inChat
-          isAdmin={isAdmin}
+          channelInfo={{
+            channelId: id || '',
+            isAdmin,
+          }}
         />
       )}
       <RoomSide
         isOpenSideModal={isOpenSideModal}
         handleClickModal={handleClickSideModal}
-        isDm={chatListData?.channel.isDm}
+        channelInfo={{
+          channelId: id || '',
+          isDm: chatListData?.channel.isDm,
+        }}
       />
       <Base>
         <Container>

@@ -11,7 +11,6 @@ import {
   FormText,
   FormWarp,
 } from '../createroom-modal/Createroom';
-import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import Popup from '../../../../commons/modals/popup-modal/Popup';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 
@@ -19,6 +18,7 @@ import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 interface Props {
   isOpenSetRoomModal: boolean;
   handleClickModal: () => void;
+  channelId: string;
 }
 
 // 모달 form input 타입
@@ -34,9 +34,8 @@ const initialFormValues: FormValues = {
 export default function SetRoom({
   isOpenSetRoomModal,
   handleClickModal,
+  channelId,
 }: Props) {
-  // 채널 id atom getter
-  const channelIdStateValue = useRecoilValue(channelIdState);
   const userInfo = useRecoilValue(userState);
 
   // password 초기화
@@ -57,7 +56,7 @@ export default function SetRoom({
     event.preventDefault();
     try {
       const response = await axios.patch(
-        `http://localhost:3000/channels/${channelIdStateValue}`,
+        `http://localhost:3000/channels/${channelId}`,
         {
           password,
         },

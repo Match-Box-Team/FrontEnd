@@ -8,41 +8,45 @@ import Invite from '../invite-modal/Invite';
 import SetRoom from '../setroom-modal/SetRoom';
 import What from '../../../../../assets/icon/what.svg';
 import Plus from '../../../../../assets/icon/plus.svg';
-import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { UserChannel, useUserChannels } from '../../../../../api/ChatRoomInfo';
 import { useAddFriendMutation } from '../../../../../api/AddFriend';
 import { useSetAdminMutation } from '../../../../../api/SetAdmin';
+
+interface ChannelProps {
+  channelId: string;
+  isDm: boolean | undefined;
+}
 
 // 모달 prop 타입
 interface Props {
   isOpenSideModal: boolean;
   handleClickModal: () => void;
-  isDm: boolean | undefined;
+  channelInfo: ChannelProps;
 }
 
 export default function RoomSide({
   isOpenSideModal,
   handleClickModal,
-  isDm,
+  channelInfo,
 }: Props) {
   const navigate = useNavigate();
 
   // 유저  정보
   const userInfo = useRecoilValue(userState);
 
-  // 채널 Id
-  const channelId = useRecoilValue(channelIdState);
-
   // react-query 채팅방 멤버 정보
-  const { data: userChannels } = useUserChannels(channelId, userInfo.token);
+  const { data: userChannels } = useUserChannels(
+    channelInfo.channelId,
+    userInfo.token,
+  );
 
   const { mutate: addFriendMutation } = useAddFriendMutation(
-    channelId,
+    channelInfo.channelId,
     userInfo.token,
   );
 
   const { mutate: setAdminMutation } = useSetAdminMutation(
-    channelId,
+    channelInfo.channelId,
     userInfo.token,
   );
 
@@ -69,7 +73,7 @@ export default function RoomSide({
         alert('이미 관리자인 유저입니다');
       }
       await setAdminMutation({
-        channelId,
+        channelId: channelInfo.channelId,
         userId: userChannel.user.userId,
         token: userInfo.token,
       });
@@ -92,9 +96,12 @@ export default function RoomSide({
 
   const handleClickExit = () => {
     const exit = async () => {
-      await axios.delete(`http://localhost:3000/channels/${channelId}`, {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      });
+      await axios.delete(
+        `http://localhost:3000/channels/${channelInfo.channelId}`,
+        {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
+        },
+      );
     };
     exit();
     navigate('/chat/channel');
@@ -105,10 +112,12 @@ export default function RoomSide({
       <SetRoom
         isOpenSetRoomModal={isOpenSetRoomModal}
         handleClickModal={handleClickSetRoomModal}
+        channelId={channelInfo.channelId}
       />
       <Invite
         isOpenInviteModal={isOpenInviteModal}
         handleClickModal={handleClickSetInviteModal}
+        channelId={channelInfo.channelId}
       />
       {isOpenSideModal && (
         <ModalOutside onClick={() => handleClickModal()}>
@@ -116,7 +125,7 @@ export default function RoomSide({
             <Header>
               <p># 설정</p>
             </Header>
-            {isDm === false && (
+            {channelInfo.isDm === false && (
               <>
                 <Text onClick={handleClickSetRoomModal}>채팅방 설정</Text>
                 <Hr />
@@ -145,7 +154,7 @@ export default function RoomSide({
                         <Wrap>
                           <p>{userChannel.user.nickname}</p>
                         </Wrap>
-                        {isDm === false && (
+                        {channelInfo.isDm === false && (
                           <>
                             <Wrap>
                               <IconWrap
