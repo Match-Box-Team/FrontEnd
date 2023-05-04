@@ -11,7 +11,7 @@ import Header from '../../../commons/header/Header';
 import { IChat, IError, ISendedMessage } from '.';
 import { getDefaultImageUrl, getImageUrl } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
-import { useGetChatRoomLog, useGetIsAdmin } from '../../../../api/Channel';
+import { useGetChatRoomLog, useUserChannel } from '../../../../api/Channel';
 import RoomSide from '../chat-modal/roomside-modal/RoomSide';
 import Profile, {
   Member,
@@ -52,7 +52,9 @@ export default function ChatRoom() {
     isLoading,
     isError,
   } = useGetChatRoomLog(id || '');
-  const { data: isAdmin } = useGetIsAdmin(id || '');
+  // 유저 본인 - isAdmin
+  const { data: userChannel } = useUserChannel(userInfo.userId, id || '');
+  const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
   const handleNewChatMessage = useNewChatMessageHandler(userInfo, setMessages);
   const navigate = useNavigate();
 
@@ -130,6 +132,10 @@ export default function ChatRoom() {
     scrollBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => {
+    setIsAdmin(userChannel?.isAdmin);
+  }, [userChannel]);
+
   // 유저 프로필 모달
   const [isOpenProfileModal, setIsOpenProfileModal] = useState<boolean>(false);
   const handleClickProfileModal = async () => {
@@ -139,7 +145,6 @@ export default function ChatRoom() {
   const [selectedUser, setSelectedUser] = useState<Member>(initialMember);
   const [selectedChat, setSelectedChat] = useState<IChat | null>(null);
   const handleSelectChat = async (message: IChat) => {
-    setSelectedChat(message);
     const member: Member = {
       userId: message.userChannel.user.userId,
       intraId: message.userChannel.user.intraId,
@@ -153,6 +158,7 @@ export default function ChatRoom() {
       member.image = await getDefaultImageUrl(userInfo.token);
     }
     setSelectedUser(member);
+    setSelectedChat(message);
     setIsOpenProfileModal(true);
   };
 

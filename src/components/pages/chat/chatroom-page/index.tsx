@@ -67,3 +67,8 @@ export interface IEnterReply {
 export interface NError {
   NotFoundException: string;
 }
+
+export interface IIsAdminAndIsMute {
+  isAdmin: boolean;
+  isMute: boolean;
+}
