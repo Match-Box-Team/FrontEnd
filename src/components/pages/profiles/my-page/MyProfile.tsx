@@ -71,6 +71,7 @@ export default function MyProfile() {
 
   // 선택된 게임 -> 초기 게임 핑퐁핑퐁(0)
   const [selectedGameId, setSelectedGameId] = useState<string>('');
+
   const handleGameChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedGameId(event.target.value);
   };
@@ -99,6 +100,7 @@ export default function MyProfile() {
       const data = await axios.get(`http://localhost:3000/account`, {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       });
+      setSelectedGameId(data.data.userGame[0].game.gameId);
       setUser(data.data.user);
       setUserGames(data.data.userGame);
     };
@@ -191,9 +193,9 @@ export default function MyProfile() {
           <GameButton
             onClick={() => {
               if (!selectedGameId) {
+                alert('게임을 선택해주세요');
                 return;
               }
-              alert('게임을 선택해주세요');
               socketRef?.emit('randomMatch', { gameId: selectedGameId });
               handleClickReadyGameModal();
             }}

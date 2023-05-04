@@ -39,7 +39,6 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
   const gameWatchId = gameWatch?.gameWatchId;
 
   const userInfo = useRecoilValue(userState);
-  console.log('userInfo:', userInfo);
   const [userGameInfo, setUserGameInfo] = useState<UserGameInfo | null>(null);
   const [enemyInfo, setEnemyInfo] = useState<Enemy | null>(null);
   const [selectedSpeed, setSelectedSpeed] = useState<string>('4');
@@ -75,10 +74,6 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
       console.log(`스피드 업데이트됨 -> ${speed}`);
       setSelectedSpeed(speed);
     });
-
-    // socketRef?.once('gameStart', (speed: string) => {
-    //   console.log(`게임 시작 -> 스피드 ${speed}`);
-    // });
 
     socketRef?.once('gameStart', () => {
       console.log('test : ', gameWatch?.gameWatchId);
