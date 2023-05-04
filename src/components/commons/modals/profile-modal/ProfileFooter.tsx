@@ -11,6 +11,7 @@ import KickIcon from '../../../../assets/icon/kick.svg';
 import MuteIcon from '../../../../assets/icon/mute.svg';
 import UnmuteIcon from '../../../../assets/icon/unmute.svg';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
+import { useUserChannel } from '../../../../api/Channel';
 
 interface BanProps {
   friendId: string;
@@ -47,6 +48,11 @@ export default function ProfileFooter({
   const navigate = useNavigate();
   // 리코일 - 유저 정보
   const userInfo = useRecoilValue(userState);
+  // userChannel - isMute 정보
+  const { data: userChannel } = useUserChannel(
+    user.userId,
+    channelInfo?.channelId,
+  );
   // 음소거 유무
   const [isMute, setIsMute] = useState<boolean | undefined>(false);
   // 음소거와 킥 공통 url
@@ -54,9 +60,9 @@ export default function ProfileFooter({
 
   useEffect(() => {
     if (inChat === true) {
-      setIsMute(user.isMute);
+      setIsMute(userChannel?.isMute);
     }
-  });
+  }, [userChannel]);
 
   // 음소거 설정 버튼 클릭
   const handleMuteClicked = async (
