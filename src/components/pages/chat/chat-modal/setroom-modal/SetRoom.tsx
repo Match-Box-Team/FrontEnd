@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import {
   ChatFormInfoText,
   ChatModalMainText,
@@ -13,6 +13,8 @@ import {
 } from '../createroom-modal/Createroom';
 import Popup from '../../../../commons/modals/popup-modal/Popup';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
+import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
+import ErrorPopup from '../../../../commons/error/ErrorPopup';
 
 // 모달 prop 타입
 interface Props {
@@ -37,6 +39,9 @@ export default function SetRoom({
   channelId,
 }: Props) {
   const userInfo = useRecoilValue(userState);
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // password 초기화
   const [password, setPassword] = useState<string>('');
@@ -67,13 +72,14 @@ export default function SetRoom({
       // 모달 끄기
       handleClickModal();
     } catch (error) {
-      handleClickModal();
-      console.log(error);
+      setIsErrorGet(true);
+      setErrorMessage('오너만 설정 가능합니다.');
     }
   };
 
   return (
     <div>
+      <ErrorPopup message={errorMessage} handleClick={handleClickModal} />
       {isOpenSetRoomModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>채팅방 설정</ChatModalMainText>
