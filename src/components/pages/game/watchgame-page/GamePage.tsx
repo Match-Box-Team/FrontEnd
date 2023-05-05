@@ -112,7 +112,26 @@ export default function GamePage({ title }: Prop) {
     socketRef?.emit('gameWatch', {
       gameWatchId: clickedGameWatchId,
     });
+    navigate(`/game/${clickedGameWatchId}/play`);
   };
+
+  useEffect(() => {
+    socketRef?.once('gameWatchSuccess', data => {
+      // navigate(`/game/${data?.gameWatchId}/play`);
+      console.log('gameWatchSuccess: ', data);
+    });
+    socketRef?.once('gameWatchFull', data => {
+      console.log('gameWatchFull: ', data);
+    });
+    socketRef?.once('gameWatchFail', data => {
+      console.log('gameWatchFail: ', data);
+    });
+    return () => {
+      socketRef?.off('gameWatchSuccess');
+      socketRef?.off('gameWatchFull');
+      socketRef?.off('gameWatchFail');
+    };
+  }, [socketRef]);
 
   // <Link to={`/game/watch/${data.matchId}`}>
 
