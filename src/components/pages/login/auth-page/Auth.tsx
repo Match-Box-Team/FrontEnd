@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { To, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
 import { getImageUrl } from '../../../../api/ProfileImge';
+import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
+import ErrorPopupNav from '../../../commons/error/ErrorPopupNav';
 
 export default function Auth() {
   // 페이지 이동
@@ -21,6 +23,11 @@ export default function Auth() {
   const userInfo = useRecoilValue(userState);
   // 쿠키
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
+  const [cookieUserId, setCookieUserId] = useState<string>('');
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [moveTo, setMoveTo] = useState<To>(``);
 
   // 입력 변화 핸들러
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,13 +36,17 @@ export default function Auth() {
   // confirm 버튼 클릭 핸들러
   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    if (inputValue === '') {
+      setIsErrorGet(true);
+      setErrorMessage('코드를 입력해주세요.');
+      return;
+    }
     try {
       // 인증 코드 검증
-      const userIdInCookie = cookies.token;
       const response = await axios.post(
         `http://localhost:3000/auth/verifyCode`,
         {
-          userId: userIdInCookie,
+          userId: cookieUserId,
           code: inputValue,
         },
       );
@@ -44,37 +55,36 @@ export default function Auth() {
       const userInfoResponse = await axios.post(
         `http://localhost:3000/account/info`,
         {
-          userId: userIdInCookie,
+          userId: cookieUserId,
         },
       );
       // 유저 이미지 저장
-      const userImage = await getImageUrl(userIdInCookie, jwtToken);
+      const userImage = await getImageUrl(cookieUserId, jwtToken);
       const storeUser = {
         token: jwtToken,
-        userId: userIdInCookie,
+        userId: cookieUserId,
         nickname: userInfoResponse.data.nickname,
         imageUrl: userImage,
       };
-      console.log(storeUser);
-      removeCookie('token');
       setUserState(storeUser);
       navigate(`/chat/channel`);
     } catch (error) {
-      alert('틀린 인증 코드입니다. 다시 로그인해주세요.');
-      console.log(error);
-      removeCookie('token');
-      navigate(`/`);
+      setIsErrorGet(true);
+      setErrorMessage('틀린 인증 코드입니다. 다시 입력해주세요.');
     }
   };
 
   useEffect(() => {
-    if (cookies.token === undefined) {
-      if (userInfo.token === '') {
-        navigate('/');
-      } else {
-        navigate('/chat/channel');
-      }
+    if (userInfo.token !== '') {
+      navigate('/chat/channel');
+      return;
     }
+    if (cookies.token === undefined) {
+      navigate('/');
+      return;
+    }
+    setCookieUserId(cookies.token);
+    removeCookie('token');
   }, []);
 
   // 타이머
@@ -82,13 +92,12 @@ export default function Auth() {
     async function verifyTimeOut() {
       await axios
         .post(`http://localhost:3000/auth/verifyTimeOut`, {
-          userId: cookies.token,
+          userId: cookieUserId,
         })
-        .then(function (response) {
-          console.log('success verifyTimeOut');
-        })
-        .catch(function (error) {
-          console.log(error);
+        .catch(function () {
+          setIsErrorGet(true);
+          setMoveTo(`/`);
+          setErrorMessage('요청을 실패했습니다.');
         });
     }
     let timerId: any;
@@ -99,9 +108,9 @@ export default function Auth() {
       }, 1000);
     } else {
       verifyTimeOut();
-      alert('시간이 지났습니다. 다시 로그인해주세요.');
-      removeCookie('token');
-      navigate(`/`);
+      setIsErrorGet(true);
+      setMoveTo(`/`);
+      setErrorMessage('시간이 지났습니다. 다시 로그인해주세요.');
     }
 
     return () => {
@@ -113,6 +122,7 @@ export default function Auth() {
 
   return (
     <Layout Header={<Header title="Email Authentication Code" />}>
+      <ErrorPopupNav message={errorMessage} moveTo={moveTo} />
       <Container>
         <InfoText>인트라 이메일로 인증코드를 발송하였습니다</InfoText>
         <InputContainer>
