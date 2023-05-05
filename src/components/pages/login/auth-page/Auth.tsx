@@ -36,6 +36,11 @@ export default function Auth() {
   // confirm 버튼 클릭 핸들러
   const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    if (inputValue === '') {
+      setIsErrorGet(true);
+      setErrorMessage('코드를 입력해주세요.');
+      return;
+    }
     try {
       // 인증 코드 검증
       const response = await axios.post(
@@ -65,7 +70,7 @@ export default function Auth() {
       navigate(`/chat/channel`);
     } catch (error) {
       setIsErrorGet(true);
-      setErrorMessage('틀린 인증 코드입니다. 다시 로그인해주세요.');
+      setErrorMessage('틀린 인증 코드입니다. 다시 입력해주세요.');
     }
   };
 
