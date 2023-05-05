@@ -23,14 +23,12 @@ export default function Login() {
         window.location.replace(response.data.url);
       })
       .catch(function (error) {
-        if (error.response.status === 302) {
-          console.log(error);
-        }
+        console.log(error);
       });
   };
 
   useEffect(() => {
-    if (userInfo.token !== '') {
+    if (userInfo.token !== '' && userInfo.token !== undefined) {
       navigate('/chat/channel');
     }
   }, []);

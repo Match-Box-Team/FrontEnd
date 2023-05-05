@@ -21,6 +21,7 @@ export default function Auth() {
   const userInfo = useRecoilValue(userState);
   // 쿠키
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
+  const [cookieUserId, setCookieUserId] = useState<string>('');
 
   // 입력 변화 핸들러
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,11 +32,10 @@ export default function Auth() {
     event.preventDefault();
     try {
       // 인증 코드 검증
-      const userIdInCookie = cookies.token;
       const response = await axios.post(
         `http://localhost:3000/auth/verifyCode`,
         {
-          userId: userIdInCookie,
+          userId: cookieUserId,
           code: inputValue,
         },
       );
@@ -44,37 +44,37 @@ export default function Auth() {
       const userInfoResponse = await axios.post(
         `http://localhost:3000/account/info`,
         {
-          userId: userIdInCookie,
+          userId: cookieUserId,
         },
       );
       // 유저 이미지 저장
-      const userImage = await getImageUrl(userIdInCookie, jwtToken);
+      const userImage = await getImageUrl(cookieUserId, jwtToken);
       const storeUser = {
         token: jwtToken,
-        userId: userIdInCookie,
+        userId: cookieUserId,
         nickname: userInfoResponse.data.nickname,
         imageUrl: userImage,
       };
-      console.log(storeUser);
-      removeCookie('token');
       setUserState(storeUser);
       navigate(`/chat/channel`);
     } catch (error) {
       alert('틀린 인증 코드입니다. 다시 로그인해주세요.');
       console.log(error);
-      removeCookie('token');
       navigate(`/`);
     }
   };
 
   useEffect(() => {
-    if (cookies.token === undefined) {
-      if (userInfo.token === '') {
-        navigate('/');
-      } else {
-        navigate('/chat/channel');
-      }
+    if (userInfo.token !== '') {
+      navigate('/chat/channel');
+      return;
     }
+    if (cookies.token === undefined) {
+      navigate('/');
+      return;
+    }
+    setCookieUserId(cookies.token);
+    removeCookie('token');
   }, []);
 
   // 타이머
@@ -82,7 +82,7 @@ export default function Auth() {
     async function verifyTimeOut() {
       await axios
         .post(`http://localhost:3000/auth/verifyTimeOut`, {
-          userId: cookies.token,
+          userId: cookieUserId,
         })
         .then(function (response) {
           console.log('success verifyTimeOut');
@@ -100,7 +100,6 @@ export default function Auth() {
     } else {
       verifyTimeOut();
       alert('시간이 지났습니다. 다시 로그인해주세요.');
-      removeCookie('token');
       navigate(`/`);
     }
 
