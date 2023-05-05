@@ -15,7 +15,7 @@ export default function Auth() {
   // 페이지 이동
   const navigate = useNavigate();
   // 타이머
-  const [time, setTime] = useState(100);
+  const [time, setTime] = useState(300);
   // 입력
   const [inputValue, setInputValue] = useState('');
   // recoil 유저 토큰 저장
