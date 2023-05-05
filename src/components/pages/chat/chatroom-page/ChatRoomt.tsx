@@ -47,6 +47,7 @@ export default function ChatRoom() {
   const userInfo = useRecoilValue(userState);
   const [channelName, setChannelName] = useState<string>('Channel');
   const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [isSocketError, setIsSocketError] = useState<boolean>(false);
   const {
     data: chatListData,
     isLoading,
@@ -81,6 +82,7 @@ export default function ChatRoom() {
     socketRef.current.emit('enterChannel', { channelId: id });
 
     socketRef.current.on('error', (error: IError) => {
+      setIsSocketError(true);
       setIsErrorGet(true);
     });
     socketRef.current.on('chat', handleNewChatMessage);
@@ -199,7 +201,7 @@ export default function ChatRoom() {
       />
       <Base>
         <Container>
-          {isErrorGet ? (
+          {isErrorGet && isSocketError ? (
             <ErrorPopup
               message="[소켓 연결 에러] 채팅방에 입장할 수 없습니다 "
               handleClick={handleError}
