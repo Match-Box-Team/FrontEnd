@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../../commons/layout/Layout';
@@ -27,6 +27,9 @@ export default function PlayGame() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string>('');
 
+  const isHost = useRef<boolean>(false);
+  const isWatcher = useRef<boolean>(false);
+
   const { pathname } = window.location;
   const gameWatchId = pathname.split('/')[2];
 
@@ -38,6 +41,13 @@ export default function PlayGame() {
     //   });
     //   console.log('playing~!!');
     // }
+    if (socket) {
+      socket.once('ishost', (data: any) => {
+        isHost.current = data.isHost;
+        isWatcher.current = data.isWatcher;
+      });
+    }
+
     socket?.on('scores', (data: any) => {
       setScoreA(data.scores.scoreA);
       setScoreB(data.scores.scoreB);
@@ -69,8 +79,12 @@ export default function PlayGame() {
   // }, [socket]);
 
   const handleClose = () => {
-    setShowModal(false);
-    navigate('/profile/my/:id', { replace: true });
+    if (isWatcher.current === true) {
+      navigate('/game/shop');
+    } else {
+      setShowModal(false);
+      navigate('/profile/my/:id', { replace: true });
+    }
   };
 
   const giveUp = () => {
