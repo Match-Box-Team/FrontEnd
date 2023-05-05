@@ -32,12 +32,26 @@ function ErrorPopup({ message, handleClick }: ErrorPopupProps) {
   return (
     <div>
       {isErrorGet && (
-        <Popup onClick={handleClick}>
-          <p>{message}</p>
-        </Popup>
+        <ModalOutside onClick={() => setIsErrorGet(false)}>
+          <Popup>
+            <p>{message}</p>
+          </Popup>
+        </ModalOutside>
       )}
     </div>
   );
 }
+
+const ModalOutside = styled.div`
+  position: absolute;
+  top: 0%;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  width: 412px;
+  max-height: 915px;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+`;
 
 export default ErrorPopup;
