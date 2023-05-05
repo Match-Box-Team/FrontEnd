@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { To, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
 import { getImageUrl } from '../../../../api/ProfileImge';
+import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
+import ErrorPopupNav from '../../../commons/error/ErrorPopupNav';
 
 export default function Auth() {
   // 페이지 이동
   const navigate = useNavigate();
   // 타이머
-  const [time, setTime] = useState(300);
+  const [time, setTime] = useState(100);
   // 입력
   const [inputValue, setInputValue] = useState('');
   // recoil 유저 토큰 저장
@@ -22,6 +24,10 @@ export default function Auth() {
   // 쿠키
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
   const [cookieUserId, setCookieUserId] = useState<string>('');
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [moveTo, setMoveTo] = useState<To>(``);
 
   // 입력 변화 핸들러
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,9 +64,8 @@ export default function Auth() {
       setUserState(storeUser);
       navigate(`/chat/channel`);
     } catch (error) {
-      alert('틀린 인증 코드입니다. 다시 로그인해주세요.');
-      console.log(error);
-      navigate(`/`);
+      setIsErrorGet(true);
+      setErrorMessage('틀린 인증 코드입니다. 다시 로그인해주세요.');
     }
   };
 
@@ -84,11 +89,10 @@ export default function Auth() {
         .post(`http://localhost:3000/auth/verifyTimeOut`, {
           userId: cookieUserId,
         })
-        .then(function (response) {
-          console.log('success verifyTimeOut');
-        })
-        .catch(function (error) {
-          console.log(error);
+        .catch(function () {
+          setIsErrorGet(true);
+          setMoveTo(`/`);
+          setErrorMessage('요청에 문제가 발생했습니다.');
         });
     }
     let timerId: any;
@@ -99,8 +103,9 @@ export default function Auth() {
       }, 1000);
     } else {
       verifyTimeOut();
-      alert('시간이 지났습니다. 다시 로그인해주세요.');
-      navigate(`/`);
+      setIsErrorGet(true);
+      setMoveTo(`/`);
+      setErrorMessage('시간이 지났습니다. 다시 로그인해주세요.');
     }
 
     return () => {
@@ -112,6 +117,7 @@ export default function Auth() {
 
   return (
     <Layout Header={<Header title="Email Authentication Code" />}>
+      <ErrorPopupNav message={errorMessage} moveTo={moveTo} />
       <Container>
         <InfoText>인트라 이메일로 인증코드를 발송하였습니다</InfoText>
         <InputContainer>
