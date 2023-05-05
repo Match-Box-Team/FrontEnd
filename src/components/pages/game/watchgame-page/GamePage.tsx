@@ -109,29 +109,34 @@ export default function GamePage({ title }: Prop) {
 
   const handleGameWatchClick = async (clickedGameWatchId: string) => {
     console.log('gameWatchId clicked: ', clickedGameWatchId);
-    socketRef?.emit('gameWatch', {
-      gameWatchId: clickedGameWatchId,
-    });
     navigate(`/game/${clickedGameWatchId}/play`);
+    // socketRef
+    //   ?.emit('gameWatch', {
+    //     gameWatchId: clickedGameWatchId,
+    //   })
+    //   .on('gameWatchSuccess', data => {
+    //     console.log('watchable: ', data);
+    //     navigate(`/game/${clickedGameWatchId}/play`);
+    //   });
   };
 
-  useEffect(() => {
-    socketRef?.once('gameWatchSuccess', data => {
-      // navigate(`/game/${data?.gameWatchId}/play`);
-      console.log('gameWatchSuccess: ', data);
-    });
-    socketRef?.once('gameWatchFull', data => {
-      console.log('gameWatchFull: ', data);
-    });
-    socketRef?.once('gameWatchFail', data => {
-      console.log('gameWatchFail: ', data);
-    });
-    return () => {
-      socketRef?.off('gameWatchSuccess');
-      socketRef?.off('gameWatchFull');
-      socketRef?.off('gameWatchFail');
-    };
-  }, [socketRef]);
+  // useEffect(() => {
+  //   socketRef?.once('gameWatchSuccess', data => {
+  //     console.log('gameWatchSuccess: ', data);
+  //     navigate(`/game/${data?.gameWatchId}/play`);
+  //   });
+  //   socketRef?.once('gameWatchFull', data => {
+  //     console.log('gameWatchFull: ', data);
+  //   });
+  //   socketRef?.once('gameWatchFail', data => {
+  //     console.log('gameWatchFail: ', data);
+  //   });
+  //   return () => {
+  //     socketRef?.off('gameWatchSuccess');
+  //     socketRef?.off('gameWatchFull');
+  //     socketRef?.off('gameWatchFail');
+  //   };
+  // }, [socketRef]);
 
   // <Link to={`/game/watch/${data.matchId}`}>
 
@@ -283,6 +288,7 @@ export default function GamePage({ title }: Prop) {
               ? gameCurrentHistoryData?.map((data: ICurrentGameHistory) => {
                   return (
                     <GameWatch
+                      key={data.matchId}
                       onClick={() => handleGameWatchClick(data.matchId)}
                     >
                       <GameHistory
