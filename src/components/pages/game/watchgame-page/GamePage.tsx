@@ -21,6 +21,7 @@ import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import { useGetGameHistory } from '../../../../api/Friends';
 import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
 import ErrorPopup from '../../../commons/error/ErrorPopup';
+import { useSocket } from '../playgame-page/game-socket/GameSocketContext';
 
 const Container = styled.div`
   display: flex;
@@ -49,6 +50,7 @@ interface Prop {
 }
 
 export default function GamePage({ title }: Prop) {
+  const socketRef = useSocket();
   /* 공용 상태 */
   // 게임 와치 페이지와 게임 전적 페이지 구별하는 용도
   const isGameWatchPage = title === 'Game Watch';
@@ -104,6 +106,15 @@ export default function GamePage({ title }: Prop) {
       navigate(`/game/watch/${newGameId}`);
     }
   };
+
+  const handleGameWatchClick = async (clickedGameWatchId: string) => {
+    console.log('gameWatchId clicked: ', clickedGameWatchId);
+    socketRef?.emit('gameWatch', {
+      gameWatchId: clickedGameWatchId,
+    });
+  };
+
+  // <Link to={`/game/watch/${data.matchId}`}>
 
   /* 게임 전적 페이지 상태 */
   const [gameOldHistoryData, setGameOldHistoryData] =
@@ -252,16 +263,20 @@ export default function GamePage({ title }: Prop) {
             {isGameWatchPage
               ? gameCurrentHistoryData?.map((data: ICurrentGameHistory) => {
                   return (
-                    <GameHistory
-                      key={data.matchId}
-                      matchId={data.matchId}
-                      user1={data.user1}
-                      user2={data.user2}
-                      user1Image={data.user1Image}
-                      user2Image={data.user2Image}
-                      currentViewer={data.currentViewer}
-                      selectedGame={selectedGame}
-                    />
+                    <GameWatch
+                      onClick={() => handleGameWatchClick(data.matchId)}
+                    >
+                      <GameHistory
+                        key={data.matchId}
+                        matchId={data.matchId}
+                        user1={data.user1}
+                        user2={data.user2}
+                        user1Image={data.user1Image}
+                        user2Image={data.user2Image}
+                        currentViewer={data.currentViewer}
+                        selectedGame={selectedGame}
+                      />
+                    </GameWatch>
                   );
                 })
               : gameOldHistoryData?.map((data: IOldGameHistory) => {
@@ -283,3 +298,7 @@ export default function GamePage({ title }: Prop) {
     </Layout>
   );
 }
+
+const GameWatch = styled.div`
+  cursor: pointer;
+`;
