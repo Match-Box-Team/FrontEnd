@@ -92,7 +92,7 @@ export default function Auth() {
         .catch(function () {
           setIsErrorGet(true);
           setMoveTo(`/`);
-          setErrorMessage('요청에 문제가 발생했습니다.');
+          setErrorMessage('요청을 실패했습니다.');
         });
     }
     let timerId: any;
