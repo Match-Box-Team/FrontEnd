@@ -109,15 +109,21 @@ export default function GamePage({ title }: Prop) {
 
   const handleGameWatchClick = async (clickedGameWatchId: string) => {
     console.log('gameWatchId clicked: ', clickedGameWatchId);
-    navigate(`/game/${clickedGameWatchId}/play`);
-    // socketRef
-    //   ?.emit('gameWatch', {
-    //     gameWatchId: clickedGameWatchId,
-    //   })
-    //   .on('gameWatchSuccess', data => {
-    //     console.log('watchable: ', data);
-    //     navigate(`/game/${clickedGameWatchId}/play`);
-    //   });
+    // navigate(`/game/${clickedGameWatchId}/play`);
+    socketRef
+      ?.emit('gameWatch', {
+        gameWatchId: clickedGameWatchId,
+      })
+      .on('gameWatchSuccess', data => {
+        console.log('watchable: ', data);
+        navigate(`/game/${clickedGameWatchId}/play`);
+      })
+      .on('gameWatchFull', data => {
+        console.log('full: ', data);
+      })
+      .on('gameWatchFail', data => {
+        console.log('fail: ', data);
+      });
   };
 
   // useEffect(() => {
