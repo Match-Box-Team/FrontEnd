@@ -71,6 +71,7 @@ export default function RoomSide({
     try {
       if (userChannel.isAdmin) {
         alert('이미 관리자인 유저입니다');
+        return;
       }
       await setAdminMutation({
         channelId: channelInfo.channelId,
