@@ -54,18 +54,21 @@ export default function PlayGame() {
     });
 
     socket?.once('gameover', (data: any) => {
-      if (data.winner === 'A') {
-        setWinner('A');
-        setModalMessage('승자는 A입니다');
-        setShowModal(true);
-        // navigate('/profile/my/:id', { replace: true });
-      }
-      if (data.winner === 'B') {
-        setWinner('B');
-        setModalMessage('승자는 B입니다');
-        setShowModal(true);
-        // navigate('/profile/my/:id', { replace: true });
-      }
+      setWinner(data.winner);
+      setModalMessage(`승자는 ${data.winner}입니다`);
+      setShowModal(true);
+      // if (data.winner === 'A') {
+      // setWinner('A');
+      // setModalMessage('승자는 A입니다');
+      // setShowModal(true);
+      // navigate('/profile/my/:id', { replace: true });
+      // }
+      // if (data.winner === 'B') {
+      // setWinner('B');
+      // setModalMessage('승자는 B입니다');
+      // setShowModal(true);
+      // navigate('/profile/my/:id', { replace: true });
+      // }
     });
 
     return () => {
@@ -82,6 +85,11 @@ export default function PlayGame() {
       setShowModal(false);
       navigate('/profile/my/:id', { replace: true });
     }
+  };
+
+  const giveUp = () => {
+    console.log('giveUp');
+    socket?.emit('giveUp');
   };
 
   return (
@@ -106,7 +114,7 @@ export default function PlayGame() {
           <PingPong />
         </GameBoard>
         <GameFooter>
-          <GGButton>GG</GGButton>
+          <GGButton onClick={giveUp}>GG</GGButton>
         </GameFooter>
       </GameFrame>
     </Layout>
