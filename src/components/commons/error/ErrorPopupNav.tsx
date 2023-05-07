@@ -1,8 +1,6 @@
-import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { useEffect } from 'react';
 import { To, useNavigate } from 'react-router-dom';
-import { isErrorOnGet } from '../../../recoil/globals/atoms/atom';
 
 const Popup = styled.div`
   position: fixed;
