@@ -23,7 +23,6 @@ export default function Matching({ handleClickModal }: Props) {
     );
 
     socketRef?.once('randomMatchError', (message: string) => {
-      handleClickModal();
       alert(message);
     });
 
@@ -33,15 +32,14 @@ export default function Matching({ handleClickModal }: Props) {
     };
   });
 
-  const cancelRandomMatch = () => {
-    socketRef?.emit('cancelRandomMatch');
-    handleClickModal();
-  };
-
   return (
-    <NoXPopup onClose={cancelRandomMatch}>
+    <NoXPopup
+      onClose={() => {
+        handleClickModal();
+      }}
+    >
       <MainText>매칭 중...</MainText>
-      <CancelButton onClick={cancelRandomMatch}>취소</CancelButton>
+      <CancelButton onClick={() => handleClickModal()}>취소</CancelButton>
     </NoXPopup>
   );
 }

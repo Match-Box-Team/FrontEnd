@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import Footer from '../../../commons/footer/Footer';
 import Header from '../../../commons/header/Header';
@@ -10,10 +10,9 @@ import EditMy from '../profile-modal/editmy-modal/EditMy';
 import PingPongIcon from '../../../../assets/icon/pingpong.svg';
 import SelectArrow from '../../../../assets/icon/SelectArrow.svg';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
+import ReadyGame from '../../game/game-modal/readygame-modal/ReadyGame';
 import Matching from '../../game/game-modal/matching-modal/Matching';
 import { useSocket } from '../../game/playgame-page/game-socket/GameSocketContext';
-import ErrorPopup from '../../../commons/error/ErrorPopup';
-import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
 
 interface User {
   userId: string;
@@ -50,10 +49,6 @@ export default function MyProfile() {
 
   // 유저  정보
   const userInfo = useRecoilValue(userState);
-
-  // 에러 모달
-  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
-  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // 모달 관리
   const [isOpenEditProfileModal, setIsOpenEditProfileModal] =
@@ -121,11 +116,14 @@ export default function MyProfile() {
 
       const createGameIdMapping = async () => {
         const newGameIdMapping = new Map();
+
         data.data.userGame.forEach((game: UserGame) => {
           newGameIdMapping.set(game.game.gameId, game.game.name);
         });
+
         setGameIdMapping(newGameIdMapping);
       };
+
       createGameIdMapping();
     };
     fetchData();
@@ -133,7 +131,6 @@ export default function MyProfile() {
 
   return (
     <Layout Header={<Header title="MyPage" />} Footer={<Footer tab="my" />}>
-      {!selectedGameId && <ErrorPopup message={errorMessage} />}
       <EditMy
         isOpenEditProfileModal={isOpenEditProfileModal}
         handleClickModal={handleClickModal}
@@ -228,8 +225,7 @@ export default function MyProfile() {
           <GameButton
             onClick={() => {
               if (!selectedGameId) {
-                setIsErrorGet(true);
-                setErrorMessage('게임을 선택해주세요');
+                alert('게임을 선택해주세요');
                 return;
               }
               socketRef?.emit('randomMatch', { gameId: selectedGameId });

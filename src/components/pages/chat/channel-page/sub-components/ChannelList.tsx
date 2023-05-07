@@ -85,7 +85,6 @@ export default function ChannelList() {
       }
     }
   };
-
   const handleClick = (channelId: string, password: string | null) => {
     if (password === null) {
       setPasswordInput('');
