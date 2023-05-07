@@ -10,6 +10,7 @@ import {
 import Popup from '../../../../commons/modals/popup-modal/Popup';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 import { useInviteChatRoom } from '../../../../../api/InviteChatRoom';
+import ErrorPopupNav from '../../../../commons/error/ErrorPopupNav';
 
 // 모달 prop 타입
 interface Props {
@@ -38,6 +39,12 @@ export default function Invite({
   channelId,
 }: Props) {
   const userInfo = useRecoilValue(userState);
+  // 에러 모달
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
 
   // 유저 검색 form input 초기화
   const [searchUserNickname, setSearchUserNickname] = useState<string>('');
@@ -85,7 +92,8 @@ export default function Invite({
       setSearchUserNickname('');
       // 이미 방에 있는 유저일 시 예외 처리
       if (userData.data.isOnChannel === true) {
-        alert('이미 방 안에 있는 유저입니다');
+        setIsErrorGet(true);
+        setErrorMessage('이미 방 안에 있는 유저입니다.');
         return;
       }
 
@@ -105,8 +113,8 @@ export default function Invite({
       setUserImageUrl(URL.createObjectURL(imageUrl.data));
     } catch (error) {
       stateReset();
-      alert('존재하지 않는 유저이거나, 본인의 닉네임입니다');
-      console.log(error);
+      setIsErrorGet(true);
+      setErrorMessage('존재하지 않는 유저이거나, 본인의 닉네임입니다.');
     }
   };
 
@@ -122,7 +130,9 @@ export default function Invite({
     event.preventDefault();
     try {
       if (searchUserResponse.userId === '') {
-        alert('선택된 유저가 없습니다');
+        setIsErrorGet(true);
+        setErrorMessage('선택된 유저가 없습니다.');
+        return;
       }
       await inviteChatRoom({
         userId: searchUserResponse.userId,
@@ -132,12 +142,18 @@ export default function Invite({
       handleClickModal();
     } catch (error) {
       stateReset();
-      console.log(error);
+      setIsErrorGet(true);
+      setErrorMessage('요청을 처리할 수 없습니다.');
     }
   };
 
   return (
     <div>
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
       {isOpenInviteModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>초대하기</ChatModalMainText>

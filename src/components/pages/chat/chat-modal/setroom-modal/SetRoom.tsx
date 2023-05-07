@@ -13,8 +13,7 @@ import {
 } from '../createroom-modal/Createroom';
 import Popup from '../../../../commons/modals/popup-modal/Popup';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
-import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
-import ErrorPopup from '../../../../commons/error/ErrorPopup';
+import ErrorPopupNav from '../../../../commons/error/ErrorPopupNav';
 
 // 모달 prop 타입
 interface Props {
@@ -39,9 +38,13 @@ export default function SetRoom({
   channelId,
 }: Props) {
   const userInfo = useRecoilValue(userState);
-  // 에러
-  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  // 에러 모달
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+    handleClickModal();
+  };
 
   // password 초기화
   const [password, setPassword] = useState<string>('');
@@ -79,7 +82,11 @@ export default function SetRoom({
 
   return (
     <div>
-      <ErrorPopup message={errorMessage} handleClick={handleClickModal} />
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
       {isOpenSetRoomModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>채팅방 설정</ChatModalMainText>
