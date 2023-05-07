@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import PingPong from './games/PingPong';
 import { useSocket } from './game-socket/GameSocketContext';
 import Popup from '../../../commons/modals/popup-modal/Popup';
+import { userState } from '../../../../recoil/locals/login/atoms/atom';
 
 const clickAnimation = keyframes`
   0% {
@@ -24,8 +26,11 @@ export default function PlayGame() {
   const [scoreB, setScoreB] = useState<number>(0);
   const [winner, setWinner] = useState<string>('');
   const navigate = useNavigate();
+  const userInfo = useRecoilValue(userState);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalMessage, setModalMessage] = useState<string>('');
+  const [nickname1, setNickname1] = useState<string>('');
+  const [nickname2, setNickname2] = useState<string>('');
 
   const isHost = useRef<boolean>(false);
   const isWatcher = useRef<boolean>(false);
@@ -34,14 +39,15 @@ export default function PlayGame() {
   const gameWatchId = pathname.split('/')[2];
 
   useEffect(() => {
-    // if (socket) {
-    //   socket.emit('ready', {
-    //     gameControl: 'controls..',
-    //     gameWatchId,
-    //   });
-    //   console.log('playing~!!');
-    // }
     if (socket) {
+      socket.once(
+        'nickname',
+        (data: { nickname1: string; nickname2: string }) => {
+          setNickname1(data.nickname1);
+          setNickname2(data.nickname2);
+        },
+      );
+
       socket.once('ishost', (data: any) => {
         isHost.current = data.isHost;
         isWatcher.current = data.isWatcher;
@@ -57,26 +63,15 @@ export default function PlayGame() {
       setWinner(data.winner);
       setModalMessage(`승자는 ${data.winner}입니다`);
       setShowModal(true);
-      // if (data.winner === 'A') {
-      // setWinner('A');
-      // setModalMessage('승자는 A입니다');
-      // setShowModal(true);
-      // navigate('/profile/my/:id', { replace: true });
-      // }
-      // if (data.winner === 'B') {
-      // setWinner('B');
-      // setModalMessage('승자는 B입니다');
-      // setShowModal(true);
-      // navigate('/profile/my/:id', { replace: true });
-      // }
     });
 
     return () => {
-      socket?.off('gameover');
+      socket?.off('enemyNickname');
+      socket?.off('ishost');
       socket?.off('scores');
+      socket?.off('gameover');
     };
   });
-  // }, [socket]);
 
   const handleClose = () => {
     if (isWatcher.current === true) {
@@ -88,7 +83,6 @@ export default function PlayGame() {
   };
 
   const giveUp = () => {
-    console.log('giveUp');
     socket?.emit('giveUp');
   };
 
@@ -101,9 +95,9 @@ export default function PlayGame() {
       )}
       <GameFrame>
         <GameHeader>
-          <Player1 />
+          <Player1>{nickname1}</Player1>
           <GameInfo />
-          <Player2 />
+          <Player2>{nickname2}</Player2>
         </GameHeader>
         <Score>
           <Player2Score>{scoreB}</Player2Score>
