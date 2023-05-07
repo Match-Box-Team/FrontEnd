@@ -7,6 +7,7 @@ import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { PublicToggleButton } from './PublicToggleButton';
 import Popup, { XButton } from '../../../../commons/modals/popup-modal/Popup';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
+import ErrorPopupNav from '../../../../commons/error/ErrorPopupNav';
 
 // 모달 prop 타입
 interface Props {
@@ -49,6 +50,13 @@ export default function CreateRoom({
   const handleClick = () => {
     setIsPublic(!isPublic);
   };
+  // 에러 모달
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+    handleClickModal();
+  };
 
   // 모달이 꺼질 때 state 들을 초기화함
   useEffect(() => {
@@ -79,13 +87,18 @@ export default function CreateRoom({
       const to = `/chat/channel/${response.data.channelId}`;
       navigate(to);
     } catch (error) {
-      handleClickModal();
-      console.log(error);
+      setIsErrorGet(true);
+      setErrorMessage('요청을 처리할 수 없습니다.');
     }
   };
 
   return (
     <div>
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
       {isOpenCreateRoomModal && (
         <Popup onClose={handleClickModal}>
           <ChatModalMainText>채널 만들기</ChatModalMainText>
