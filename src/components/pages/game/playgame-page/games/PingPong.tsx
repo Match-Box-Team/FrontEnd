@@ -13,9 +13,6 @@ export default function PingPong() {
 
   useEffect(() => {
     if (socket) {
-      // socket.emit('ready', {
-      //   ready: 'ready',
-      // });
       socket.emit(`ready`, {
         gameControl: 'connection..',
         gameWatchId,
