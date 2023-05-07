@@ -11,6 +11,7 @@ import {
   FormSubmitButton,
 } from '../../chat/chat-modal/createroom-modal/Createroom';
 import { getImageUrl } from '../../../../api/ProfileImge';
+import ErrorPopupNav from '../../../commons/error/ErrorPopupNav';
 
 // 모달 prop 타입
 interface Props {
@@ -39,6 +40,13 @@ export default function AddFriend({
   // 리액트 쿼리
   const queryClient = useQueryClient();
   const userInfo = useRecoilValue(userState);
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
 
   // 유저 검색 form input 초기화
   const [searchUserNickname, setSearchUserNickname] = useState<string>('');
@@ -89,7 +97,8 @@ export default function AddFriend({
 
       // 이미 추가된 유저일 시 예외 처리
       if (userData.data.isFriend === true) {
-        alert('이미 추가되거나 차단된 유저입니다');
+        setIsErrorGet(true);
+        setErrorMessage('이미 추가되거나 차단된 유저입니다.');
         return;
       }
       setSearchUserResponse(userData.data);
@@ -99,8 +108,8 @@ export default function AddFriend({
       setUserImageUrl(imageUrl);
     } catch (error) {
       stateReset();
-      alert('존재하지 않는 유저이거나, 본인의 닉네임입니다');
-      console.log(error);
+      setIsErrorGet(true);
+      setErrorMessage('존재하지 않는 유저이거나, 본인의 닉네임입니다.');
     }
   };
 
@@ -110,7 +119,9 @@ export default function AddFriend({
   ) => {
     event.preventDefault();
     if (searchUserResponse.userId === '') {
-      alert('선택된 유저가 없습니다');
+      setIsErrorGet(true);
+      setErrorMessage('선택된 유저가 없습니다.');
+      return;
     }
     try {
       const response = await axios.post(
@@ -129,12 +140,18 @@ export default function AddFriend({
       queryClient.invalidateQueries('friends');
     } catch (error) {
       stateReset();
-      console.log(error);
+      setIsErrorGet(true);
+      setErrorMessage('요청이 실패했습니다.');
     }
   };
 
   return (
     <div>
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
       {isAddFriendModal && (
         <Popup onClose={handleClickModal}>
           <AddModalMainText>친구 추가하기</AddModalMainText>

@@ -12,6 +12,7 @@ import MuteIcon from '../../../../assets/icon/mute.svg';
 import UnmuteIcon from '../../../../assets/icon/unmute.svg';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import { useUserChannel } from '../../../../api/Channel';
+import ErrorPopupNav from '../../error/ErrorPopupNav';
 
 interface BanProps {
   friendId: string;
@@ -48,6 +49,9 @@ export default function ProfileFooter({
   const navigate = useNavigate();
   // 리코일 - 유저 정보
   const userInfo = useRecoilValue(userState);
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   // userChannel - isMute 정보
   const { data: userChannel } = useUserChannel(
     user.userId,
@@ -57,6 +61,10 @@ export default function ProfileFooter({
   const [isMute, setIsMute] = useState<boolean | undefined>(false);
   // 음소거와 킥 공통 url
   const muteKickUrl = `http://localhost:3000/channels/${channelInfo?.channelId}/member/${user.userId}`;
+
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
 
   useEffect(() => {
     if (inChat === true) {
@@ -82,15 +90,19 @@ export default function ProfileFooter({
       .catch(function (error) {
         // 예외 처리
         if (error.response.status === 404) {
-          alert('없는 사용자입니다');
+          setIsErrorGet(true);
+          setErrorMessage('없는 사용자입니다.');
         } else if (error.response.status === 403) {
           if (error.response.data.message === 'not admin user') {
-            alert('사용자가 오너이거나 관리자가 아닙니다');
+            setIsErrorGet(true);
+            setErrorMessage('사용자가 오너이거나 관리자가 아닙니다.');
           } else if (error.response.data.message === 'cannot mute owner') {
-            alert('채널 소유자를 음소거할 수 없습니다');
+            setIsErrorGet(true);
+            setErrorMessage('채널 소유자를 음소거할 수 없습니다.');
           }
         } else {
-          alert(error);
+          setIsErrorGet(true);
+          setErrorMessage('요청이 실패했습니다.');
         }
       });
   };
@@ -106,17 +118,17 @@ export default function ProfileFooter({
           Authorization: `Bearer ${userInfo.token}`,
         },
       })
-      .then(function (response) {
-        console.log(response);
-      })
       .catch(function (error) {
         // 예외 처리
         if (error.response.status === 400) {
-          alert(error.response.data.message);
+          setIsErrorGet(true);
+          setErrorMessage(error.response.data.message);
         } else if (error.response.status === 404) {
-          alert('없는 사용자입니다');
+          setIsErrorGet(true);
+          setErrorMessage('없는 사용자입니다.');
         } else {
-          alert(error);
+          setIsErrorGet(true);
+          setErrorMessage('요청이 실패했습니다.');
         }
       });
     // 프로필 모달 닫기
@@ -150,11 +162,14 @@ export default function ProfileFooter({
       .catch(function (error) {
         // 예외 처리
         if (error.response.status === 404) {
-          alert('사용자의 친구가 아닙니다');
+          setIsErrorGet(true);
+          setErrorMessage('사용자의 친구가 아닙니다.');
         } else if (error.response.status === 409) {
-          alert('이미 차단되거나 차단 해제된 사용자입니다');
+          setIsErrorGet(true);
+          setErrorMessage('이미 차단되거나 차단 해제된 사용자입니다.');
         } else {
-          alert(error);
+          setIsErrorGet(true);
+          setErrorMessage('요청이 실패했습니다.');
         }
       });
   };
@@ -183,9 +198,11 @@ export default function ProfileFooter({
       .catch(function (error) {
         // 예외 처리
         if (error.response.status === 404) {
-          alert('없는 사용자입니다');
+          setIsErrorGet(true);
+          setErrorMessage('없는 사용자입니다.');
         } else {
-          alert(error);
+          setIsErrorGet(true);
+          setErrorMessage('요청이 실패했습니다.');
         }
       });
     // 프로필 모달 닫기
@@ -207,47 +224,54 @@ export default function ProfileFooter({
     (inChat && (user.userId === userInfo.userId || !channelInfo?.isAdmin)) ||
     (!inChat && user.userId === userInfo.userId);
   return (
-    <FooterWrapper onlyOne={onlyOne}>
-      {user.userId !== '' && (
-        <>
-          <ButtonWrap>
-            <Button onClick={handleGameClicked}>
-              <ButtonImage src={GameIcon} />
-            </Button>
-          </ButtonWrap>{' '}
-          {inChat &&
-            user.userId !== userInfo.userId &&
-            channelInfo?.isAdmin && (
+    <>
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
+      <FooterWrapper onlyOne={onlyOne}>
+        {user.userId !== '' && (
+          <>
+            <ButtonWrap>
+              <Button onClick={handleGameClicked}>
+                <ButtonImage src={GameIcon} />
+              </Button>
+            </ButtonWrap>{' '}
+            {inChat &&
+              user.userId !== userInfo.userId &&
+              channelInfo?.isAdmin && (
+                <>
+                  <ButtonWrap>
+                    <Button onClick={handleMuteClicked}>
+                      <ButtonImage src={isMute ? MuteIcon : UnmuteIcon} />
+                    </Button>
+                  </ButtonWrap>
+                  <ButtonWrap>
+                    <Button onClick={handleKickClicked}>
+                      <ButtonImage src={KickIcon} />
+                    </Button>
+                  </ButtonWrap>
+                </>
+              )}
+            {!inChat && user.userId !== userInfo.userId && (
               <>
                 <ButtonWrap>
-                  <Button onClick={handleMuteClicked}>
-                    <ButtonImage src={isMute ? MuteIcon : UnmuteIcon} />
+                  <Button onClick={handleDmClicked}>
+                    <ButtonImage src={DmIcon} />
                   </Button>
                 </ButtonWrap>
                 <ButtonWrap>
-                  <Button onClick={handleKickClicked}>
-                    <ButtonImage src={KickIcon} />
+                  <Button onClick={handleBanClicked}>
+                    <ButtonImage src={BanIcon} />
                   </Button>
                 </ButtonWrap>
               </>
             )}
-          {!inChat && user.userId !== userInfo.userId && (
-            <>
-              <ButtonWrap>
-                <Button onClick={handleDmClicked}>
-                  <ButtonImage src={DmIcon} />
-                </Button>
-              </ButtonWrap>
-              <ButtonWrap>
-                <Button onClick={handleBanClicked}>
-                  <ButtonImage src={BanIcon} />
-                </Button>
-              </ButtonWrap>
-            </>
-          )}
-        </>
-      )}
-    </FooterWrapper>
+          </>
+        )}
+      </FooterWrapper>
+    </>
   );
 }
 
