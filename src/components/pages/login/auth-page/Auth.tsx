@@ -8,7 +8,6 @@ import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
 import { getImageUrl } from '../../../../api/ProfileImge';
-import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
 import ErrorPopupNav from '../../../commons/error/ErrorPopupNav';
 
 export default function Auth() {
@@ -25,9 +24,13 @@ export default function Auth() {
   const [cookies, setCookie, removeCookie] = useCookies(['token']);
   const [cookieUserId, setCookieUserId] = useState<string>('');
   // 에러
-  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [moveTo, setMoveTo] = useState<To>(``);
+
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
 
   // 입력 변화 핸들러
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,7 +125,12 @@ export default function Auth() {
 
   return (
     <Layout Header={<Header title="Email Authentication Code" />}>
-      <ErrorPopupNav message={errorMessage} moveTo={moveTo} />
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+        moveTo={moveTo}
+      />
       <Container>
         <InfoText>인트라 이메일로 인증코드를 발송하였습니다</InfoText>
         <InputContainer>

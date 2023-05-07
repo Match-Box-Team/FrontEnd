@@ -10,7 +10,7 @@ const Popup = styled.div`
   height: 10vh;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -400%);
   background-color: #f8d7da;
   color: #721c24;
   padding: 1rem;
@@ -25,20 +25,26 @@ const Popup = styled.div`
 `;
 
 interface ErrorPopupProps {
+  isErrorGet: boolean;
   message: string;
+  handleErrorClose: () => void;
   moveTo?: To;
 }
 
-function ErrorPopupNav({ message, moveTo = `` }: ErrorPopupProps) {
+function ErrorPopupNav({
+  isErrorGet,
+  message,
+  handleErrorClose,
+  moveTo = ``,
+}: ErrorPopupProps) {
   // 페이지 이동
   const navigate = useNavigate();
-  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
 
   useEffect(() => {
     if (isErrorGet) {
       const timeoutId = setTimeout(() => {
-        setIsErrorGet(false);
-      }, 2000);
+        handleErrorClose();
+      }, 1500);
 
       return () => {
         clearTimeout(timeoutId);
@@ -48,7 +54,7 @@ function ErrorPopupNav({ message, moveTo = `` }: ErrorPopupProps) {
       };
     }
     return undefined;
-  }, [isErrorGet, setIsErrorGet, moveTo]);
+  }, [isErrorGet, moveTo]);
 
   return (
     <div>

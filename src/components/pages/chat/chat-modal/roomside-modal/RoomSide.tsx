@@ -11,6 +11,7 @@ import Plus from '../../../../../assets/icon/plus.svg';
 import { UserChannel, useUserChannels } from '../../../../../api/ChatRoomInfo';
 import { useAddFriendMutation } from '../../../../../api/AddFriend';
 import { useSetAdminMutation } from '../../../../../api/SetAdmin';
+import ErrorPopupNav from '../../../../commons/error/ErrorPopupNav';
 
 interface ChannelProps {
   channelId: string;
@@ -33,6 +34,12 @@ export default function RoomSide({
 
   // 유저  정보
   const userInfo = useRecoilValue(userState);
+  // 에러 모달
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
 
   // react-query 채팅방 멤버 정보
   const { data: userChannels } = useUserChannels(
@@ -53,24 +60,30 @@ export default function RoomSide({
   const handleAddFriend = async (userChannel: UserChannel) => {
     try {
       if (userInfo.userId === userChannel.user.userId) {
-        alert('본인입니다');
+        setIsErrorGet(true);
+        setErrorMessage('본인입니다.');
+        return;
       }
       if (userChannel.isFriend) {
-        alert('이미 친구인 유저입니다');
+        setIsErrorGet(true);
+        setErrorMessage('이미 친구인 유저입니다.');
+        return;
       }
       await addFriendMutation({
         userId: userChannel.user.userId,
         token: userInfo.token,
       });
     } catch (error) {
-      console.log(error);
+      setIsErrorGet(true);
+      setErrorMessage('요청을 처리할 수 없습니다.');
     }
   };
 
   const handleSetAdmin = async (userChannel: UserChannel) => {
     try {
       if (userChannel.isAdmin) {
-        alert('이미 관리자인 유저입니다');
+        setIsErrorGet(true);
+        setErrorMessage('이미 관리자인 유저입니다.');
         return;
       }
       await setAdminMutation({
@@ -79,7 +92,8 @@ export default function RoomSide({
         token: userInfo.token,
       });
     } catch (error) {
-      console.log(error);
+      setIsErrorGet(true);
+      setErrorMessage('요청을 처리할 수 없습니다.');
     }
   };
 
@@ -110,6 +124,11 @@ export default function RoomSide({
 
   return (
     <div>
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
       <SetRoom
         isOpenSetRoomModal={isOpenSetRoomModal}
         handleClickModal={handleClickSetRoomModal}

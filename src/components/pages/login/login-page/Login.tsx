@@ -8,7 +8,6 @@ import LogoIcon from '../../../../assets/icon/logo.svg';
 import LoginIcon from '../../../../assets/icon/login.svg';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import ErrorPopupNav from '../../../commons/error/ErrorPopupNav';
-import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState<boolean>(false);
@@ -16,7 +15,7 @@ export default function Login() {
   const navigate = useNavigate();
   const setUserState = useSetRecoilState(userState);
   // 에러
-  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleLogin = async () => {
@@ -31,6 +30,10 @@ export default function Login() {
         setIsErrorGet(true);
         setErrorMessage('요청을 실패했습니다.');
       });
+  };
+
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
   };
 
   useEffect(() => {
@@ -68,7 +71,11 @@ export default function Login() {
       <Fake2Button onClick={() => fakeLogin(2)}>가짜 유저2 로그인</Fake2Button>
       <Fake3Button onClick={() => fakeLogin(3)}>가짜 유저3 로그인</Fake3Button>
       <Fake4Button onClick={() => fakeLogin(4)}>가짜 유저4 로그인</Fake4Button>
-      <ErrorPopupNav message={errorMessage} />
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
       <Container>
         <LogoImage src={LogoIcon} alt={LogoIcon} />
         <LoginImage src={LoginIcon} alt={LoginIcon} onClick={handleLogin} />

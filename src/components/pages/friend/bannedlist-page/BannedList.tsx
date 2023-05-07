@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import axios from 'axios';
 import Layout from '../../../commons/layout/Layout';
 import Header from '../../../commons/header/Header';
@@ -9,6 +9,8 @@ import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import BanRestoreIcon from '../../../../assets/icon/ban-restore.svg';
 import { getImageUrl } from '../../../../api/ProfileImge';
 import { footerState } from '../../../../recoil/locals/footer/atoms/footerAtom';
+import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
+import ErrorPopup from '../../../commons/error/ErrorPopup';
 
 interface IBannedBuddy {
   nickname: string;
@@ -28,6 +30,9 @@ export default function BannedList() {
   const [bannedFriends, setBannedFriends] = useState<IBannedFriends[]>([]);
   const [restoreClick, setRestoreClicked] = useState<boolean>(false);
   const userInfo = useRecoilValue(userState);
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleRestoreClicked = async (friendId: string) => {
     try {
@@ -43,7 +48,8 @@ export default function BannedList() {
       );
       setRestoreClicked(true);
     } catch (error) {
-      console.error(error);
+      setIsErrorGet(true);
+      setErrorMessage('이미 차단이 해제된 친구입니다.');
     }
   };
 
@@ -88,7 +94,8 @@ export default function BannedList() {
         );
         setBannedFriends(updatedFriends);
       } catch (error) {
-        console.error(error);
+        setIsErrorGet(true);
+        setErrorMessage('요청이 실패했습니다.');
       }
     };
 
@@ -100,6 +107,7 @@ export default function BannedList() {
       Header={<Header title="Banned" friendToggle toggleMove={false} />}
       Footer={<Footer tab="friend" />}
     >
+      <ErrorPopup message={errorMessage} />
       <Continer>
         <CountContainer>
           <Count>Banned {bannedFriends.length}</Count>

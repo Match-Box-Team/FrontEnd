@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { Socket, io } from 'socket.io-client';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { useNavigate, useParams } from 'react-router-dom';
+import { To, useNavigate, useParams } from 'react-router-dom';
 import Layout from '../../../commons/layout/Layout';
 import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
-import { IChat, IError, ISendedMessage } from '.';
+import { IChat, IError, ISendedMessage, NError } from '.';
 import { getDefaultImageUrl, getImageUrl } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
 import { useGetChatRoomLog, useUserChannel } from '../../../../api/Channel';
@@ -17,8 +17,7 @@ import Profile, {
   Member,
   initialMember,
 } from '../../../commons/modals/profile-modal/Profile';
-import ErrorPopup from '../../../commons/error/ErrorPopup';
-import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
+import ErrorPopupNav from '../../../commons/error/ErrorPopupNav';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 
 const Base = styled.div`
@@ -46,8 +45,14 @@ export default function ChatRoom() {
   const [messages, setMessages] = useState<Array<IChat>>([]);
   const userInfo = useRecoilValue(userState);
   const [channelName, setChannelName] = useState<string>('Channel');
-  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
-  const [isSocketError, setIsSocketError] = useState<boolean>(false);
+
+  // 에러 모달
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [moveTo, setMoveTo] = useState<To>(``);
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
   const {
     data: chatListData,
     isLoading,
@@ -63,11 +68,6 @@ export default function ChatRoom() {
     socketRef.current?.emit('chat', content, handleNewChatMessage);
   };
 
-  const handleError = () => {
-    setIsErrorGet(false);
-    navigate('/chat/mymsg');
-  };
-
   useEffect(() => {
     socketRef.current = io(
       `${process.env.REACT_APP_BASE_BACKEND_URL}/channel`,
@@ -81,9 +81,16 @@ export default function ChatRoom() {
 
     socketRef.current.emit('enterChannel', { channelId: id });
 
-    socketRef.current.on('error', (error: IError) => {
-      setIsSocketError(true);
+    socketRef.current.on('error', (error: IError | NError) => {
       setIsErrorGet(true);
+      setMoveTo(`/chat/mymsg`);
+      if ('UnauthorizedException' in error) {
+        setErrorMessage(error.UnauthorizedException);
+      } else if ('NotFoundException' in error) {
+        setErrorMessage(error.NotFoundException);
+      } else {
+        setErrorMessage('[소켓 연결 에러] 채팅방에 입장할 수 없습니다 ');
+      }
     });
     socketRef.current.on('chat', handleNewChatMessage);
 
@@ -201,10 +208,12 @@ export default function ChatRoom() {
       />
       <Base>
         <Container>
-          {isErrorGet && isSocketError ? (
-            <ErrorPopup
-              message="[소켓 연결 에러] 채팅방에 입장할 수 없습니다 "
-              handleClick={handleError}
+          {isErrorGet ? (
+            <ErrorPopupNav
+              isErrorGet={isErrorGet}
+              message={errorMessage}
+              handleErrorClose={handleHideErrorModal}
+              moveTo={moveTo}
             />
           ) : (
             <MessageList>
