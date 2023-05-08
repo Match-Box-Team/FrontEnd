@@ -198,7 +198,7 @@ export default function ProfileFooter({
     if (user.userId !== userInfo.userId) {
       navigate(`/profile/friend/${user.userId}`);
     } else {
-      navigate(`/profile/my/:id`);
+      navigate(`/profile/my`);
     }
   };
 

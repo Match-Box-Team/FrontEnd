@@ -1,8 +1,10 @@
 import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
+import { useState } from 'react';
 import { NoXPopup } from '../../../../commons/modals/popup-modal/Popup';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
 import { useBuyGameMutation } from '../../../../../api/BuyGame';
+import ErrorPopupNav from '../../../../commons/error/ErrorPopupNav';
 
 interface Props {
   isOpenBuyGameModal: boolean;
@@ -21,21 +23,33 @@ export default function BuyGame({
 }: Props) {
   // 유저  정보
   const userInfo = useRecoilValue(userState);
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
 
   // react-query 게임 구매
   const { mutate: buyGame } = useBuyGameMutation(userInfo.token);
 
-  const handleBuyGame = async () => {
+  const handleBuyGame = () => {
     try {
-      await buyGame({ gameId, token: userInfo.token });
+      buyGame({ gameId, token: userInfo.token });
       handleClickModal();
     } catch (error) {
-      console.log(error);
+      setIsErrorGet(true);
+      setErrorMessage('요청을 처리할 수 없습니다.');
     }
   };
 
   return (
     <div>
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
       {isOpenBuyGameModal && (
         <NoXPopup onClose={handleClickModal}>
           <MainText>정말로 구매하시겠습니까</MainText>

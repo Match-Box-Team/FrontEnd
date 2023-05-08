@@ -47,7 +47,7 @@ export default function Auth() {
     try {
       // 인증 코드 검증
       const response = await axios.post(
-        `http://localhost:3000/auth/verifyCode`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/auth/verifyCode`,
         {
           userId: cookieUserId,
           code: inputValue,
@@ -56,7 +56,7 @@ export default function Auth() {
       const jwtToken = response.data.token;
       // 유저 정보 저장
       const userInfoResponse = await axios.post(
-        `http://localhost:3000/account/info`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/account/info`,
         {
           userId: cookieUserId,
         },
@@ -94,13 +94,13 @@ export default function Auth() {
   useEffect(() => {
     async function verifyTimeOut() {
       await axios
-        .post(`http://localhost:3000/auth/verifyTimeOut`, {
+        .post(`${process.env.REACT_APP_BASE_BACKEND_URL}/auth/verifyTimeOut`, {
           userId: cookieUserId,
         })
         .catch(function () {
           setIsErrorGet(true);
           setMoveTo(`/`);
-          setErrorMessage('요청을 실패했습니다.');
+          setErrorMessage('요청을 처리할 수 없습니다.');
         });
     }
     let timerId: any;

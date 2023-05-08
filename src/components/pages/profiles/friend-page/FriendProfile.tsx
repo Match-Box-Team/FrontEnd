@@ -104,7 +104,8 @@ export default function FriendProfile() {
       );
       setIsFriend(true);
     } catch (error) {
-      console.log(error);
+      setIsErrorGet(true);
+      setErrorMessage('요청을 처리할 수 없습니다.');
     }
   };
 
