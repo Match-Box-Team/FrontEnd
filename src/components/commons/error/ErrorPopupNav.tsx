@@ -14,7 +14,7 @@ const Popup = styled.div`
   padding: 1rem;
   border-radius: 5px;
   border: 1px solid #f5c6cb;
-  z-index: 1000;
+  z-index: 10001;
   display: flex;
   flex-direction: column;
   align-items: center;

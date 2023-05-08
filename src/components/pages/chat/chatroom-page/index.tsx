@@ -72,3 +72,8 @@ export interface IIsAdminAndIsMute {
   isAdmin: boolean;
   isMute: boolean;
 }
+
+export interface IKick {
+  channelId: string;
+  targetId: string;
+}
