@@ -80,11 +80,13 @@ export default function MyMsgList() {
 
         setMyRooms(tmpList);
 
-        const tmpUrl: string | undefined = await getImageUrl(
-          response.data.channel[0].user[0].user.userId,
-          userInfo.token,
-        );
-        setImageUrl(tmpUrl);
+        if (response.data.channel.length !== 0) {
+          const tmpUrl: string | undefined = await getImageUrl(
+            response.data.channel[0].user[0].user.userId,
+            userInfo.token,
+          );
+          setImageUrl(tmpUrl);
+        }
         setChannels(response.data.channel);
       } catch (error) {
         setIsErrorGet(true);

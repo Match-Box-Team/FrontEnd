@@ -48,6 +48,13 @@ export default function GameShop() {
     setSelectedGameId(gameId);
   };
 
+  // 관전하러 가기
+  const handleGameWatchClicked = () => {
+    if (selectedGameId !== '') {
+      navigate(`/game/watch/${selectedGameId}`);
+    }
+  };
+
   return (
     <Layout
       Header={<Header title="Game Shop" />}
@@ -78,7 +85,7 @@ export default function GameShop() {
                     <BuyButton
                       isBuy={game.isBuy}
                       onClick={() => {
-                        if (game.isPlayable) {
+                        if (game.isPlayable && !game.isBuy) {
                           handleClickModal();
                         }
                       }}
@@ -90,9 +97,7 @@ export default function GameShop() {
               );
             })}
           </SelectGameGridDiv>
-          <GameWatchingButton
-            onClick={() => navigate(`/game/watch/${selectedGameId}`)}
-          >
+          <GameWatchingButton onClick={handleGameWatchClicked}>
             관전하기
           </GameWatchingButton>
         </SelectGameDiv>
