@@ -12,6 +12,7 @@ import SelectArrow from '../../../../assets/icon/SelectArrow.svg';
 import { getImageUrl } from '../../../../api/ProfileImge';
 import { useSocket } from '../../login/login-page/LoginSocketContext';
 import AcceptWaiting from '../../game/game-modal/accept-waiting-modal/AcceptWaiting';
+import ErrorPopupNav from '../../../commons/error/ErrorPopupNav';
 
 interface User {
   image: string;
@@ -58,6 +59,13 @@ export default function FriendProfile() {
 
   const selectRef = useRef<HTMLSelectElement>(null);
   const socketRef = useSocket();
+
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
 
   const getUserGameHistoryText = (gameName: string) => {
     const selectedUserGame = userGames?.filter(
@@ -128,13 +136,57 @@ export default function FriendProfile() {
     setIsOpenAcceptWaitingModal(false);
   };
 
+  useEffect(() => {
+    // 초대 보낸 유저 or 받은 유저가 게임을 구매하지 않은 경우
+    socketRef?.on('inviteFail', (message: string) => {
+      setIsErrorGet(true);
+      setErrorMessage(message);
+      setIsOpenAcceptWaitingModal(false);
+    });
+
+    // 초대 보내기 성공
+    socketRef?.once('inviteSuccess', () => {
+      console.log('초대 성공');
+      setIsOpenAcceptWaitingModal(true);
+    });
+
+    // 초대 거부됨
+    socketRef?.once('inviteReject', () => {
+      setIsErrorGet(true);
+      setErrorMessage('상대방이 초대 거부함');
+      setIsOpenAcceptWaitingModal(false);
+    });
+
+    // 초대 받은 사람이 오프라인 상태
+    socketRef?.once('inviteCancelFail', message => {
+      setIsErrorGet(true);
+      setErrorMessage(message);
+      setIsOpenAcceptWaitingModal(false);
+    });
+
+    return () => {
+      socketRef?.off('inviteFail');
+      socketRef?.off('inviteSuccess');
+      socketRef?.off('inviteReject');
+      socketRef?.off('inviteCancelFail');
+    };
+  });
+
   return (
     <Layout
       Header={<Header title="Friend's Game" />}
       Footer={<Footer tab="" />}
     >
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
       {isOpenAcceptWaitingModal && (
-        <AcceptWaiting handleClickModal={onCloseWaitingModal} />
+        <AcceptWaiting
+          handleClickModal={onCloseWaitingModal}
+          buddyId={buddyId}
+        />
       )}
       <MyPageDiv>
         {/* 유저 프로필 */}
@@ -196,7 +248,6 @@ export default function FriendProfile() {
           <GameButton
             onClick={() => {
               console.log('유저 게임 초대');
-              setIsOpenAcceptWaitingModal(true);
               socketRef?.emit('inviteGame', { userId: buddyId });
             }}
           >

@@ -46,7 +46,7 @@ export default function ChannelList() {
 
     try {
       await axios.post(
-        `http://127.0.0.1:3000/channels/${currentChannelId}/join`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${currentChannelId}/join`,
         { password: passwordInput },
         config,
       );
@@ -69,7 +69,7 @@ export default function ChannelList() {
     };
     try {
       await axios.post(
-        `http://127.0.0.1:3000/channels/${channelId}/join`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${channelId}/join`,
         { password: passwordInput },
         config,
       );
@@ -103,7 +103,7 @@ export default function ChannelList() {
 
       try {
         const response = await axios.get(
-          'http://127.0.0.1:3000/channels',
+          `${process.env.REACT_APP_BASE_BACKEND_URL}/channels`,
           config,
         );
         setChannels(response.data.channel);

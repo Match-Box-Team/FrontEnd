@@ -41,16 +41,9 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
   const userInfo = useRecoilValue(userState);
   const [userGameInfo, setUserGameInfo] = useState<UserGameInfo | null>(null);
   const [enemyInfo, setEnemyInfo] = useState<Enemy | null>(null);
-  const [selectedSpeed, setSelectedSpeed] = useState<string>('4');
+  const [selectedSpeed, setSelectedSpeed] = useState<string>('3');
 
   useEffect(() => {
-    // if (socketRef) {
-    //   socketRef.emit(`ready`, {
-    //     gameControl: 'connection..',
-    //   });
-    //   console.log('connected~!!');
-    // }
-
     socketRef?.once('startReadyGame', async (info: UserGameInfo) => {
       setUserGameInfo(info);
       const imageUrl = await getImageUrl(info.enemyUserId, userInfo.token);
@@ -64,12 +57,6 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
       console.log('gameWatch: ', gameWatch);
     });
 
-    socketRef?.once('cancelReadyGame', () => {
-      console.log('게임 준비 취소됨');
-      onClick();
-      navigate('/profile/my');
-    });
-
     socketRef?.once('speedUpdate', (speed: string) => {
       console.log(`스피드 업데이트됨 -> ${speed}`);
       setSelectedSpeed(speed);
@@ -77,16 +64,11 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
 
     socketRef?.once('gameStart', () => {
       console.log('test : ', gameWatch?.gameWatchId);
-      // socketRef.emit(`ready`, {
-      //   gameControl: 'connection..',
-      //   gameWatchId: gameWatch?.gameWatchId,
-      // });
       navigate(`/game/${gameWatch?.gameWatchId}/play`);
     });
 
     return () => {
       socketRef?.off('startReadyGame');
-      socketRef?.off('cancelReadyGame');
       socketRef?.off('speedUpdate');
       socketRef?.off('gameStart');
     };
@@ -97,7 +79,10 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
       return;
     }
     const { value } = event.target;
-    setSelectedSpeed(selectedSpeed === value ? '' : value);
+    if (selectedSpeed === value) {
+      return;
+    }
+    setSelectedSpeed(value);
     socketRef?.emit('speedUpdate', {
       guestUserGameId: gameWatch?.userGameId2,
       speed: value,
@@ -106,14 +91,10 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
   };
 
   const gameStart = () => {
-    if (!selectedSpeed) {
-      alert('선택된 스피드가 없습니다');
-      return;
-    }
     if (userGameInfo?.role === 'host') {
       socketRef?.emit('gameStart', {
         guestUserGameId: gameWatch?.userGameId2,
-        speed: selectedSpeed,
+        speed: +selectedSpeed,
       });
     }
   };
@@ -158,18 +139,18 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
               <p>속도를 선택하세요:</p>
               <CheckBoxWrap>
                 <Checkbox
+                  id="speed-1"
+                  label="1"
+                  checked={selectedSpeed === '1'}
+                  onChange={handleCheckboxChange}
+                  value="1"
+                />
+                <Checkbox
                   id="speed-3"
                   label="3"
                   checked={selectedSpeed === '3'}
                   onChange={handleCheckboxChange}
                   value="3"
-                />
-                <Checkbox
-                  id="speed-4"
-                  label="4"
-                  checked={selectedSpeed === '4'}
-                  onChange={handleCheckboxChange}
-                  value="4"
                 />
                 <Checkbox
                   id="speed-5"

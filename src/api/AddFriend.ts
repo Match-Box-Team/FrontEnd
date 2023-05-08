@@ -10,7 +10,7 @@ export const useAddFriendMutation = (
   return useMutation<void, Error, { userId: string; token: string }>(
     ({ userId, token }) =>
       axios.post(
-        'http://localhost:3000/friends',
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/friends`,
         {
           userId,
         },

@@ -22,14 +22,8 @@ export default function Matching({ handleClickModal }: Props) {
       },
     );
 
-    socketRef?.once('randomMatchError', (message: string) => {
-      handleClickModal();
-      alert(message);
-    });
-
     return () => {
       socketRef?.off('randomMatchSuccess');
-      socketRef?.off('randomMatchError');
     };
   });
 

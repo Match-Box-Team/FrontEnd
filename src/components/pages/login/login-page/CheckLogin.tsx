@@ -96,14 +96,32 @@ export default function CheckLogin({ children }: Props) {
       setIsOpenAcceptGameModal(true);
     });
 
-    socketRef.current?.once('gameError', (message: { message: string }) => {
+    // 상대가 초대 취소함
+    socketRef.current?.once('inviteCancel', () => {
+      setIsErrorGet(true);
+      setErrorMessage('상대가 초대를 취소함');
       setIsOpenAcceptGameModal(false);
-      setIsOpenAcceptWaitingModal(false);
+    });
+
+    // 초대 보낸 유저가 초대를 취소함
+    socketRef.current?.once('inviteRejectFail', (message: string) => {
+      setIsErrorGet(true);
+      setErrorMessage(message);
+      setIsOpenAcceptGameModal(false);
+    });
+
+    // 초대 보낸 유저가 초대를 취소함 or GameWatch 생성 실패
+    socketRef.current?.once('inviteResolveFail', (message: string) => {
+      setIsErrorGet(true);
+      setErrorMessage(message);
+      setIsOpenAcceptGameModal(false);
     });
 
     return () => {
       socketRef.current?.off('inviteGame');
-      socketRef.current?.off('gameError');
+      socketRef.current?.off('inviteCancel');
+      socketRef.current?.off('inviteRejectFail');
+      socketRef.current?.off('inviteResolveFail');
     };
   });
 
@@ -112,13 +130,6 @@ export default function CheckLogin({ children }: Props) {
     useState<boolean>(false);
   const handleClickAcceptModal = () => {
     setIsOpenAcceptGameModal(!isOpenAcceptGameModal);
-  };
-
-  // 초대 수락 대기 모달
-  const [isOpenAcceptWaitingModal, setIsOpenAcceptWaitingModal] =
-    useState<boolean>(false);
-  const onCloseWaitingModal = () => {
-    setIsOpenAcceptWaitingModal(false);
   };
 
   return (

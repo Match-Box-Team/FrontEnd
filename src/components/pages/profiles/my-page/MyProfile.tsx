@@ -14,6 +14,7 @@ import Matching from '../../game/game-modal/matching-modal/Matching';
 import { useSocket } from '../../game/playgame-page/game-socket/GameSocketContext';
 import ErrorPopup from '../../../commons/error/ErrorPopup';
 import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
+import ErrorPopupNav from '../../../commons/error/ErrorPopupNav';
 
 interface User {
   userId: string;
@@ -51,9 +52,12 @@ export default function MyProfile() {
   // 유저  정보
   const userInfo = useRecoilValue(userState);
 
-  // 에러 모달
-  const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
 
   // 모달 관리
   const [isOpenEditProfileModal, setIsOpenEditProfileModal] =
@@ -100,9 +104,9 @@ export default function MyProfile() {
     return `${history.winCount}승 ${history.loseCount}패`;
   };
 
-  const [showReadyGameModal, setShowReadyGameModal] = useState(false);
-  const handleClickReadyGameModal = () => {
-    setShowReadyGameModal(!showReadyGameModal);
+  const [showRandomMatchModal, setShowRandomMatchModal] = useState(false);
+  const handleClickRandomMatchModal = () => {
+    setShowRandomMatchModal(!showRandomMatchModal);
   };
 
   const getGameNameById = (gameId: string) => {
@@ -112,9 +116,12 @@ export default function MyProfile() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await axios.get(`http://localhost:3000/account`, {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      });
+      const data = await axios.get(
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/account`,
+        {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
+        },
+      );
       setSelectedGameId(data.data.userGame[0].game.gameId);
       setUser(data.data.user);
       setUserGames(data.data.userGame);
@@ -131,15 +138,37 @@ export default function MyProfile() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    socketRef?.once('randomMatchStart', () => {
+      setShowRandomMatchModal(true);
+    });
+
+    socketRef?.on('randomMatchError', (message: string) => {
+      setIsErrorGet(true);
+      setErrorMessage(message);
+      setShowRandomMatchModal(false);
+    });
+
+    return () => {
+      socketRef?.off('randomMatchStart');
+      socketRef?.off('randomMatchError');
+    };
+  });
+
   return (
     <Layout Header={<Header title="MyPage" />} Footer={<Footer tab="my" />}>
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
       {!selectedGameId && <ErrorPopup message={errorMessage} />}
       <EditMy
         isOpenEditProfileModal={isOpenEditProfileModal}
         handleClickModal={handleClickModal}
       />
-      {showReadyGameModal && (
-        <Matching handleClickModal={handleClickReadyGameModal} />
+      {showRandomMatchModal && (
+        <Matching handleClickModal={handleClickRandomMatchModal} />
       )}
       <MyPageDiv>
         {/* 유저 프로필 */}
@@ -233,7 +262,6 @@ export default function MyProfile() {
                 return;
               }
               socketRef?.emit('randomMatch', { gameId: selectedGameId });
-              handleClickReadyGameModal();
             }}
           >
             게임하기

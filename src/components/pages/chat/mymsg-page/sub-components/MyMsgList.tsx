@@ -58,7 +58,7 @@ export default function MyMsgList() {
       };
       try {
         const response: AxiosResponse<any, any> = await axios.get(
-          'http://127.0.0.1:3000/channels/my',
+          `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/my`,
           config,
         );
 

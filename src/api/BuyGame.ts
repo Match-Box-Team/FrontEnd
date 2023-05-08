@@ -6,9 +6,13 @@ import { queryClient } from '../App';
 export const useBuyGameMutation = (initailToken: string) => {
   return useMutation<void, Error, { gameId: string; token: string }>(
     ({ gameId, token }) =>
-      axios.post(`http://localhost:3000/games/${gameId}/buy`, null, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
+      axios.post(
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/games/${gameId}/buy`,
+        null,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      ),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['games', initailToken]);

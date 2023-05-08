@@ -91,7 +91,7 @@ export default function EditMy({
         const form = new FormData();
         form.append('image', selectedFile!);
         const user = await axios.patch(
-          `http://localhost:3000/account/image`,
+          `${process.env.REACT_APP_BASE_BACKEND_URL}/account/image`,
           form,
           {
             headers: { Authorization: `Bearer ${userInfo.token}` },
@@ -101,7 +101,7 @@ export default function EditMy({
       // 닉네임 업데이트
       if (nickname) {
         const user = await axios.patch(
-          `http://localhost:3000/account/nickname`,
+          `${process.env.REACT_APP_BASE_BACKEND_URL}/account/nickname`,
           {
             nickname,
           },

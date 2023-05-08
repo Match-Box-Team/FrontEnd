@@ -21,7 +21,7 @@ export const getChatRoomInfo = async (
   token: string,
 ): Promise<ChatRoomListResponse> => {
   const response = await axios.get<ChatRoomListResponse>(
-    `http://localhost:3000/channels/${channelId}/friends`,
+    `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${channelId}/friends`,
     {
       headers: { Authorization: `Bearer ${token}` },
     },
@@ -32,7 +32,7 @@ export const getChatRoomInfo = async (
 
 const getUserChannels = async (channelId: string, token: string) => {
   const res = await axios.get<ChatRoomListResponse>(
-    `http://127.0.0.1:3000/channels/${channelId}/friends`,
+    `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${channelId}/friends`,
     {
       headers: { Authorization: `Bearer ${token}` },
     },
@@ -40,7 +40,7 @@ const getUserChannels = async (channelId: string, token: string) => {
   const results = res.data.userChannel;
   const updateResults = results.map(async item => {
     const imageUrl = await axios.get(
-      `http://localhost:3000/account/image?userId=${item.user.userId}`,
+      `${process.env.REACT_APP_BASE_BACKEND_URL}/account/image?userId=${item.user.userId}`,
       {
         responseType: 'blob',
         headers: { Authorization: `Bearer ${token}` },
