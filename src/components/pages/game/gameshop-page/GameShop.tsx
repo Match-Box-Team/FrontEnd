@@ -30,28 +30,17 @@ export default function GameShop() {
   // 유저 정보
   const userInfo = useRecoilValue(userState);
 
-  // react-query 게임 정보
-  const { data: games } = useGames(userInfo.token);
-
   // 모달 관리
   const [isOpenBuyGameModal, setIsOpenBuyGameModal] = useState<boolean>(false);
   const handleClickModal = () => {
     if (selectedGameId === '') {
       return;
     }
-    let isBuy = false;
-    games?.map(game => {
-      if (game.isBuy === true) {
-        isBuy = true;
-        return undefined;
-      }
-      return undefined;
-    });
-    if (isBuy) {
-      return;
-    }
     setIsOpenBuyGameModal(!isOpenBuyGameModal);
   };
+
+  // react-query 게임 정보
+  const { data: games } = useGames(userInfo.token);
 
   // 선택된 게임 Id
   const [selectedGameId, setSelectedGameId] = useState<string>('');
@@ -96,7 +85,7 @@ export default function GameShop() {
                     <BuyButton
                       isBuy={game.isBuy}
                       onClick={() => {
-                        if (game.isPlayable) {
+                        if (game.isPlayable && !game.isBuy) {
                           handleClickModal();
                         }
                       }}
