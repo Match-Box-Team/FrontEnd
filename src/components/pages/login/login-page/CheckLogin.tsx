@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { To, useNavigate } from 'react-router-dom';
+import { To, useNavigate, Link } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 import { isExpired } from 'react-jwt';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
@@ -9,6 +9,7 @@ import AcceptGameModal from '../../game/game-modal/accept-game-modal/AcceptModal
 import { getImageUrl } from '../../../../api/ProfileImge';
 import LoginSocketContext from './LoginSocketContext';
 import ErrorPopupNav from '../../../commons/error/ErrorPopupNav';
+import ParseUuid from '../../ParseUuid';
 
 interface Props {
   children: ReactNode;
@@ -148,7 +149,7 @@ export default function CheckLogin({ children }: Props) {
               socketRef={socketRef}
             />
           )}
-          {children}
+          <ParseUuid>{children}</ParseUuid>
         </LoginSocketContext.Provider>
       )}
     </>

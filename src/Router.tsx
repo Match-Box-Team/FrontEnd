@@ -14,6 +14,7 @@ import CheckLogin from './components/pages/login/login-page/CheckLogin';
 import GameSocketProvider from './components/pages/game/playgame-page/game-socket/GameSocketProvider';
 import GamePage from './components/pages/game/watchgame-page/GamePage';
 import ReadyGamePage from './components/pages/game/ready-game-page/ReadyGamePage';
+import NotFoundPage from './components/pages/NotFoundPage';
 
 function Router() {
   return (
@@ -31,6 +32,7 @@ function Router() {
           }
         />
         <Route
+          // :id - channelId
           path="/chat/channel/:id"
           element={
             <CheckLogin>
@@ -63,7 +65,8 @@ function Router() {
           }
         />
         <Route
-          path="/game/record/:userId/history"
+          // :id - userId
+          path="/game/record/:id/history"
           element={
             <CheckLogin>
               <GamePage title="Game Record" />
@@ -79,7 +82,8 @@ function Router() {
           }
         />
         <Route
-          path="/game/:gameWatchId/ready"
+          // :id - gameWatchId
+          path="/game/:id/ready"
           element={
             <CheckLogin>
               <GameSocketProvider>
@@ -89,8 +93,8 @@ function Router() {
           }
         />
         <Route
-          // path="/game/:gameWatchId/play"
-          path="/game/:gameWatchId/play"
+          // :id - gameWatchId
+          path="/game/:id/play"
           element={
             <CheckLogin>
               <GameSocketProvider>
@@ -100,7 +104,8 @@ function Router() {
           }
         />
         <Route
-          path="/game/watch/:gameId"
+          // :id - gameId
+          path="/game/watch/:id"
           element={
             <CheckLogin>
               <GameSocketProvider>
@@ -110,6 +115,7 @@ function Router() {
           }
         />
         <Route
+          // :id - userId
           path="/profile/friend/:id"
           element={
             <CheckLogin>
@@ -118,12 +124,20 @@ function Router() {
           }
         />
         <Route
-          path="/profile/my/:id"
+          path="/profile/my"
           element={
             <CheckLogin>
               <GameSocketProvider>
                 <MyProfile />
               </GameSocketProvider>
+            </CheckLogin>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <CheckLogin>
+              <NotFoundPage />
             </CheckLogin>
           }
         />
