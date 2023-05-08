@@ -12,6 +12,7 @@ import {
   FormWarp,
 } from '../../../chat/chat-modal/createroom-modal/Createroom';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
+import ErrorPopupNav from '../../../../commons/error/ErrorPopupNav';
 
 // 모달 prop 타입
 interface Props {
@@ -36,6 +37,12 @@ export default function EditMy({
 }: Props) {
   // 유저 정보
   const [userInfo, setUserInfo] = useRecoilState(userState);
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
 
   // 선택된 파일, 이미지 초기화
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -112,12 +119,18 @@ export default function EditMy({
       // 모달 끄기
       handleClickModal();
     } catch (error) {
-      alert('중복된 닉네임입니다');
+      setIsErrorGet(true);
+      setErrorMessage('중복된 닉네임입니다.');
     }
   };
 
   return (
     <div>
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+      />
       {isOpenEditProfileModal && (
         <Popup onClose={handleClickModal}>
           <EditMyMainText>프로필 수정</EditMyMainText>
