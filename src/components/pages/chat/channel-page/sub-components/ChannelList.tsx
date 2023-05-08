@@ -113,7 +113,7 @@ export default function ChannelList() {
     };
 
     fetchData();
-  }, []);
+  }, [channels]);
 
   const handleKeyDown = (
     event: React.KeyboardEvent<HTMLDivElement>,
