@@ -28,7 +28,7 @@ export default function Login() {
       })
       .catch(() => {
         setIsErrorGet(true);
-        setErrorMessage('요청을 실패했습니다.');
+        setErrorMessage('요청을 처리할 수 없습니다.');
       });
   };
 
@@ -58,10 +58,9 @@ export default function Login() {
         setUserState(storeUser);
         navigate('/chat/channel');
       })
-      .catch(function (error) {
-        if (error.response.status === 302) {
-          console.log(error);
-        }
+      .catch(() => {
+        setIsErrorGet(true);
+        setErrorMessage('요청을 처리할 수 없습니다.');
       });
   };
 

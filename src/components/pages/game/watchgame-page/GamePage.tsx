@@ -54,10 +54,9 @@ export default function GamePage({ title }: Prop) {
   /* 공용 상태 */
   // 게임 와치 페이지와 게임 전적 페이지 구별하는 용도
   const isGameWatchPage = title === 'Game Watch';
-  const { gameId, userId } = useParams<{
-    gameId: string;
-    userId: string;
-  }>();
+  const { id } = useParams<string>();
+  const gameId = id;
+  const userId = id;
   const userInfo = useRecoilValue(userState);
   const navigate = useNavigate();
   const [gameName, setGameName] = useState<string>('');

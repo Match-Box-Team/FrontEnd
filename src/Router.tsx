@@ -32,6 +32,7 @@ function Router() {
           }
         />
         <Route
+          // :id - channelId
           path="/chat/channel/:id"
           element={
             <CheckLogin>
@@ -64,6 +65,7 @@ function Router() {
           }
         />
         <Route
+          // :id - userId
           path="/game/record/:id/history"
           element={
             <CheckLogin>
@@ -80,6 +82,7 @@ function Router() {
           }
         />
         <Route
+          // :id - gameWatchId
           path="/game/:id/ready"
           element={
             <CheckLogin>
@@ -90,7 +93,7 @@ function Router() {
           }
         />
         <Route
-          // path="/game/:gameWatchId/play"
+          // :id - gameWatchId
           path="/game/:id/play"
           element={
             <CheckLogin>
@@ -101,6 +104,7 @@ function Router() {
           }
         />
         <Route
+          // :id - gameId
           path="/game/watch/:id"
           element={
             <CheckLogin>
@@ -111,6 +115,7 @@ function Router() {
           }
         />
         <Route
+          // :id - userId
           path="/profile/friend/:id"
           element={
             <CheckLogin>
