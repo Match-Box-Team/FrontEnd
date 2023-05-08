@@ -20,7 +20,7 @@ export const getImageUrl = async (
   token: string,
 ): Promise<string> => {
   const response: AxiosResponse<Blob> = await axios.get(
-    `http://localhost:3000/account/image?userId=${userId}`,
+    `${process.env.REACT_APP_BASE_BACKEND_URL}/account/image?userId=${userId}`,
     {
       responseType: 'blob',
       headers: { Authorization: `Bearer ${token}` },
@@ -32,7 +32,7 @@ export const getImageUrl = async (
 
 export const getDefaultImageUrl = async (token: string): Promise<string> => {
   const response: AxiosResponse<Blob> = await axios.get(
-    `http://localhost:3000/account/default`,
+    `${process.env.REACT_APP_BASE_BACKEND_URL}/account/default`,
     {
       responseType: 'blob',
       headers: { Authorization: `Bearer ${token}` },

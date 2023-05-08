@@ -64,7 +64,7 @@ export default function SetRoom({
     event.preventDefault();
     try {
       const response = await axios.patch(
-        `http://localhost:3000/channels/${channelId}`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${channelId}`,
         {
           password,
         },

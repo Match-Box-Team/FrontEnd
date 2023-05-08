@@ -13,7 +13,7 @@ export const useSetAdminMutation = (
   >(
     ({ channelId, userId, token }) =>
       axios.patch(
-        `http://localhost:3000/channels/${channelId}/member/${userId}/admin`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${channelId}/member/${userId}/admin`,
         null,
         {
           headers: { Authorization: `Bearer ${token}` },

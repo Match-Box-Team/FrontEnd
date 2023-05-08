@@ -116,9 +116,12 @@ export default function MyProfile() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await axios.get(`http://localhost:3000/account`, {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      });
+      const data = await axios.get(
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/account`,
+        {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
+        },
+      );
       setSelectedGameId(data.data.userGame[0].game.gameId);
       setUser(data.data.user);
       setUserGames(data.data.userGame);

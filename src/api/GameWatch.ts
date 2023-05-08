@@ -10,7 +10,7 @@ export interface GameWatch {
 
 const getGameWatchForReady = async (gameWatchId: string, token: string) => {
   const res = await axios.get<GameWatch>(
-    `http://localhost:3000/games/gameWatch/${gameWatchId}`,
+    `${process.env.REACT_APP_BASE_BACKEND_URL}/games/gameWatch/${gameWatchId}`,
     {
       headers: { Authorization: `Bearer ${token}` },
     },
