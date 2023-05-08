@@ -37,13 +37,6 @@ export default function CheckLogin({ children }: Props) {
     setIsErrorGet(false);
   };
 
-  // 에러
-  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const handleHideErrorModal = () => {
-    setIsErrorGet(false);
-  };
-
   useEffect(() => {
     if (userInfo.token !== '' && isExpired(userInfo.token) === true) {
       const resetUser = {
