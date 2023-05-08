@@ -83,7 +83,7 @@ export default function PlayGame() {
       navigate('/game/shop');
     } else {
       setShowModal(false);
-      navigate('/profile/my/:id', { replace: true });
+      navigate('/profile/my', { replace: true });
     }
   };
 

@@ -67,7 +67,7 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
     socketRef?.once('cancelReadyGame', () => {
       console.log('게임 준비 취소됨');
       onClick();
-      navigate('/profile/my/:id');
+      navigate('/profile/my');
     });
 
     socketRef?.once('speedUpdate', (speed: string) => {
@@ -108,6 +108,7 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
   const gameStart = () => {
     if (!selectedSpeed) {
       alert('선택된 스피드가 없습니다');
+      return;
     }
     if (userGameInfo?.role === 'host') {
       socketRef?.emit('gameStart', {

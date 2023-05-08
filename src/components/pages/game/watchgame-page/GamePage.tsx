@@ -80,7 +80,7 @@ export default function GamePage({ title }: Prop) {
       return '/game/shop';
     }
     if (userInfo.userId === userId) {
-      return '/profile/my/:id';
+      return '/profile/my';
     }
     return `/profile/friend/${userId}`;
   };

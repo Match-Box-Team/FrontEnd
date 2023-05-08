@@ -29,7 +29,7 @@ export default function Footer({ tab }: Props) {
       <Link to={footer.friends === 'frd' ? '/friend/list' : '/friend/banned'}>
         <ButtonImage src={tab === 'friend' ? FriendIconClicked : FriendIcon} />
       </Link>
-      <Link to="/profile/my/:id">
+      <Link to="/profile/my">
         <ButtonImage src={tab === 'my' ? MyIconClicked : MyIcon} />
       </Link>
     </FooterWrap>

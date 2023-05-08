@@ -14,6 +14,7 @@ import CheckLogin from './components/pages/login/login-page/CheckLogin';
 import GameSocketProvider from './components/pages/game/playgame-page/game-socket/GameSocketProvider';
 import GamePage from './components/pages/game/watchgame-page/GamePage';
 import ReadyGamePage from './components/pages/game/ready-game-page/ReadyGamePage';
+import NotFoundPage from './components/pages/NotFoundPage';
 
 function Router() {
   return (
@@ -118,12 +119,20 @@ function Router() {
           }
         />
         <Route
-          path="/profile/my/:id"
+          path="/profile/my"
           element={
             <CheckLogin>
               <GameSocketProvider>
                 <MyProfile />
               </GameSocketProvider>
+            </CheckLogin>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <CheckLogin>
+              <NotFoundPage />
             </CheckLogin>
           }
         />
