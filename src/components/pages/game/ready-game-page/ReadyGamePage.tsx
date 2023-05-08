@@ -7,6 +7,7 @@ import ReadyGame from '../game-modal/readygame-modal/ReadyGame';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import { useGameWatchForReady } from '../../../../api/GameWatch';
 import Layout from '../../../commons/layout/Layout';
+import ErrorPopupNav from '../../../commons/error/ErrorPopupNav';
 
 export interface UserGameInfo {
   userId: string;
@@ -31,6 +32,13 @@ export default function ReadyGamePage() {
   const gameWatchId = pathname.split('/')[2];
   const { data: gameWatch } = useGameWatchForReady(gameWatchId, userInfo.token);
 
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
+
   useEffect(() => {
     if (!gameWatch) {
       return;
@@ -38,8 +46,25 @@ export default function ReadyGamePage() {
     socketRef?.emit('startReadyGame', gameWatch);
   }, [gameWatch]);
 
+  useEffect(() => {
+    socketRef?.once('cancelReadyGame', () => {
+      setIsErrorGet(true);
+      setErrorMessage('게임 준비 취소됨');
+    });
+
+    return () => {
+      socketRef?.off('cancelReadyGame');
+    };
+  });
+
   return (
     <Layout>
+      <ErrorPopupNav
+        isErrorGet={isErrorGet}
+        message={errorMessage}
+        handleErrorClose={handleHideErrorModal}
+        moveTo="/profile/my/:id"
+      />
       {isOpenReadyGame && (
         <ReadyGame onClick={handleClickModal} gameWatch={gameWatch} />
       )}

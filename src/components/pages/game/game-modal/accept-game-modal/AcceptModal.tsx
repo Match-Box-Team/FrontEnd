@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
 import styled from 'styled-components';
@@ -20,12 +20,6 @@ export default function AcceptGameModal({
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 초대 보낸 유저가 초대를 취소함
-    socketRef?.current?.once('inviteCancel', () => {
-      console.log('상대가 초대를 취소함');
-      handleClickModal();
-    });
-
     // 게임 준비방으로 이동
     socketRef?.current?.once(
       'goGameReadyPage',
@@ -37,7 +31,6 @@ export default function AcceptGameModal({
     );
 
     return () => {
-      socketRef?.current?.off('inviteCancel');
       socketRef?.current?.off('goGameReadyPage');
     };
   });

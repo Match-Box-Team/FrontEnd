@@ -6,16 +6,16 @@ import { useSocket } from '../../../login/login-page/LoginSocketContext';
 
 interface Props {
   handleClickModal: () => void;
+  buddyId: string;
 }
 
-export default function AcceptWaiting({ handleClickModal }: Props) {
+export default function AcceptWaiting({ handleClickModal, buddyId }: Props) {
   const navigate = useNavigate();
   const socketRef = useSocket();
 
   useEffect(() => {
-    // 초대 보낸 사람이 게임 초대 거절 당함
-    socketRef?.once('inviteReject', () => {
-      console.log('초대 거부됨');
+    // 초대 취소 성공
+    socketRef?.once('inviteCancelSuccess', () => {
       handleClickModal();
     });
 
@@ -30,19 +30,25 @@ export default function AcceptWaiting({ handleClickModal }: Props) {
     );
 
     return () => {
+      socketRef?.off('inviteCancelSuccess');
       socketRef?.off('goGameReadyPage');
-      socketRef?.off('inviteReject');
     };
   });
 
   return (
     <NoXPopup
       onClose={() => {
-        handleClickModal();
+        socketRef?.emit('inviteCancel', { userId: buddyId });
       }}
     >
       <MainText>초대 수락 대기 중...</MainText>
-      <CancelButton onClick={() => handleClickModal()}>취소</CancelButton>
+      <CancelButton
+        onClick={() => {
+          socketRef?.emit('inviteCancel', { userId: buddyId });
+        }}
+      >
+        취소
+      </CancelButton>
     </NoXPopup>
   );
 }
