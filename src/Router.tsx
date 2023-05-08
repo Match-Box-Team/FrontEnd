@@ -64,7 +64,7 @@ function Router() {
           }
         />
         <Route
-          path="/game/record/:userId/history"
+          path="/game/record/:id/history"
           element={
             <CheckLogin>
               <GamePage title="Game Record" />
@@ -80,7 +80,7 @@ function Router() {
           }
         />
         <Route
-          path="/game/:gameWatchId/ready"
+          path="/game/:id/ready"
           element={
             <CheckLogin>
               <GameSocketProvider>
@@ -91,7 +91,7 @@ function Router() {
         />
         <Route
           // path="/game/:gameWatchId/play"
-          path="/game/:gameWatchId/play"
+          path="/game/:id/play"
           element={
             <CheckLogin>
               <GameSocketProvider>
@@ -101,7 +101,7 @@ function Router() {
           }
         />
         <Route
-          path="/game/watch/:gameId"
+          path="/game/watch/:id"
           element={
             <CheckLogin>
               <GameSocketProvider>
