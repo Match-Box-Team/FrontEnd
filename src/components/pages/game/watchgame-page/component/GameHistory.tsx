@@ -86,7 +86,7 @@ export default function GameHistory({
 
   const handleClick = () => {
     if (selectedGame === '핑퐁핑퐁' && currentViewer && currentViewer < 10) {
-      navigate(`/game/play/${matchId}`);
+      navigate(`/game/${matchId}/play`);
     }
   };
 
