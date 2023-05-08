@@ -22,7 +22,7 @@ export default function Login() {
     setIsLogin(!isLogin);
 
     await axios
-      .get('http://localhost:3000/login')
+      .get(`${process.env.REACT_APP_BASE_BACKEND_URL}/login`)
       .then(response => {
         window.location.replace(response.data.url);
       })
@@ -46,7 +46,7 @@ export default function Login() {
   const fakeLogin = async (n: number) => {
     setIsLogin(!isLogin);
     await axios
-      .get(`http://localhost:3000/auth/fakeLogin${n}`)
+      .get(`${process.env.REACT_APP_BASE_BACKEND_URL}/auth/fakeLogin${n}`)
       .then(function (res) {
         const storeUser = {
           token: res.data.token,

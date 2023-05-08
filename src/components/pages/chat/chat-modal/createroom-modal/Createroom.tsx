@@ -69,7 +69,7 @@ export default function CreateRoom({
     event.preventDefault();
     try {
       const response = await axios.post(
-        'http://localhost:3000/channels',
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/channels`,
         {
           channelName: formValues.channelName,
           password: formValues.password,

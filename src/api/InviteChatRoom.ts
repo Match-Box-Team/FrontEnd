@@ -7,7 +7,7 @@ export const useInviteChatRoom = (channelId: string, initailToken: string) => {
   return useMutation<void, Error, { userId: string; token: string }>(
     ({ userId, token }) =>
       axios.post(
-        `http://localhost:3000/channels/${channelId}/invite`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${channelId}/invite`,
         {
           userId,
         },

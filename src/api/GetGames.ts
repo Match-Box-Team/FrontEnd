@@ -10,9 +10,12 @@ interface Game {
 }
 
 const getGames = async (token: string) => {
-  const res = await axios.get<Game[]>(`http://localhost:3000/games`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await axios.get<Game[]>(
+    `${process.env.REACT_APP_BASE_BACKEND_URL}/games`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
   return res.data;
 };
 

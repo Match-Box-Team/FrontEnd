@@ -112,7 +112,7 @@ export default function RoomSide({
   const handleClickExit = () => {
     const exit = async () => {
       await axios.delete(
-        `http://localhost:3000/channels/${channelInfo.channelId}`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${channelInfo.channelId}`,
         {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         },

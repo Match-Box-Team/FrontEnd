@@ -83,7 +83,7 @@ export default function Invite({
     try {
       // 유저 검색 결과
       const userData = await axios.get(
-        `http://localhost:3000/channels/${channelId}/invite?nickname=${searchUserNickname}`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${channelId}/invite?nickname=${searchUserNickname}`,
         {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         },
@@ -103,7 +103,7 @@ export default function Invite({
 
       // 선택된 유저 이미지 get
       const imageUrl = await axios.get(
-        `http://localhost:3000/account/image?userId=${userData.data.userId}`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/account/image?userId=${userData.data.userId}`,
         {
           responseType: 'blob',
           headers: { Authorization: `Bearer ${userInfo.token}` },
