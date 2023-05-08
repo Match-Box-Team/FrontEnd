@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { useNavigate } from 'react-router-dom';
+import { To, useNavigate } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
 import { isExpired } from 'react-jwt';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
@@ -29,6 +29,13 @@ export default function CheckLogin({ children }: Props) {
   const userInfo = useRecoilValue(userState);
   const setUserState = useSetRecoilState(userState);
   const socketRef = useRef<Socket | null>(null);
+  // 에러
+  const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [moveTo, setMoveTo] = useState<To>(``);
+  const handleHideErrorModal = () => {
+    setIsErrorGet(false);
+  };
 
   // 에러
   const [isErrorGet, setIsErrorGet] = useState<boolean>(false);
@@ -38,12 +45,7 @@ export default function CheckLogin({ children }: Props) {
   };
 
   useEffect(() => {
-    if (userInfo.token === '') {
-      socketRef.current?.close();
-      navigate('/');
-      return;
-    }
-    if (isExpired(userInfo.token) === true) {
+    if (userInfo.token !== '' && isExpired(userInfo.token) === true) {
       const resetUser = {
         token: '',
         userId: '',
@@ -51,6 +53,15 @@ export default function CheckLogin({ children }: Props) {
         imageUrl: '',
       };
       setUserState(resetUser);
+      socketRef.current?.close();
+      setIsErrorGet(true);
+      setMoveTo(`/`);
+      setErrorMessage('만료되었습니다. 다시 로그인해 주세요.');
+    }
+  });
+
+  useEffect(() => {
+    if (userInfo.token === '') {
       socketRef.current?.close();
       navigate('/');
       return;
@@ -74,7 +85,7 @@ export default function CheckLogin({ children }: Props) {
         navigate('/');
       });
     }
-  });
+  }, []);
 
   const [enemyInfo, setEnemyInfo] = useState<User | null>(null);
 
@@ -128,20 +139,25 @@ export default function CheckLogin({ children }: Props) {
   };
 
   return (
-    <LoginSocketContext.Provider value={socketRef.current}>
+    <>
       <ErrorPopupNav
         isErrorGet={isErrorGet}
         message={errorMessage}
         handleErrorClose={handleHideErrorModal}
+        moveTo={moveTo}
       />
-      {isOpenAcceptGameModal && enemyInfo && (
-        <AcceptGameModal
-          enemyInfo={enemyInfo}
-          handleClickModal={handleClickAcceptModal}
-          socketRef={socketRef}
-        />
+      {!isErrorGet && (
+        <LoginSocketContext.Provider value={socketRef.current}>
+          {isOpenAcceptGameModal && enemyInfo && (
+            <AcceptGameModal
+              enemyInfo={enemyInfo}
+              handleClickModal={handleClickAcceptModal}
+              socketRef={socketRef}
+            />
+          )}
+          {children}
+        </LoginSocketContext.Provider>
       )}
-      {children}
-    </LoginSocketContext.Provider>
+    </>
   );
 }

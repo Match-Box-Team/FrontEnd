@@ -35,6 +35,7 @@ interface Props {
   user: UserProps;
   inChat: boolean;
   channelInfo?: ChannelProps;
+  handleKickClicked?: (targetId: string) => void | undefined;
 }
 
 export default function ProfileFooter({
@@ -42,6 +43,7 @@ export default function ProfileFooter({
   user,
   inChat,
   channelInfo,
+  handleKickClicked,
 }: Props) {
   // 리액트 쿼리
   const queryClient = useQueryClient();
@@ -107,32 +109,12 @@ export default function ProfileFooter({
       });
   };
 
-  // 킥 버튼 클릭
-  const handleKickClicked = async (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-    await axios
-      .delete(muteKickUrl, {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      })
-      .catch(function (error) {
-        // 예외 처리
-        if (error.response.status === 400) {
-          setIsErrorGet(true);
-          setErrorMessage(error.response.data.message);
-        } else if (error.response.status === 404) {
-          setIsErrorGet(true);
-          setErrorMessage('없는 사용자입니다.');
-        } else {
-          setIsErrorGet(true);
-          setErrorMessage('요청이 실패했습니다.');
-        }
-      });
-    // 프로필 모달 닫기
-    handleClickModal();
+  const handleKick = (targetId: string) => {
+    if (handleKickClicked) {
+      // 프로필 모달 닫기
+      handleClickModal();
+      handleKickClicked(targetId);
+    }
   };
 
   // 차단 버튼 클릭
@@ -248,7 +230,7 @@ export default function ProfileFooter({
                     </Button>
                   </ButtonWrap>
                   <ButtonWrap>
-                    <Button onClick={handleKickClicked}>
+                    <Button onClick={() => handleKick(user.userId)}>
                       <ButtonImage src={KickIcon} />
                     </Button>
                   </ButtonWrap>
