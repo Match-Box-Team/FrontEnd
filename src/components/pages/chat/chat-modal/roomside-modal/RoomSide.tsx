@@ -52,7 +52,7 @@ export default function RoomSide({
     userInfo.token,
   );
 
-  const { mutate: setAdminMutation } = useSetAdminMutation(
+  const { mutate: setAdminMutation, isError } = useSetAdminMutation(
     channelInfo.channelId,
     userInfo.token,
   );
@@ -91,6 +91,10 @@ export default function RoomSide({
         userId: userChannel.user.userId,
         token: userInfo.token,
       });
+      if (isError) {
+        setIsErrorGet(true);
+        setErrorMessage('관리자 권한이 없습니다');
+      }
     } catch (error) {
       setIsErrorGet(true);
       setErrorMessage('요청을 처리할 수 없습니다.');
