@@ -60,7 +60,7 @@ export default function ProfileFooter({
   // 음소거 유무
   const [isMute, setIsMute] = useState<boolean | undefined>(false);
   // 음소거와 킥 공통 url
-  const muteKickUrl = `http://localhost:3000/channels/${channelInfo?.channelId}/member/${user.userId}`;
+  const muteKickUrl = `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${channelInfo?.channelId}/member/${user.userId}`;
 
   const handleHideErrorModal = () => {
     setIsErrorGet(false);
@@ -142,7 +142,7 @@ export default function ProfileFooter({
     event.preventDefault();
     await axios
       .patch(
-        `http://localhost:3000/friends/${user.ban?.friendId}/banned`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/friends/${user.ban?.friendId}/banned`,
         {
           isBan: true,
         },
@@ -181,7 +181,7 @@ export default function ProfileFooter({
     event.preventDefault();
     await axios
       .post(
-        `http://localhost:3000/channels/dm`,
+        `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/dm`,
         {
           buddyId: user.userId,
         },
