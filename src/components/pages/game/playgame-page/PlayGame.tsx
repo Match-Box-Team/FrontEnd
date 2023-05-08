@@ -59,7 +59,10 @@ export default function PlayGame() {
       setScoreB(data.scores.scoreB);
     });
 
-    socket?.once('gameover', (data: any) => {
+    socket?.on('gameover', (data: any) => {
+      if (data.winner === undefined) {
+        return;
+      }
       setWinner(data.winner);
       setModalMessage(`승자는 ${data.winner}입니다`);
       setShowModal(true);
