@@ -93,7 +93,7 @@ export default function MyMsgList() {
       }
     };
     fetchData();
-  }, []);
+  }, [channels]);
 
   const handleClick = (channelId: string) => {
     setMyChannelId(channelId);
