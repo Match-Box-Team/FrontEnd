@@ -8,7 +8,7 @@ import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
-import { IChat, IError, ISendedMessage, NError } from '.';
+import { IChat, IError, IKick, ISendedMessage, NError } from '.';
 import { getDefaultImageUrl, getImageUrl } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
 import { useGetChatRoomLog, useUserChannel } from '../../../../api/Channel';
@@ -93,6 +93,13 @@ export default function ChatRoom() {
       }
     });
     socketRef.current.on('chat', handleNewChatMessage);
+    socketRef.current.on('kicked', (data: IKick) => {
+      if (data.channelId === id && data.targetId === userInfo.userId) {
+        setIsErrorGet(true);
+        setMoveTo(`/chat/mymsg`);
+        setErrorMessage('KICKED');
+      }
+    });
 
     return () => {
       socketRef.current?.off('error');
@@ -101,6 +108,16 @@ export default function ChatRoom() {
       socketRef.current?.close();
     };
   }, []);
+
+  const handleKickClicked = (targetId: string) => {
+    if (socketRef.current) {
+      socketRef.current.emit('kick', {
+        channelId: id,
+        targetId,
+      });
+      window.location.reload();
+    }
+  };
 
   useEffect(() => {
     if (chatListData) {
@@ -196,6 +213,7 @@ export default function ChatRoom() {
             channelId: id || '',
             isAdmin,
           }}
+          handleKickClicked={handleKickClicked}
         />
       )}
       <RoomSide

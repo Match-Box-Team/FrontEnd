@@ -44,6 +44,7 @@ interface Props {
   user: UserProps;
   inChat: boolean;
   channelInfo?: ChannelProps;
+  handleKickClicked?: (targetId: string) => void | undefined;
 }
 
 export default function Profile({
@@ -51,6 +52,7 @@ export default function Profile({
   user,
   inChat,
   channelInfo,
+  handleKickClicked,
 }: Props) {
   return (
     user && (
@@ -77,6 +79,7 @@ export default function Profile({
                 channelId: channelInfo?.channelId,
                 isAdmin: channelInfo?.isAdmin,
               }}
+              handleKickClicked={handleKickClicked}
             />
           </FooterWrap>
         </Inner>

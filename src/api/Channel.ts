@@ -24,7 +24,7 @@ export const useUserChannel = (
   const axiosInstance = useAxiosWithToken();
 
   return useQuery(['getIsAdmin', userId, channelId], async () => {
-    if (channelId === undefined) {
+    if (channelId === undefined || userId === '') {
       return null;
     }
     const response: AxiosResponse<IIsAdminAndIsMute> = await axiosInstance.get(
