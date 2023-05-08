@@ -86,7 +86,11 @@ export default function PlayGame() {
   };
 
   const giveUp = () => {
-    socket?.emit('giveUp');
+    if (!isWatcher.current) {
+      socket?.emit('giveUp');
+    } else {
+      navigate('/game/shop', { replace: true });
+    }
   };
 
   return (
