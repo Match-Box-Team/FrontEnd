@@ -62,6 +62,10 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
       navigate(`/game/${gameWatch?.gameWatchId}/play`);
     });
 
+    socketRef?.once('gameStartError', () => {
+      navigate(`/profile/my`);
+    });
+
     return () => {
       socketRef?.off('startReadyGame');
       socketRef?.off('speedUpdate');
