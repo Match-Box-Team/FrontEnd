@@ -20,8 +20,8 @@ import { getImageUrl } from '../../../../api/ProfileImge';
 import { userState } from '../../../../recoil/locals/login/atoms/atom';
 import { useGetGameHistory } from '../../../../api/Friends';
 import { isErrorOnGet } from '../../../../recoil/globals/atoms/atom';
-import ErrorPopup from '../../../commons/error/ErrorPopup';
 import { useSocket } from '../playgame-page/game-socket/GameSocketContext';
+import ErrorGame from './component/ErrorGame';
 
 const Container = styled.div`
   display: flex;
@@ -69,7 +69,7 @@ export default function GamePage({ title }: Prop) {
         '[게임 조회 실패] 해당하는 게임을 구매하지 않거나 조회에 실패했습니다',
       );
     } else {
-      // navigate('/404');
+      navigate('/404');
     }
   };
   const [gameIdMapping, setGameIdMapping] = useState<Map<string, string>>(
@@ -88,6 +88,9 @@ export default function GamePage({ title }: Prop) {
     return `/profile/friend/${userId}`;
   };
   const backPath = getBackPath();
+  const errorHandler = () => {
+    navigate(backPath);
+  };
 
   /* 게임 와치 페이지 상태 */
   const [gameCurrentHistoryData, setGameCurrentHistoryData] =
@@ -289,7 +292,7 @@ export default function GamePage({ title }: Prop) {
         </GameSelectWrapper>
 
         {isErrorGet ? (
-          <ErrorPopup message={errorMsg} />
+          <ErrorGame message={errorMsg} handleClick={errorHandler} />
         ) : (
           <GameHistorytWrapper>
             {isGameWatchPage
