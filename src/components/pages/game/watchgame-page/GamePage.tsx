@@ -65,6 +65,9 @@ export default function GamePage({ title }: Prop) {
     if (error.response?.status === 409) {
       // NotFound 에러에 대한 처리 (모달 띄우기)
       setIsErrorGet(true);
+      setErrorMsg(
+        '[게임 조회 실패] 해당하는 게임을 구매하지 않거나 조회에 실패했습니다',
+      );
     } else {
       navigate('/404');
     }
@@ -73,6 +76,7 @@ export default function GamePage({ title }: Prop) {
     new Map(),
   );
   const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
+  const [errorMsg, setErrorMsg] = useState<string>('');
   const { data: gameInfos } = useGetGameList();
   const getBackPath = () => {
     if (isGameWatchPage) {
@@ -118,10 +122,12 @@ export default function GamePage({ title }: Prop) {
         navigate(`/game/${clickedGameWatchId}/play`);
       })
       .on('gameWatchFull', data => {
-        console.error('full: ', data);
+        setIsErrorGet(true);
+        setErrorMsg('[게임 입장 실패] 인원이 다 찼습니다.');
       })
       .on('gameWatchFail', data => {
-        console.error('fail: ', data);
+        setIsErrorGet(true);
+        setErrorMsg('[게임 입장 실패] 진행 중이지 않은 게임입니다.');
       });
   };
 
@@ -286,10 +292,7 @@ export default function GamePage({ title }: Prop) {
         </GameSelectWrapper>
 
         {isErrorGet ? (
-          <ErrorGame
-            message="[게임 조회 실패] 해당하는 게임을 구매하지 않거나 조회에 실패했습니다 "
-            handleClick={errorHandler}
-          />
+          <ErrorGame message={errorMsg} handleClick={errorHandler} />
         ) : (
           <GameHistorytWrapper>
             {isGameWatchPage
