@@ -63,7 +63,7 @@ export default function ReadyGamePage() {
         isErrorGet={isErrorGet}
         message={errorMessage}
         handleErrorClose={handleHideErrorModal}
-        moveTo="/profile/my/:id"
+        moveTo="/profile/my"
       />
       {isOpenReadyGame && (
         <ReadyGame onClick={handleClickModal} gameWatch={gameWatch} />

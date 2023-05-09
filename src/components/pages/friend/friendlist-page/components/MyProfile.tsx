@@ -30,7 +30,7 @@ export default function MyProfile() {
 
   return (
     <Base>
-      <Link to={`/profile/my/${userInfo.userId}`}>
+      <Link to="/profile/my">
         <ProfileImage
           src={userInfo.imageUrl}
           alt={`${userInfo.nickname}의 이미지`}
