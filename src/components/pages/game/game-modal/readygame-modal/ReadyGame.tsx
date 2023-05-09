@@ -70,6 +70,7 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
       socketRef?.off('startReadyGame');
       socketRef?.off('speedUpdate');
       socketRef?.off('gameStart');
+      socketRef?.off('gameStartError');
     };
   });
 
