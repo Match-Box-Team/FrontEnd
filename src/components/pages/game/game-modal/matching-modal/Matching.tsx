@@ -16,7 +16,6 @@ export default function Matching({ handleClickModal }: Props) {
     socketRef?.once(
       'randomMatchSuccess',
       (gameWatchId: { gameWatchId: string }) => {
-        console.log('매칭 성공:', gameWatchId.gameWatchId);
         navigate(`/game/${gameWatchId.gameWatchId}/ready`);
         handleClickModal();
       },

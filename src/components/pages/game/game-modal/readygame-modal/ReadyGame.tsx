@@ -52,18 +52,13 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
         userGameId: info.enemyUserGameId,
         image: imageUrl,
       });
-      console.log('게임 준비 시작 송신');
-      console.log(info);
-      console.log('gameWatch: ', gameWatch);
     });
 
     socketRef?.once('speedUpdate', (speed: string) => {
-      console.log(`스피드 업데이트됨 -> ${speed}`);
       setSelectedSpeed(speed);
     });
 
     socketRef?.once('gameStart', () => {
-      console.log('test : ', gameWatch?.gameWatchId);
       navigate(`/game/${gameWatch?.gameWatchId}/play`);
     });
 
@@ -87,7 +82,6 @@ export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
       guestUserGameId: gameWatch?.userGameId2,
       speed: value,
     });
-    console.log(value);
   };
 
   const gameStart = () => {

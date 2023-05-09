@@ -147,7 +147,6 @@ export default function FriendProfile() {
 
     // 초대 보내기 성공
     socketRef?.once('inviteSuccess', () => {
-      console.log('초대 성공');
       setIsOpenAcceptWaitingModal(true);
     });
 
@@ -248,7 +247,6 @@ export default function FriendProfile() {
           </GameButton>
           <GameButton
             onClick={() => {
-              console.log('유저 게임 초대');
               socketRef?.emit('inviteGame', { userId: buddyId });
             }}
           >

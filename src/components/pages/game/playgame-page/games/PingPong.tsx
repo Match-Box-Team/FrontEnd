@@ -17,7 +17,6 @@ export default function PingPong() {
         gameControl: 'connection..',
         gameWatchId,
       });
-      console.log('pingpong~!!');
 
       if (socket) {
         socket.once('ishost', (data: any) => {

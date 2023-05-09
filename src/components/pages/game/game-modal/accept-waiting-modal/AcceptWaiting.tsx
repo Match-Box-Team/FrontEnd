@@ -23,7 +23,6 @@ export default function AcceptWaiting({ handleClickModal, buddyId }: Props) {
     socketRef?.once(
       'goGameReadyPage',
       (gameWatchId: { gameWatchId: string }) => {
-        console.log('방장인 유저가 게임 페이지로 이동');
         navigate(`/game/${gameWatchId.gameWatchId}/ready`);
         handleClickModal();
       },

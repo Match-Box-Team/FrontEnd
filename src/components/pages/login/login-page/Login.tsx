@@ -54,7 +54,6 @@ export default function Login() {
           nickname: res.data.nickname,
           imageUrl: res.data.image,
         };
-        console.log(storeUser);
         setUserState(storeUser);
         navigate('/chat/channel');
       })

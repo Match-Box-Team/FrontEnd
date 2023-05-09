@@ -24,7 +24,6 @@ export default function AcceptGameModal({
     socketRef?.current?.once(
       'goGameReadyPage',
       (gameWatchId: { gameWatchId: string }) => {
-        console.log('방장 아닌 유저가 게임 페이지로 이동');
         navigate(`/game/${gameWatchId.gameWatchId}/ready`);
         handleClickModal();
       },
@@ -36,12 +35,10 @@ export default function AcceptGameModal({
   });
 
   const handleAccept = () => {
-    console.log('게임 초대 수락');
     socketRef?.current?.emit('inviteResolve', { userId: enemyInfo.userId });
   };
 
   const handleReject = () => {
-    console.log('게임 초대 거부');
     socketRef?.current?.emit('inviteReject', { userId: enemyInfo.userId });
     handleClickModal();
   };

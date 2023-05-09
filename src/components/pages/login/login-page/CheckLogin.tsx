@@ -87,7 +87,6 @@ export default function CheckLogin({ children }: Props) {
   useEffect(() => {
     // 게임 초대를 받음
     socketRef.current?.once('inviteGame', async (user: User) => {
-      console.log('게임 초대 받음');
       const imageUrl = await getImageUrl(user.userId, userInfo.token);
       setEnemyInfo({
         ...user,
