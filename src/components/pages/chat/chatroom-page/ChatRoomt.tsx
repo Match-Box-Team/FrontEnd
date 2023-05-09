@@ -8,7 +8,7 @@ import InputChat from './components/InputChat';
 import MessageList from './components/MessageList';
 import { Message } from './components/Message';
 import Header from '../../../commons/header/Header';
-import { IChat, IError, IKick, ISendedMessage, NError } from '.';
+import { IChat, IError, IKick, ISendedMessage, NError, OError } from '.';
 import { getDefaultImageUrl, getImageUrl } from '../../../../api/ProfileImge';
 import { useNewChatMessageHandler } from './hooks';
 import { useGetChatRoomLog, useUserChannel } from '../../../../api/Channel';
@@ -81,13 +81,16 @@ export default function ChatRoom() {
 
     socketRef.current.emit('enterChannel', { channelId: id });
 
-    socketRef.current.on('error', (error: IError | NError) => {
+    socketRef.current.on('error', (error: IError | NError | OError) => {
       setIsErrorGet(true);
       setMoveTo(`/chat/mymsg`);
       if ('UnauthorizedException' in error) {
         setErrorMessage(error.UnauthorizedException);
       } else if ('NotFoundException' in error) {
+        setMoveTo(``);
         setErrorMessage(error.NotFoundException);
+      } else if ('NotFoundExceptionOut' in error) {
+        setErrorMessage(error.NotFoundExceptionOut);
       } else {
         setErrorMessage('[소켓 연결 에러] 채팅방에 입장할 수 없습니다 ');
       }
@@ -115,7 +118,7 @@ export default function ChatRoom() {
         channelId: id,
         targetId,
       });
-      window.location.reload();
+      // window.location.reload();
     }
   };
 

@@ -68,6 +68,10 @@ export interface NError {
   NotFoundException: string;
 }
 
+export interface OError {
+  NotFoundExceptionOut: string;
+}
+
 export interface IIsAdminAndIsMute {
   isAdmin: boolean;
   isMute: boolean;
