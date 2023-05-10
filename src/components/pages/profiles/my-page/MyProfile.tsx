@@ -97,7 +97,7 @@ export default function MyProfile() {
     const selectedUserGameId = userGames?.filter(
       userGame => userGame.game.gameId === gameId,
     );
-    const history = selectedUserGameId?.at(0)?.gameHistory;
+    const history = selectedUserGameId && selectedUserGameId[0]?.gameHistory;
     if (!history) {
       return '0승 0패';
     }

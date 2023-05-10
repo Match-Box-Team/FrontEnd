@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import axios, { AxiosError } from 'axios';
+import { useQueryClient } from 'react-query';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
 import ErrorPopup from '../../../../commons/error/ErrorPopup';
 import PwdSetModal from './PwdSetModal';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
+import { useGetChannels } from '../../../../../api/Channel';
 
 interface IChannel {
   channelId: string;
@@ -16,7 +18,13 @@ interface IChannel {
   password: string | null;
 }
 
+interface IChannelWrapper {
+  channel: IChannel[];
+}
+
 export default function ChannelList() {
+  // 리액트 쿼리
+  const queryClient = useQueryClient();
   const [channels, setChannels] = useState<IChannel[]>([]);
   const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
   const [myChannelId, setMyChannelId] = useRecoilState(channelIdState);
@@ -25,6 +33,12 @@ export default function ChannelList() {
   const [passwordInput, setPasswordInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const userInfo = useRecoilValue(userState);
+  const handleError = (error: AxiosError) => {
+    if (error.response) {
+      setIsErrorGet(true);
+    }
+  };
+  const { data: channelLists } = useGetChannels(handleError);
 
   const navigate = useNavigate();
 
@@ -53,6 +67,7 @@ export default function ChannelList() {
       closeModal();
       setMyChannelId(currentChannelId);
       navigate(`/chat/channel/${currentChannelId}`);
+      queryClient.invalidateQueries('getChannels');
     } catch (err) {
       const e = err as AxiosError;
       if (e.response && e.response.status === 400) {
@@ -76,6 +91,7 @@ export default function ChannelList() {
       setErrorMessage('');
       setMyChannelId(channelId);
       navigate(`/chat/channel/${channelId}`);
+      queryClient.invalidateQueries('getChannels');
     } catch (err) {
       const e = err as AxiosError;
       if (e.response && e.response.status === 400) {
@@ -96,24 +112,13 @@ export default function ChannelList() {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const config = {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
+    if (channelLists) {
+      const updateChaanelList = async () => {
+        setChannels(channelLists.channel);
       };
-
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BASE_BACKEND_URL}/channels`,
-          config,
-        );
-        setChannels(response.data.channel);
-      } catch (error) {
-        setIsErrorGet(true);
-      }
-    };
-
-    fetchData();
-  }, [channels]);
+      updateChaanelList();
+    }
+  }, [channelLists]);
 
   const handleKeyDown = (
     event: React.KeyboardEvent<HTMLDivElement>,
