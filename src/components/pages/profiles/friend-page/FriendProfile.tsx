@@ -71,7 +71,7 @@ export default function FriendProfile() {
     const selectedUserGame = userGames?.filter(
       userGame => userGame.game.name === gameName,
     );
-    const history = selectedUserGame?.at(0)?.gameHistory;
+    const history = selectedUserGame && selectedUserGame[0]?.gameHistory;
     if (!history) {
       return '0승 0패';
     }

@@ -1,10 +1,21 @@
-import { useQuery } from 'react-query';
-import { AxiosResponse } from 'axios';
+import { UseQueryOptions, useQuery } from 'react-query';
+import { AxiosError, AxiosResponse } from 'axios';
 import { useAxiosWithToken } from '.';
 import {
   IChatLog,
   IIsAdminAndIsMute,
 } from '../components/pages/chat/chatroom-page';
+
+interface IChannel {
+  channelId: string;
+  channelName: string;
+  count: number;
+  password: string | null;
+}
+
+interface IChannelWrapper {
+  channel: IChannel[];
+}
 
 export const useGetChatRoomLog = (channelId: string) => {
   const axiosInstance = useAxiosWithToken();
@@ -32,4 +43,21 @@ export const useUserChannel = (
     );
     return response.data;
   });
+};
+
+export const useGetChannels = (onError: (error: AxiosError) => void) => {
+  const axiosInstance = useAxiosWithToken();
+
+  const queryOptions: UseQueryOptions<IChannelWrapper, AxiosError> = {
+    queryFn: async () => {
+      const response: AxiosResponse<IChannelWrapper> = await axiosInstance.get(
+        `/channels`,
+      );
+      return response.data;
+    },
+    onError: error => onError(error),
+    retry: 0,
+  };
+
+  return useQuery<IChannelWrapper, AxiosError>(['getChannels'], queryOptions);
 };
