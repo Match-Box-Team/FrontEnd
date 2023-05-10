@@ -69,7 +69,7 @@ export default function RoomSide({
         setErrorMessage('이미 친구인 유저입니다.');
         return;
       }
-      await addFriendMutation({
+      addFriendMutation({
         userId: userChannel.user.userId,
         token: userInfo.token,
       });
@@ -113,7 +113,7 @@ export default function RoomSide({
     setIsOpenInviteModal(!isOpenInviteModal);
   };
 
-  const handleClickExit = () => {
+  const handleClickExit = async () => {
     const exit = async () => {
       await axios.delete(
         `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/${channelInfo.channelId}`,
@@ -122,7 +122,7 @@ export default function RoomSide({
         },
       );
     };
-    exit();
+    await exit();
     navigate('/chat/channel');
   };
 
