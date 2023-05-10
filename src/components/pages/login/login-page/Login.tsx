@@ -65,10 +65,10 @@ export default function Login() {
 
   return (
     <Layout>
-      <Fake1Button onClick={() => fakeLogin(1)}>가짜 유저1 로그인</Fake1Button>
-      <Fake2Button onClick={() => fakeLogin(2)}>가짜 유저2 로그인</Fake2Button>
-      <Fake3Button onClick={() => fakeLogin(3)}>가짜 유저3 로그인</Fake3Button>
-      <Fake4Button onClick={() => fakeLogin(4)}>가짜 유저4 로그인</Fake4Button>
+      {/* <Fake1Button onClick={() => fakeLogin(1)}>가짜 유저1 로그인</Fake1Button> */}
+      {/* <Fake2Button onClick={() => fakeLogin(2)}>가짜 유저2 로그인</Fake2Button> */}
+      {/* <Fake3Button onClick={() => fakeLogin(3)}>가짜 유저3 로그인</Fake3Button> */}
+      {/* <Fake4Button onClick={() => fakeLogin(4)}>가짜 유저4 로그인</Fake4Button> */}
       <ErrorPopupNav
         isErrorGet={isErrorGet}
         message={errorMessage}

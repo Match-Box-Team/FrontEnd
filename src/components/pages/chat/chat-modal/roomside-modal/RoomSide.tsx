@@ -69,7 +69,7 @@ export default function RoomSide({
         setErrorMessage('이미 친구인 유저입니다.');
         return;
       }
-      await addFriendMutation({
+      addFriendMutation({
         userId: userChannel.user.userId,
         token: userInfo.token,
       });
