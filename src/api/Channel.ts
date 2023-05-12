@@ -17,6 +17,51 @@ interface IChannelWrapper {
   channel: IChannel[];
 }
 
+interface IChat {
+  computedChatCount: number;
+  time: Date;
+}
+
+export interface IUser {
+  userId: string;
+  nickname: string;
+  image: string;
+}
+
+export interface IUserWrapper {
+  isOwner: boolean;
+  user: IUser;
+}
+
+interface IOwner {
+  ownerId: string;
+  ownerImage: string;
+}
+
+interface IMyChannel {
+  channelId: string;
+  channelName: string;
+  isPublic: boolean;
+  isDm: boolean;
+  count: number;
+}
+
+interface IUserChannel {
+  userChannelId: string;
+  channel: IMyChannel;
+}
+
+export interface IMyChannels {
+  userChannel: IUserChannel;
+  owner: IOwner;
+  user: IUserWrapper[];
+  chat: IChat;
+}
+
+interface IMyChannelWrapper {
+  channel: IMyChannels[];
+}
+
 export const useGetChatRoomLog = (channelId: string) => {
   const axiosInstance = useAxiosWithToken();
 
@@ -60,4 +105,23 @@ export const useGetChannels = (onError: (error: AxiosError) => void) => {
   };
 
   return useQuery<IChannelWrapper, AxiosError>(['getChannels'], queryOptions);
+};
+
+export const useGetMyChannels = (onError: (error: AxiosError) => void) => {
+  const axiosInstance = useAxiosWithToken();
+
+  const queryOptions: UseQueryOptions<IMyChannelWrapper, AxiosError> = {
+    queryFn: async () => {
+      const response: AxiosResponse<IMyChannelWrapper> =
+        await axiosInstance.get(`/channels/my`);
+      return response.data;
+    },
+    onError: error => onError(error),
+    retry: false,
+  };
+
+  return useQuery<IMyChannelWrapper, AxiosError>(
+    ['getMyChannels'],
+    queryOptions,
+  );
 };
