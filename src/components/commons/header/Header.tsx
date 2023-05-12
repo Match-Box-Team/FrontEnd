@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Hamburger from '../../../assets/icon/hamburger.svg';
 import BackButton from '../../../assets/icon/back.svg';
 
@@ -11,6 +11,7 @@ interface Props {
   friendToggle?: boolean;
   back?: boolean;
   backPath?: string;
+  backClicked?: (() => void) | undefined;
   channelBurger?: boolean;
   handleClickSideModal?: (() => void) | undefined;
 }
@@ -22,16 +23,26 @@ export default function Header({
   friendToggle = false,
   back = true,
   backPath = '',
+  backClicked,
   channelBurger = false,
   handleClickSideModal,
 }: Props) {
+  const navigate = useNavigate();
+
+  const handleBackClicked = () => {
+    if (backClicked) {
+      backClicked();
+      navigate(backPath);
+    }
+  };
+
   return (
     <HeaderWrap>
       <HeaderBar>
         {backPath && (
-          <Link to={backPath}>
+          <Button onClick={handleBackClicked}>
             <ButtonImage src={BackButton} />
-          </Link>
+          </Button>
         )}
         <Title>{title}</Title>
         {channelToggle && (
@@ -68,6 +79,12 @@ export default function Header({
     </HeaderWrap>
   );
 }
+
+const Button = styled.button`
+  background: transparent;
+  border: none;
+  cursor: pointer;
+`;
 
 const Title = styled.div`
   font-family: 'NanumGothic';

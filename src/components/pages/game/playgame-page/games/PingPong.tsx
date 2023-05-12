@@ -2,6 +2,39 @@ import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSocket } from '../game-socket/GameSocketContext';
 
+interface IUserState {
+  isHost: boolean;
+  isWatcher: boolean;
+}
+
+interface IPaddle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+}
+
+interface IBall {
+  x: number;
+  y: number;
+  radius: number;
+  color: string;
+}
+
+interface IBallControl {
+  ball: IBall;
+}
+
+interface IPaddleControl {
+  position: number;
+}
+
+interface IMapSize {
+  width: number;
+  height: number;
+}
+
 export default function PingPong() {
   const socket = useSocket();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,7 +52,7 @@ export default function PingPong() {
       });
 
       if (socket) {
-        socket.once('ishost', (data: any) => {
+        socket.once('ishost', (data: IUserState) => {
           isHost.current = data.isHost;
           isWatcher.current = data.isWatcher;
         });
@@ -62,7 +95,7 @@ export default function PingPong() {
     ctx.closePath();
   }
 
-  function drawPaddle(ctx: CanvasRenderingContext2D, paddle: any) {
+  function drawPaddle(ctx: CanvasRenderingContext2D, paddle: IPaddle) {
     ctx.beginPath();
     ctx.rect(paddle.x, paddle.y, paddle.width, paddle.height);
     ctx.fillStyle = paddle.color;
@@ -72,7 +105,7 @@ export default function PingPong() {
 
   function update() {
     if (socket) {
-      socket.on('ballcontrol', (data: any) => {
+      socket.on('ballcontrol', (data: IBallControl) => {
         ball.x = data.ball.x;
         ball.y = data.ball.y;
         ball.color = data.ball.color;
@@ -81,12 +114,12 @@ export default function PingPong() {
     }
 
     if (socket) {
-      socket.on('controlB', (data: any) => {
+      socket.on('controlB', (data: IPaddleControl) => {
         paddleB.x = data.position;
       });
     }
     if (socket) {
-      socket.on('controlA', (data: any) => {
+      socket.on('controlA', (data: IPaddleControl) => {
         paddleA.x = data.position;
       });
     }
@@ -106,8 +139,15 @@ export default function PingPong() {
       update();
     }
   }
+  interface KeyState {
+    [key: string]: boolean;
+  }
 
-  const keyState: any = {
+  interface IntervalIds {
+    [key: string]: number | null;
+  }
+
+  const keyState: KeyState = {
     ArrowLeft: false,
     ArrowRight: false,
     a: false,
@@ -115,7 +155,7 @@ export default function PingPong() {
     d: false,
     D: false,
   };
-  const intervalIds: any = {
+  const intervalIds: IntervalIds = {
     ArrowLeft: null,
     ArrowRight: null,
     a: null,
@@ -136,8 +176,10 @@ export default function PingPong() {
         if (isHost.current === false && isWatcher.current === false) {
           controller = 'gamecontrolA';
         }
-        clearInterval(intervalIds[key]);
-        intervalIds[key] = setInterval(() => {
+        if (intervalIds[key] !== null) {
+          clearInterval(intervalIds[key]!);
+        }
+        intervalIds[key] = window.setInterval(() => {
           socket.emit(controller, {
             direction: key === 'arrowleft' ? -1 : 1,
           });
@@ -151,7 +193,9 @@ export default function PingPong() {
     let controller = '';
     if (socket && keyState[key]) {
       keyState[key] = false; // 키가 떼진 상태로 설정합니다.
-      clearInterval(intervalIds[key]);
+      if (intervalIds[key] !== null) {
+        clearInterval(intervalIds[key]!);
+      }
       if (key === 'arrowleft' || key === 'arrowright') {
         if (isHost.current === true && isWatcher.current === false) {
           controller = 'gamecontrolB';
@@ -168,7 +212,7 @@ export default function PingPong() {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
       if (socket) {
-        socket.once('mapSize', (data: any) => {
+        socket.once('mapSize', (data: IMapSize) => {
           canvas.width = data.width;
           canvas.height = data.height;
           ball.x = canvas.width / 2;

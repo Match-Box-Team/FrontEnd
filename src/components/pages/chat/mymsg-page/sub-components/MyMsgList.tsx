@@ -1,110 +1,65 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link, useNavigate } from 'react-router-dom';
-import axios, { AxiosResponse } from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
+import { useQueryClient } from 'react-query';
 import { isErrorOnGet } from '../../../../../recoil/globals/atoms/atom';
 import ErrorPopup from '../../../../commons/error/ErrorPopup';
 import { getImageUrl } from '../../../../../api/ProfileImge';
-import { getChatRoomInfo } from '../../../../../api/ChatRoomInfo';
 import { channelIdState } from '../../../../../recoil/locals/chat/atoms/atom';
 import { userState } from '../../../../../recoil/locals/login/atoms/atom';
-
-interface User {
-  userId: number;
-  nickname: string;
-}
-
-interface Channel {
-  channelId: string;
-  channelName: string;
-}
-
-interface UserChannel {
-  userChannelId: string;
-  user: User;
-  channel: Channel;
-}
-
-interface Chat {
-  time: string;
-  computedChatCount: number;
-}
-
-interface ChannelData {
-  userChannel: UserChannel;
-  chat: Chat;
-}
-
-interface RoomList {
-  userChannel: UserChannel;
-}
+import {
+  useGetMyChannels,
+  IMyChannels,
+  IUserWrapper,
+} from '../../../../../api/Channel';
 
 export default function MyMsgList() {
-  const [channels, setChannels] = useState<ChannelData[]>([]);
+  // 리액트 쿼리
+  const queryClient = useQueryClient();
+  const [channels, setChannels] = useState<IMyChannels[]>([]);
   const [myChannelId, setMyChannelId] = useRecoilState(channelIdState);
   const [isErrorGet, setIsErrorGet] = useRecoilState(isErrorOnGet);
-  const [imageUrl, setImageUrl] = useState<string>('');
-  const [myRooms, setMyRooms] = useState<RoomList[][]>([]);
   const navigate = useNavigate();
   const userInfo = useRecoilValue(userState);
+  const handleError = (error: AxiosError) => {
+    if (error.response) {
+      setIsErrorGet(true);
+    }
+  };
+  const { data: myChannelLists } = useGetMyChannels(handleError);
 
   useEffect(() => {
     setIsErrorGet(false);
-    const fetchData = async () => {
-      // const token: string | undefined = userInfo.token;
-      const config = {
-        headers: { Authorization: `Bearer ${userInfo.token}` },
-      };
-      try {
-        const response: AxiosResponse<any, any> = await axios.get(
-          `${process.env.REACT_APP_BASE_BACKEND_URL}/channels/my`,
-          config,
-        );
-
-        const roomListPromises: Promise<RoomList[]>[] =
-          response.data.channel.map(async (channel: ChannelData) => {
-            const roomList = await getChatRoomInfo(
-              channel.userChannel.channel.channelId,
+    if (myChannelLists) {
+      const updateMyChannelList = async () => {
+        await Promise.all(
+          myChannelLists.channel.map(async (channel: IMyChannels) => {
+            channel.owner.ownerImage = await getImageUrl(
+              channel.owner.ownerId,
               userInfo.token,
             );
-            return roomList;
-          });
-
-        const tmpList: any[] = [];
-        const fetchedRoomLists: any[] = await Promise.all(roomListPromises);
-        const rooms: any[] = fetchedRoomLists.map(item => item.userChannel);
-        rooms.forEach(list => {
-          tmpList.push(list);
-        });
-
-        setMyRooms(tmpList);
-
-        if (response.data.channel.length !== 0) {
-          const tmpUrl: string | undefined = await getImageUrl(
-            response.data.channel[0].user[0].user.userId,
-            userInfo.token,
-          );
-          setImageUrl(tmpUrl);
-        }
-        setChannels(response.data.channel);
-      } catch (error) {
-        setIsErrorGet(true);
-      }
-    };
-    fetchData();
-  }, [channels]);
+          }),
+        );
+        setChannels([...myChannelLists.channel]);
+      };
+      updateMyChannelList();
+    }
+    // queryClient.invalidateQueries('getMyChannels');
+  }, [myChannelLists]);
 
   const handleClick = (channelId: string) => {
     setMyChannelId(channelId);
     navigate(`/chat/channel/${channelId}`);
+    queryClient.invalidateQueries('getMyChannels');
   };
 
   return (
     <>
       <ErrorPopup message="요청을 처리할 수 없습니다." />
       <Outline>
-        {channels.map((room, index) => (
+        {channels.map((room: IMyChannels) => (
           <List
             key={room.userChannel.userChannelId}
             onClick={() => handleClick(room.userChannel.channel.channelId)}
@@ -114,7 +69,7 @@ export default function MyMsgList() {
                 <RoomContent>
                   <ProfileImg>
                     <img
-                      src={imageUrl}
+                      src={room.owner.ownerImage}
                       alt="profile"
                       width="100%"
                       height="100%"
@@ -125,24 +80,25 @@ export default function MyMsgList() {
                       {room.userChannel.channel.channelName}
                     </RoomTitle>
                     <RoomMemeber>
-                      {myRooms[index] &&
-                        myRooms[index].map((item: any, memberIndex: number) => {
-                          if (memberIndex < 2) {
+                      {room.user.map(
+                        (user: IUserWrapper, userIndex: number) => {
+                          if (userIndex < 2) {
                             return (
-                              <Member key={item.user.userId}>
-                                {item.user.nickname}
+                              <Member key={user.user.userId}>
+                                {user.user.nickname}
                               </Member>
                             );
                           }
-                          if (memberIndex === 2) {
+                          if (userIndex === 2) {
                             return (
-                              <Member key={item.user.userId}>
-                                외 {myRooms[index].length - 2}명
+                              <Member key={user.user.userId}>
+                                외 {room.userChannel.channel.count - 2}명
                               </Member>
                             );
                           }
                           return null;
-                        })}
+                        },
+                      )}
                     </RoomMemeber>
                   </RoomBody>
                 </RoomContent>

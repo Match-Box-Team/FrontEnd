@@ -1,12 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
 import Layout from '../../../commons/layout/Layout';
 import PingPong from './games/PingPong';
 import { useSocket } from './game-socket/GameSocketContext';
 import Popup from '../../../commons/modals/popup-modal/Popup';
-import { userState } from '../../../../recoil/locals/login/atoms/atom';
 
 const clickAnimation = keyframes`
   0% {
@@ -26,9 +24,8 @@ export default function PlayGame() {
   const [scoreB, setScoreB] = useState<number>(0);
   const [winner, setWinner] = useState<string>('');
   const navigate = useNavigate();
-  const userInfo = useRecoilValue(userState);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [modalMessage, setModalMessage] = useState<string>('');
+  const [showGame, setShowGame] = useState<boolean>(false);
   const [nickname1, setNickname1] = useState<string>('');
   const [nickname2, setNickname2] = useState<string>('');
 
@@ -40,36 +37,53 @@ export default function PlayGame() {
 
   useEffect(() => {
     if (socket) {
+      socket.emit('checkGameWatchId', { gameWatchId });
+
+      socket.once('checkGameWatchId', ({ result }: { result: boolean }) => {
+        if (!result && !showModal) {
+          navigate('/profile/my', { replace: true });
+        } else {
+          setShowGame(true);
+        }
+      });
+
       socket.once(
         'nickname',
-        (data: { nickname1: string; nickname2: string }) => {
-          setNickname1(data.nickname1);
-          setNickname2(data.nickname2);
+        (userNicknames: { nickname1: string; nickname2: string }) => {
+          setNickname1(userNicknames.nickname1);
+          setNickname2(userNicknames.nickname2);
         },
       );
 
-      socket.once('ishost', (data: any) => {
-        isHost.current = data.isHost;
-        isWatcher.current = data.isWatcher;
+      socket.once('ishost', (role: { isHost: boolean; isWatcher: boolean }) => {
+        isHost.current = role.isHost;
+        isWatcher.current = role.isWatcher;
       });
     }
 
-    socket?.on('scores', (data: any) => {
-      setScoreA(data.scores.scoreA);
-      setScoreB(data.scores.scoreB);
-    });
-
-    socket?.on('gameover', (data: any) => {
-      if (data.winner === undefined) {
+    socket?.on('scores', (scores: { scoreA: number; scoreB: number }) => {
+      if (
+        scores === undefined ||
+        scores.scoreA === undefined ||
+        scores.scoreB === undefined
+      ) {
         return;
       }
-      setWinner(data.winner);
-      setModalMessage(`승자는 ${data.winner}입니다`);
+      setScoreA(scores.scoreA);
+      setScoreB(scores.scoreB);
+    });
+
+    socket?.on('gameover', (gameWinner: { winner: string }) => {
+      if (gameWinner === undefined || gameWinner.winner === undefined) {
+        return;
+      }
+      setWinner(gameWinner.winner);
       setShowModal(true);
     });
 
     return () => {
-      socket?.off('enemyNickname');
+      socket?.off('checkGameWatchId');
+      socket?.off('nickname');
       socket?.off('ishost');
       socket?.off('scores');
       socket?.off('gameover');
@@ -100,24 +114,26 @@ export default function PlayGame() {
           <WinnerMsg>위너는 {winner}!!</WinnerMsg>
         </Popup>
       )}
-      <GameFrame>
-        <GameHeader>
-          <Player1>{nickname1}</Player1>
-          <GameInfo />
-          <Player2>{nickname2}</Player2>
-        </GameHeader>
-        <Score>
-          <Player2Score>{scoreB}</Player2Score>
-          <h1>SCORE</h1>
-          <Player1Score>{scoreA}</Player1Score>
-        </Score>
-        <GameBoard>
-          <PingPong />
-        </GameBoard>
-        <GameFooter>
-          <GGButton onClick={giveUp}>GG</GGButton>
-        </GameFooter>
-      </GameFrame>
+      {showGame && (
+        <GameFrame>
+          <GameHeader>
+            <Player1>{nickname1}</Player1>
+            <GameInfo />
+            <Player2>{nickname2}</Player2>
+          </GameHeader>
+          <Score>
+            <Player2Score>{scoreB}</Player2Score>
+            <h1>SCORE</h1>
+            <Player1Score>{scoreA}</Player1Score>
+          </Score>
+          <GameBoard>
+            <PingPong />
+          </GameBoard>
+          <GameFooter>
+            <GGButton onClick={giveUp}>GG</GGButton>
+          </GameFooter>
+        </GameFrame>
+      )}
     </Layout>
   );
 }
