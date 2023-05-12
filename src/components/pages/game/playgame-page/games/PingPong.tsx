@@ -30,6 +30,11 @@ interface IPaddleControl {
   position: number;
 }
 
+interface IMapSize {
+  width: number;
+  height: number;
+}
+
 export default function PingPong() {
   const socket = useSocket();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -134,8 +139,15 @@ export default function PingPong() {
       update();
     }
   }
+  interface KeyState {
+    [key: string]: boolean;
+  }
 
-  const keyState: any = {
+  interface IntervalIds {
+    [key: string]: number | null;
+  }
+
+  const keyState: KeyState = {
     ArrowLeft: false,
     ArrowRight: false,
     a: false,
@@ -143,7 +155,7 @@ export default function PingPong() {
     d: false,
     D: false,
   };
-  const intervalIds: any = {
+  const intervalIds: IntervalIds = {
     ArrowLeft: null,
     ArrowRight: null,
     a: null,
@@ -164,8 +176,10 @@ export default function PingPong() {
         if (isHost.current === false && isWatcher.current === false) {
           controller = 'gamecontrolA';
         }
-        clearInterval(intervalIds[key]);
-        intervalIds[key] = setInterval(() => {
+        if (intervalIds[key] !== null) {
+          clearInterval(intervalIds[key]!);
+        }
+        intervalIds[key] = window.setInterval(() => {
           socket.emit(controller, {
             direction: key === 'arrowleft' ? -1 : 1,
           });
@@ -179,7 +193,9 @@ export default function PingPong() {
     let controller = '';
     if (socket && keyState[key]) {
       keyState[key] = false; // 키가 떼진 상태로 설정합니다.
-      clearInterval(intervalIds[key]);
+      if (intervalIds[key] !== null) {
+        clearInterval(intervalIds[key]!);
+      }
       if (key === 'arrowleft' || key === 'arrowright') {
         if (isHost.current === true && isWatcher.current === false) {
           controller = 'gamecontrolB';
@@ -196,7 +212,7 @@ export default function PingPong() {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
       if (socket) {
-        socket.once('mapSize', (data: any) => {
+        socket.once('mapSize', (data: IMapSize) => {
           canvas.width = data.width;
           canvas.height = data.height;
           ball.x = canvas.width / 2;
