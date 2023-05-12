@@ -2,6 +2,34 @@ import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSocket } from '../game-socket/GameSocketContext';
 
+interface IUserState {
+  isHost: boolean;
+  isWatcher: boolean;
+}
+
+interface IPaddle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+}
+
+interface IBall {
+  x: number;
+  y: number;
+  radius: number;
+  color: string;
+}
+
+interface IBallControl {
+  ball: IBall;
+}
+
+interface IPaddleControl {
+  position: number;
+}
+
 export default function PingPong() {
   const socket = useSocket();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,7 +47,7 @@ export default function PingPong() {
       });
 
       if (socket) {
-        socket.once('ishost', (data: any) => {
+        socket.once('ishost', (data: IUserState) => {
           isHost.current = data.isHost;
           isWatcher.current = data.isWatcher;
         });
@@ -62,7 +90,7 @@ export default function PingPong() {
     ctx.closePath();
   }
 
-  function drawPaddle(ctx: CanvasRenderingContext2D, paddle: any) {
+  function drawPaddle(ctx: CanvasRenderingContext2D, paddle: IPaddle) {
     ctx.beginPath();
     ctx.rect(paddle.x, paddle.y, paddle.width, paddle.height);
     ctx.fillStyle = paddle.color;
@@ -72,7 +100,7 @@ export default function PingPong() {
 
   function update() {
     if (socket) {
-      socket.on('ballcontrol', (data: any) => {
+      socket.on('ballcontrol', (data: IBallControl) => {
         ball.x = data.ball.x;
         ball.y = data.ball.y;
         ball.color = data.ball.color;
@@ -81,12 +109,12 @@ export default function PingPong() {
     }
 
     if (socket) {
-      socket.on('controlB', (data: any) => {
+      socket.on('controlB', (data: IPaddleControl) => {
         paddleB.x = data.position;
       });
     }
     if (socket) {
-      socket.on('controlA', (data: any) => {
+      socket.on('controlA', (data: IPaddleControl) => {
         paddleA.x = data.position;
       });
     }
