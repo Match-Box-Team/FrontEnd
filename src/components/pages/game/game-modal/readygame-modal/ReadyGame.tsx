@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -36,7 +36,6 @@ interface Enemy {
 export default function ReadyGame({ onClick, gameWatch }: ReadyGameProps) {
   const navigate = useNavigate();
   const socketRef = useSocket();
-  const gameWatchId = gameWatch?.gameWatchId;
 
   const userInfo = useRecoilValue(userState);
   const [userGameInfo, setUserGameInfo] = useState<UserGameInfo | null>(null);
