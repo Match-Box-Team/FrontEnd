@@ -108,6 +108,7 @@ export default function ChatRoom() {
       socketRef.current?.off('error');
       socketRef.current?.off('chat');
       socketRef.current?.off('message');
+      socketRef.current?.off('kicked');
       socketRef.current?.close();
     };
   }, []);
@@ -119,6 +120,12 @@ export default function ChatRoom() {
         targetId,
       });
       // window.location.reload();
+    }
+  };
+
+  const handleBackClicked = () => {
+    if (socketRef.current) {
+      socketRef.current.close();
     }
   };
 
@@ -202,6 +209,7 @@ export default function ChatRoom() {
             channelBurger
             handleClickSideModal={handleClickSideModal}
             backPath="/chat/mymsg"
+            backClicked={handleBackClicked}
           />
         )
       }
