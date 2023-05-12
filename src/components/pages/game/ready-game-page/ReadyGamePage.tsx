@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useNavigate } from 'react-router-dom';
 import { useSocket } from '../playgame-page/game-socket/GameSocketContext';
@@ -44,7 +43,7 @@ export default function ReadyGamePage() {
       return;
     }
     socketRef?.emit('startReadyGame', gameWatch);
-  }, [gameWatch]);
+  });
 
   useEffect(() => {
     socketRef?.once('cancelReadyGame', () => {
